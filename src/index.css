@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-color: #f4f7fe;
+    --card-bg: #ffffff;
+    --surface-subtle: #eef2f9;
+    --text-color: #1b2e4b;
+    --text-muted: #475569;
+    --border-color: #e2e8f0;
+    --accent-color: #0d6efd;
+    --accent-hover: #0b5ed7;
+    --gold-border: #eab308;
+    --gold-bg: rgba(234, 179, 8, 0.08);
+    --success-color: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.08);
+    --danger-color: #ef4444;
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body.dark-mode {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --surface-subtle: #0f172a;
+    --text-color: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --accent-color: #3b82f6;
+    --accent-hover: #2563eb;
+    --gold-border: #facc15;
+    --gold-bg: rgba(250, 204, 21, 0.08);
+    --success-color: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.12);
+    letter-spacing: 0.01em;
+  }
+
+  body.high-contrast {
+    --bg-color: #000000;
+    --card-bg: #000000;
+    --surface-subtle: #0a0a0a;
+    --text-color: #ffff00;
+    --text-muted: #ffffff;
+    --border-color: #ffffff;
+    --accent-color: #ffff00;
+    --accent-hover: #fde047;
+    --gold-border: #ffff00;
+    --gold-bg: rgba(255, 255, 0, 0.15);
+    --success-color: #00ff66;
+    --success-bg: rgba(0, 255, 102, 0.15);
+    --danger-color: #ff4444;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-sans);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, .font-editorial {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  .font-tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .botao {
+    transition: background-color 0.15s ease, transform 0.1s ease;
+  }
+
+  .botao:active {
+    background-color: green !important;
+    color: #ffffff !important;
+  }
+}
+

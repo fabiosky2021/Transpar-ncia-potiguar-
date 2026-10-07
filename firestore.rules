@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() { return request.resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    match /candidatos/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id)
+        && incoming().nome is string && incoming().nome.size() <= 200
+        && incoming().curtidas is number && incoming().curtidas >= 0;
+    }
+
+    match /enquete/{docId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(docId)
+        && incoming().totalVotos is number
+        && incoming().votosNatalia is number
+        && incoming().votosPaulinho is number;
+    }
+
+    match /locaisVotacao/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id)
+        && incoming().local is string && incoming().local.size() <= 300
+        && incoming().secoes is string && incoming().secoes.size() <= 200;
+    }
+
+    match /avaliacoes/{id} {
+      allow get, list: if true;
+      allow create: if isValidId(id)
+        && incoming().candidatoId is string && incoming().candidatoId.size() <= 100
+        && incoming().aprovado is bool;
+    }
+
+    match /relatos/{id} {
+      allow get, list: if true;
+      allow create: if isValidId(id)
+        && incoming().mensagem is string && incoming().mensagem.size() <= 1000;
+    }
+
+    match /boletinsIA/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id)
+        && incoming().titulo is string && incoming().titulo.size() <= 300
+        && incoming().statusTransporte is string && incoming().statusTransporte.size() <= 2000;
+    }
+
+    match /propostasTSE/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id)
+        && incoming().titulo is string && incoming().titulo.size() <= 300
+        && incoming().likes is number && incoming().likes >= 0;
+    }
+
+    match /feedbacksComunidade/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id)
+        && incoming().necessidade is string && incoming().necessidade.size() <= 1000
+        && incoming().apoios is number && incoming().apoios >= 0;
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "entities": {
+    "Candidato": {
+      "title": "Candidato",
+      "description": "Dados do candidato monitorado no RN",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string" },
+        "cargo": { "type": "string" },
+        "partido": { "type": "string" },
+        "curtidas": { "type": "number" },
+        "aprovacoes": { "type": "number" },
+        "reprovacoes": { "type": "number" },
+        "linkAfiliado": { "type": "string" },
+        "resumoMonitoramento": { "type": "string" }
+      },
+      "required": ["id", "nome", "cargo", "curtidas"]
+    },
+    "Enquete": {
+      "title": "Enquete",
+      "description": "Resultado da enquete e simulado",
+      "type": "object",
+      "properties": {
+        "totalVotos": { "type": "number" },
+        "votosNatalia": { "type": "number" },
+        "votosPaulinho": { "type": "number" }
+      },
+      "required": ["totalVotos", "votosNatalia", "votosPaulinho"]
+    },
+    "LocalVotacao": {
+      "title": "LocalVotacao",
+      "description": "Dados de seções eleitorais e locais de votação",
+      "type": "object",
+      "properties": {
+        "local": { "type": "string" },
+        "secoes": { "type": "string" },
+        "endereco": { "type": "string" },
+        "bairro": { "type": "string" }
+      },
+      "required": ["local", "secoes"]
+    },
+    "AvaliacaoCandidato": {
+      "title": "AvaliacaoCandidato",
+      "description": "Avaliação de benefício (o que fez de bom ou não fez) e aprovação de candidato",
+      "type": "object",
+      "properties": {
+        "candidatoId": { "type": "string" },
+        "candidatoNome": { "type": "string" },
+        "aprovado": { "type": "boolean" },
+        "fezDeBom": { "type": "string" },
+        "naoFez": { "type": "string" },
+        "autor": { "type": "string" },
+        "horario": { "type": "string" }
+      },
+      "required": ["candidatoId", "aprovado"]
+    },
+    "RelatoCidadao": {
+      "title": "RelatoCidadao",
+      "description": "Publicação do usuário no mural cidadão sobre mobilidade e eleições",
+      "type": "object",
+      "properties": {
+        "autor": { "type": "string" },
+        "bairro": { "type": "string" },
+        "horario": { "type": "string" },
+        "mensagem": { "type": "string" },
+        "statusModeracao": { "type": "string" }
+      },
+      "required": ["autor", "mensagem"]
+    },
+    "BoletimIA": {
+      "title": "BoletimIA",
+      "description": "Atualização diária em tempo real gerada pelo PotiguarBot IA sobre candidatos e transportes",
+      "type": "object",
+      "properties": {
+        "dataReferencia": { "type": "string" },
+        "titulo": { "type": "string" },
+        "statusTransporte": { "type": "string" },
+        "resumoCandidatos": { "type": "string" },
+        "fontesVerificadas": { "type": "string" }
+      },
+      "required": ["titulo", "statusTransporte", "resumoCandidatos"]
+    },
+    "PropostaTSE": {
+      "title": "PropostaTSE",
+      "description": "Proposta individual do plano de governo no DivulgaCandContas TSE com contagem de likes e viabilidade orçamentária",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "candidatoId": { "type": "string" },
+        "candidatoNome": { "type": "string" },
+        "partido": { "type": "string" },
+        "coligacao": { "type": "string" },
+        "eixo": { "type": "string" },
+        "titulo": { "type": "string" },
+        "descricao": { "type": "string" },
+        "viabilidadeOrcamentaria": { "type": "string" },
+        "execucaoTransicao": { "type": "string" },
+        "likes": { "type": "number" }
+      },
+      "required": ["id", "candidatoId", "eixo", "titulo", "likes"]
+    },
+    "FeedbackComunidade": {
+      "title": "FeedbackComunidade",
+      "description": "Relato de necessidade da comunidade enviado pelos eleitores para transparência cívica",
+      "type": "object",
+      "properties": {
+        "autor": { "type": "string" },
+        "bairro": { "type": "string" },
+        "eixo": { "type": "string" },
+        "necessidade": { "type": "string" },
+        "apoios": { "type": "number" },
+        "horario": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["autor", "bairro", "eixo", "necessidade", "apoios"]
+    }
+  },
+  "firestore": {
+    "candidatos/{id}": {
+      "schema": "Candidato",
+      "description": "Coleção de candidatos"
+    },
+    "enquete/resultado": {
+      "schema": "Enquete",
+      "description": "Documento de resultados da enquete"
+    },
+    "locaisVotacao/{id}": {
+      "schema": "LocalVotacao",
+      "description": "Coleção de locais de votação e suas seções"
+    },
+    "avaliacoes/{id}": {
+      "schema": "AvaliacaoCandidato",
+      "description": "Coleção de avaliações de candidatos"
+    },
+    "relatos/{id}": {
+      "schema": "RelatoCidadao",
+      "description": "Coleção de publicações e relatos cidadãos"
+    },
+    "boletinsIA/{id}": {
+      "schema": "BoletimIA",
+      "description": "Coleção de boletins diários em tempo real do agente IA"
+    },
+    "propostasTSE/{id}": {
+      "schema": "PropostaTSE",
+      "description": "Coleção de propostas dos planos de governo do 2º turno (DivulgaCandContas TSE)"
+    },
+    "feedbacksComunidade/{id}": {
+      "schema": "FeedbackComunidade",
+      "description": "Canal de feedback para os eleitores relatarem necessidades da comunidade"
+    }
+  }
+}

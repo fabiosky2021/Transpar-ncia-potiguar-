@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transparência Potiguar - Eleições RN</title>
+    <meta name="description" content="Plataforma cívica de monitoramento eleitoral, utilidade pública sobre Passe Livre em Natal e transparência democrática no Rio Grande do Norte com PotiguarBot IA e moderação LGPD." />
+    <meta property="og:title" content="Transparência Potiguar - Eleições RN" />
+    <meta property="og:description" content="Plataforma cívica de monitoramento eleitoral, utilidade pública sobre Passe Livre em Natal e transparência democrática no Rio Grande do Norte com PotiguarBot IA e moderação LGPD." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="TranspRN" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    <script>
+      window.addEventListener('error', function (e) {
+        if (e && e.message && e.message.indexOf('WebSocket closed without opened') !== -1) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function (e) {
+        if (e && e.reason && String(e.reason.message || e.reason).indexOf('WebSocket closed without opened') !== -1) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      }, true);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

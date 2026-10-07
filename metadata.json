@@ -1,0 +1,6 @@
+{
+  "name": "Transparência Potiguar - Eleições RN",
+  "description": "Plataforma cívica de monitoramento eleitoral, utilidade pública sobre Passe Livre em Natal e transparência democrática no Rio Grande do Norte com PotiguarBot IA e moderação LGPD.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

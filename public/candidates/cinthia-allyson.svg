@@ -1,0 +1,15 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400' width='300' height='400'>
+    <defs>
+      <linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'>
+        <stop offset='0%' stop-color='#0369a1' />
+        <stop offset='100%' stop-color='#0c4a6e' />
+      </linearGradient>
+    </defs>
+    <rect width='300' height='400' fill='url(#g)' rx='16' />
+    <circle cx='150' cy='135' r='56' fill='rgba(255,255,255,0.14)' stroke='#7dd3fc' stroke-width='3' />
+    <path d='M70 285 C70 225, 230 225, 230 285 Z' fill='rgba(255,255,255,0.12)' />
+    <text x='150' y='152' text-anchor='middle' fill='#ffffff' font-family='Inter, sans-serif' font-size='42' font-weight='800'>CA</text>
+    <rect x='20' y='305' width='260' height='72' rx='10' fill='rgba(15,23,42,0.72)' stroke='rgba(255,255,255,0.2)' />
+    <text x='150' y='336' text-anchor='middle' fill='#ffffff' font-family='Inter, sans-serif' font-size='18' font-weight='700'>Cinthia de Allyson</text>
+    <text x='150' y='360' text-anchor='middle' fill='#7dd3fc' font-family='Inter, sans-serif' font-size='13' font-weight='600'>Deputada Estadual · Líder</text>
+  </svg>
