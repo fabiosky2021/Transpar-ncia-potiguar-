@@ -134,8 +134,29 @@ async function startServer() {
       const propostasString = JSON.stringify(propostasDb.slice(0, 10));
       const feedbacksString = JSON.stringify(feedbacksDb.slice(0, 10));
 
-      const systemInstruction = `Você é o PotiguarBot IA, operando como um ESTÚDIO DE CRIAÇÃO MULTIMODAL e AGENTE DE MONITORAMENTO ELEITORAL 24H da plataforma Transparência Potiguar - Panorama Político do Rio Grande do Norte (Eleições 2026 & 2º Turno).
-Responda sempre com civilidade, respeitando a democracia e a LGPD.
+      const systemInstruction = `Você é o PotiguarBot IA, operando como um ESTÚDIO DE CRIAÇÃO MULTIMODAL, RADAR DE TRANSPARÊNCIA e AGENTE DE MONITORAMENTO ELEITORAL 24H da plataforma Transparência Potiguar - Panorama Político do Rio Grande do Norte (Eleições 2026 & 2º Turno).
+Responda sempre com civilidade, neutralidade apartidária, respeitando a democracia e a LGPD.
+
+DIRETRIZES OBRIGATÓRIAS DE RASTREABILIDADE, CLASSIFICAÇÃO E NEUTRALIDADE (RADAR DE TRANSPARÊNCIA):
+1. Sempre que responder uma pergunta, identifique claramente ao final ou nos blocos da resposta:
+   - Fonte
+   - Data
+   - Tipo de informação (Informação oficial | Informação verificada | Acompanhamento | Requer verificação | Relato cidadão | Opinião da comunidade | Análise da IA | Atualização pendente)
+   - Status
+   Exemplos obrigatórios de formatação:
+   «Fonte: TSE / DivulgaCandContas
+   Data: 06/10/2026
+   Tipo: Informação oficial
+   Status: Registro confirmado»
+   Ou:
+   «Fonte: Relato cidadão
+   Tipo: Relato não verificado»
+   Ou:
+   «Fonte: PotiguarBot
+   Tipo: Análise da IA»
+2. Nunca apresente uma hipótese como fato e nunca transforme automaticamente um relato cidadão ou opinião da comunidade em acusação.
+3. Não utilize automaticamente termos acusatórios como "corrupto", "criminoso", "fraude", "ilegal" ou "desvio" sem comprovação por fonte oficial ou decisão competente. Permaneça 100% neutro e apartidário.
+4. Escreva com frases fluidas, claras e com pontuação natural, pois suas respostas serão lidas pela voz TTS masculina natural em português do Brasil do PotiguarBot.
 
 PANORAMA POLÍTICO DO RIO GRANDE DO NORTE - ELEIÇÕES 2026 & SEGUNDO TURNO:
 1. SEGUNDO TURNO GOVERNO DO RN:
@@ -529,6 +550,145 @@ Retorne estritamente um objeto JSON com:
     } catch (error: any) {
       console.error('Erro em /api/fact-check-tse:', error);
       res.status(500).json({ error: 'Erro ao consultar verificador TSE em tempo real.' });
+    }
+  });
+
+  // Helper para garantir cabeçalho WAV RIFF (24kHz, 16-bit, mono) caso o modelo retorne PCM L16 puro
+  function ensureWavBuffer(audioBuffer: Buffer, sampleRate = 24000): Buffer {
+    if (
+      audioBuffer.length >= 4 &&
+      audioBuffer.toString('ascii', 0, 4) === 'RIFF'
+    ) {
+      return audioBuffer;
+    }
+    const numChannels = 1;
+    const bitsPerSample = 16;
+    const byteRate = (sampleRate * numChannels * bitsPerSample) / 8;
+    const blockAlign = (numChannels * bitsPerSample) / 8;
+    const dataSize = audioBuffer.length;
+    const header = Buffer.alloc(44);
+
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + dataSize, 4);
+    header.write('WAVE', 8);
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16); // PCM chunk size
+    header.writeUInt16LE(1, 20); // AudioFormat 1 = PCM
+    header.writeUInt16LE(numChannels, 22);
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(byteRate, 28);
+    header.writeUInt16LE(blockAlign, 32);
+    header.writeUInt16LE(bitsPerSample, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(dataSize, 40);
+
+    return Buffer.concat([header, audioBuffer]);
+  }
+
+  // Endpoint 6: PotiguarBot TTS — Voz Masculina Natural em Português do Brasil (Gemini TTS)
+  app.post('/api/potiguar-tts', async (req, res) => {
+    try {
+      const { text, voiceConfig } = req.body;
+      if (!text || typeof text !== 'string' || !text.trim()) {
+        res.status(400).json({ error: 'Texto obrigatório para síntese de voz.' });
+        return;
+      }
+
+      const trimmedText = text.trim().slice(0, 2200);
+      const selectedVoiceName =
+        voiceConfig?.voiceName === 'Fenrir' || voiceConfig?.voiceName === 'Puck'
+          ? voiceConfig.voiceName
+          : 'Charon';
+
+      const styleInstruction =
+        voiceConfig?.stylePrompt ||
+        'Locutor masculino brasileiro em português do Brasil (pt-BR), voz natural, conversacional, clara, calma, segura, com pausas naturais e sem aparência robótica, adequada para informação pública.';
+
+      let response: any;
+      try {
+        response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash-lite-tts',
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: trimmedText,
+                  speechMetadata: {
+                    style: styleInstruction,
+                  },
+                } as any,
+              ],
+            },
+          ],
+          config: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: selectedVoiceName,
+                },
+              },
+            },
+          },
+        });
+      } catch {
+        // Fallback sem speechMetadata caso o endpoint exija apenas text part
+        response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash-lite-tts',
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: `Leia em português do Brasil com voz masculina natural, calma, clara e conversacional: ${trimmedText}`,
+                },
+              ],
+            },
+          ],
+          config: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: selectedVoiceName,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      const inlineData = response?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+      const rawBase64 = inlineData?.data;
+
+      if (!rawBase64) {
+        res.status(502).json({
+          error: 'O serviço TTS não retornou dados de áudio para esta mensagem.',
+        });
+        return;
+      }
+
+      const rawBuffer = Buffer.from(rawBase64, 'base64');
+      const wavBuffer = ensureWavBuffer(rawBuffer, 24000);
+
+      res.json({
+        audioBase64: wavBuffer.toString('base64'),
+        mimeType: 'audio/wav',
+        voiceConfig: {
+          language: 'pt-BR',
+          gender: 'male',
+          voiceName: selectedVoiceName,
+          speed: 1.0,
+          style: 'conversational',
+        },
+      });
+    } catch (error: any) {
+      console.error('Erro em /api/potiguar-tts:', error);
+      res.status(500).json({
+        error:
+          'Serviço de voz natural temporariamente indisponível. Tente novamente em instantes.',
+      });
     }
   });
 

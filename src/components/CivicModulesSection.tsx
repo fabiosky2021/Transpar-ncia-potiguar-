@@ -159,7 +159,7 @@ export function resolverLocalPorNumeroSecao(inputBruto: string): ResultadoConsul
   const documentoObrigatorio =
     'Documento oficial com foto (RG, CNH, Passaporte, Carteira de Trabalho ou e-Título com foto)';
 
-  const mensagemBotFormatada = `📍 **Consulta de Seção Eleitoral nº ${secaoFormatada} (PotiguarBot IA)**\n• **Colégio Eleitoral:** ${itemEncontrado.local} (${itemEncontrado.zonaEleitoral})\n• **Endereço:** ${itemEncontrado.endereco} (${itemEncontrado.bairro})\n• **Horário Sugerido pelo Bot:** ${itemEncontrado.horarioSugerido}\n• **Data Oficial:** ${itemEncontrado.dataVotacao}\n• **Ônibus Gratuitos (Passe Livre):** ${itemEncontrado.linhasOnibus}\n• **Documento Obrigatório:** ${documentoObrigatorio}`;
+  const mensagemBotFormatada = `📍 **Consulta de Seção Eleitoral nº ${secaoFormatada} (PotiguarBot IA)**\n• **Colégio Eleitoral:** ${itemEncontrado.local} (${itemEncontrado.zonaEleitoral})\n• **Endereço:** ${itemEncontrado.endereco} (${itemEncontrado.bairro})\n• **Horário Sugerido pelo Bot:** ${itemEncontrado.horarioSugerido}\n• **Data Oficial:** ${itemEncontrado.dataVotacao}\n• **Ônibus Gratuitos (Passe Livre):** ${itemEncontrado.linhasOnibus}\n• **Documento Obrigatório:** ${documentoObrigatorio}\n\n«Fonte: TRE-RN / TSE\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Local de votação e Passe Livre confirmados»`;
 
   return {
     numeroSecao: secaoFormatada,

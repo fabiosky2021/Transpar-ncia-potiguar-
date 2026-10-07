@@ -36,6 +36,7 @@ import { SegundoTurnoMonitor24h } from './components/SegundoTurnoMonitor24h';
 import { PrimeirasNoticiasSlides24h } from './components/PrimeirasNoticiasSlides24h';
 import { PanoramaPoliticoRN2026Section } from './components/PanoramaPoliticoRN2026Section';
 import { RankingPropostasBairroSection } from './components/RankingPropostasBairroSection';
+import { RadarTransparenciaSection } from './components/RadarTransparenciaSection';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
@@ -257,11 +258,11 @@ export default function App() {
     {
       id: 'welcome-1',
       sender: 'bot',
-      text: 'Olá, eleitor potiguar! Sou o PotiguarBot IA no modo Estúdio de Criação Multimodal e Plantão 24h (Panorama Político RN 2026).\n\n📌 Disputa pelo Governo do RN (2º Turno):\n• Allyson Bezerra (UNIÃO · 44): 37% — 3ª Ponte sobre o Rio Potengi e Hospitais Regionais\n• Carlos Eduardo Xavier / Cadu de Lula (PT · 13): 32% — Educação em Tempo Integral, BR-304 e SUS com Diagnósticos Online (Alinhado a Mãe Luíza)\n• Álvaro Dias (PL · 22): 29% — Choque de eficiência e não aumento de impostos\n\n📌 Destaques Absolutos: Carlos Eduardo Alves e Rogério Marinho (555) no Senado; Nina, Dr. Bernardo, Natália Bonavides e Benes Leocádio (Deputado Federal); Cinthia de Allyson, Neilton Diógenes, Ezequiel Ferreira e Daniel Valença (Deputado Estadual).',
+      text: 'Olá, eleitor potiguar! Sou o PotiguarBot IA com voz masculina natural em português do Brasil, conectado ao Radar de Transparência e ao Plantão 24h (Eleições RN 2026).\n\n📌 Disputa pelo Governo do RN (2º Turno):\n• Allyson Bezerra (UNIÃO · 44): 37% — 3ª Ponte sobre o Rio Potengi e Hospitais Regionais\n• Carlos Eduardo Xavier / Cadu de Lula (PT · 13): 32% — Educação em Tempo Integral, BR-304 e SUS com Diagnósticos Online (Alinhado a Mãe Luíza)\n• Álvaro Dias (PL · 22): 29% — Choque de eficiência e não aumento de impostos\n\n«Fonte: TSE / DivulgaCandContas\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Candidaturas e planos registrados»',
       timestamp: 'Agora',
       suggestedActions: [
+        'Resumo do Radar de Transparência (Fontes Oficiais TSE x Relatos)',
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-        'Quais candidatos estão alinhados com a comunidade de Mãe Luíza?',
         'Onde está meu local de votação e qual documento levar?',
       ],
     },
@@ -754,10 +755,10 @@ export default function App() {
               Ranking por Bairro
             </a>
             <a
-              href="#segundo-turno"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
+              href="#radar-transparencia"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-[var(--accent-color)]"
             >
-              Simulado 2º Turno
+              Radar de Transparência
             </a>
             <a
               href="#potiguar-bot"
@@ -1373,6 +1374,20 @@ export default function App() {
             }
           }}
           onAskAgentAnalysis={(prompt) => {
+            setIsFloatingChatOpen(true);
+            enviarPerguntaBot(prompt);
+          }}
+        />
+
+        {/* Section 2.8: Radar de Transparência Cívica e Eleitoral (Consolidação TSE, Propostas, Relatos Cidadãos, Avaliações e Análises IA) */}
+        <RadarTransparenciaSection
+          candidatos={platformData.candidatos}
+          avaliacoes={avaliacoes}
+          relatos={relatos}
+          feedbacks={feedbacksComunidade}
+          propostas={propostasTSE}
+          boletins={boletinsIA}
+          onAskPotiguarBot={(prompt) => {
             setIsFloatingChatOpen(true);
             enviarPerguntaBot(prompt);
           }}
