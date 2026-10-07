@@ -32,6 +32,7 @@ import {
   PROPOSTAS_PRESIDENCIA_ANALISE,
 } from '../data/segundoTurnoData';
 import {
+  voiceConfig,
   speakWithPotiguarTTS,
   pauseTTSPlayback,
   stopTTSPlayback,
@@ -164,6 +165,8 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
     status: 'idle',
     errorMessage: null,
     usingFallback: false,
+    speed: voiceConfig.speed,
+    volume: voiceConfig.volume,
     playedMessageIds: [],
   });
 

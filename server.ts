@@ -595,14 +595,16 @@ Retorne estritamente um objeto JSON com:
       }
 
       const trimmedText = text.trim().slice(0, 2200);
+      const allowedMaleVoices = new Set(['Charon', 'Achird', 'Algieba', 'Iapetus', 'Puck']);
+      const requestedVoice = voiceConfig?.voiceName;
       const selectedVoiceName =
-        voiceConfig?.voiceName === 'Fenrir' || voiceConfig?.voiceName === 'Puck'
-          ? voiceConfig.voiceName
+        typeof requestedVoice === 'string' && allowedMaleVoices.has(requestedVoice)
+          ? requestedVoice
           : 'Charon';
 
       const styleInstruction =
         voiceConfig?.stylePrompt ||
-        'Locutor masculino brasileiro em português do Brasil (pt-BR), voz natural, conversacional, clara, calma, segura, com pausas naturais e sem aparência robótica, adequada para informação pública.';
+        'Voz masculina em português do Brasil (pt-BR), natural, clara, conversacional, calma e amigável, com boa pronúncia em português brasileiro, pausas naturais e entonação humana adequada para um aplicativo público de transparência cidadã. Narrar exclusivamente o texto fornecido sem resumir, modificar ou inventar informações.';
 
       let response: any;
       try {
@@ -633,7 +635,7 @@ Retorne estritamente um objeto JSON com:
           },
         });
       } catch {
-        // Fallback sem speechMetadata caso o endpoint exija apenas text part
+        // Fallback literal sem speechMetadata: narra exclusivamente o texto original do PotiguarBot
         response = await ai.models.generateContent({
           model: 'gemini-3.8-flash-lite-tts',
           contents: [
@@ -641,7 +643,7 @@ Retorne estritamente um objeto JSON com:
               role: 'user',
               parts: [
                 {
-                  text: `Leia em português do Brasil com voz masculina natural, calma, clara e conversacional: ${trimmedText}`,
+                  text: trimmedText,
                 },
               ],
             },
@@ -676,11 +678,18 @@ Retorne estritamente um objeto JSON com:
         audioBase64: wavBuffer.toString('base64'),
         mimeType: 'audio/wav',
         voiceConfig: {
+          idioma: 'pt-BR',
           language: 'pt-BR',
+          voz: 'masculina',
           gender: 'male',
           voiceName: selectedVoiceName,
-          speed: 1.0,
+          velocidade: voiceConfig?.speed || 1.0,
+          speed: voiceConfig?.speed || 1.0,
+          tom: 'calmo, seguro e respeitoso',
+          estilo: 'conversacional',
           style: 'conversational',
+          volume: voiceConfig?.volume ?? 1.0,
+          autoPlay: false,
         },
       });
     } catch (error: any) {

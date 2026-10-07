@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Volume2,
   Pause,
+  Play,
   Square,
   RotateCcw,
   X,
@@ -16,6 +17,8 @@ import {
   BookOpen,
   Maximize2,
   Bot,
+  Gauge,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   RelatoCidadao,
@@ -24,9 +27,16 @@ import {
 } from '../data/platformData';
 import {
   voiceConfig,
+  AVAILABLE_GEMINI_MALE_VOICES,
+  GeminiMaleVoiceName,
+  AVAILABLE_SPEECH_SPEEDS,
+  SpeechSpeedOption,
   speakWithPotiguarTTS,
   pauseTTSPlayback,
+  resumeTTSPlayback,
   stopTTSPlayback,
+  setTTSSpeed,
+  setTTSVoiceName,
   subscribeTTSState,
   speakWithExplicitBrowserFallback,
   TTSStateSnapshot,
@@ -40,6 +50,29 @@ export interface StudioChatMessage {
   moderated?: boolean;
   imagePreview?: string;
   suggestedActions?: string[];
+}
+
+/**
+ * Separa visualmente os 4 elementos da resposta do PotiguarBot sem alterar o texto original:
+ * 1. Texto produzido pelo PotiguarBot
+ * 2. Fonte das informações (bloco «Fonte: ...» quando presente)
+ * 3. Identificação de Análise da IA
+ * 4. Reprodução em áudio (renderizada em barra própria)
+ */
+function parseStructuredBotMessage(rawText: string): {
+  mainBody: string;
+  sourceBlock: string | null;
+} {
+  const match = rawText.match(/«([\s\S]*?)»/);
+  if (!match) {
+    return { mainBody: rawText, sourceBlock: null };
+  }
+  const sourceBlock = match[1].trim();
+  const mainBody = rawText.replace(match[0], '').trim();
+  return {
+    mainBody: mainBody || rawText,
+    sourceBlock,
+  };
 }
 
 interface MultimodalStudioChatProps {
@@ -105,6 +138,12 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
     status: 'idle',
     errorMessage: null,
     usingFallback: false,
+    voiceName: voiceConfig.voiceName,
+    languageCode: voiceConfig.languageCode,
+    speakingRate: voiceConfig.speakingRate,
+    speed: voiceConfig.speed,
+    pitch: voiceConfig.pitch,
+    volume: voiceConfig.volume,
     playedMessageIds: [],
   });
 
@@ -179,14 +218,14 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   };
 
   /**
-   * Renderiza os controles de voz natural TTS (Parte 4):
-   * - 🔊 Ouvir / 🔊 Ouvir novamente
-   * - ⏳ Gerando áudio...
-   * - ⏸️ Pausar / ▶️ Continuar
+   * Controles dedicados de Reprodução em Áudio (Item 4 da separação estrutural):
+   * - 🔊 Ouvir (transforma a resposta textual atual em áudio; texto original permanece visível)
+   * - ⏸️ Pausar
+   * - ▶️ Continuar
    * - ⏹️ Parar
-   * - Tratamento claro de erro com opção explícita e isolada caso o servidor TTS falhe
+   * - Controle de velocidade da fala (0.85x, 0.95x, 1.0x, 1.15x, 1.25x)
    */
-  const renderNaturalTTSControls = (messageId: string, textToRead: string) => {
+  const renderNaturalTTSControls = (messageId: string, textToRead: string, compact = false) => {
     const isActive = ttsState.activeMessageId === messageId;
     const isLoading = isActive && ttsState.status === 'loading';
     const isPlaying = isActive && ttsState.status === 'playing';
@@ -196,61 +235,103 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
 
     return (
       <div className="flex flex-wrap items-center gap-1.5">
-        {isLoading ? (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] border border-[var(--accent-color)] text-[11px] font-semibold text-[var(--accent-color)]">
+        {/* Botão 🔊 Ouvir */}
+        <button
+          type="button"
+          onClick={() => speakWithPotiguarTTS(messageId, textToRead)}
+          disabled={isLoading || isPlaying}
+          title="Transformar resposta textual em áudio natural masculino (pt-BR)"
+          className={`botao px-2.5 py-1 rounded-md border text-[11px] font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors ${
+            isPlaying
+              ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+              : 'border-[var(--border-color)] bg-[var(--card-bg)] hover:border-[var(--accent-color)] text-[var(--accent-color)]'
+          } disabled:opacity-60`}
+        >
+          {isLoading ? (
             <span className="animate-pulse">⏳ Gerando áudio...</span>
-            <button
-              type="button"
-              onClick={() => stopTTSPlayback()}
-              className="ml-1 text-rose-500 hover:underline cursor-pointer"
-              title="Cancelar geração de áudio"
-            >
-              Cancelar
-            </button>
-          </div>
-        ) : isPlaying || isPaused ? (
-          <div className="inline-flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() =>
-                isPlaying
-                  ? pauseTTSPlayback()
-                  : speakWithPotiguarTTS(messageId, textToRead)
-              }
-              className="botao px-2.5 py-1 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-semibold inline-flex items-center gap-1 cursor-pointer"
-            >
-              <Pause className="w-3 h-3" />
-              <span>{isPlaying ? '⏸️ Pausar' : '▶️ Continuar'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => stopTTSPlayback()}
-              className="botao px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-semibold inline-flex items-center gap-1 cursor-pointer"
-            >
-              <Square className="w-3 h-3" />
-              <span>⏹️ Parar</span>
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => speakWithPotiguarTTS(messageId, textToRead)}
-            title="Ouvir resposta com voz masculina natural em português do Brasil (PotiguarBot TTS)"
-            className="botao px-2.5 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] hover:border-[var(--accent-color)] text-[11px] font-semibold text-[var(--accent-color)] inline-flex items-center gap-1 cursor-pointer"
+          ) : wasPlayed && !isPlaying && !isPaused ? (
+            <>
+              <RotateCcw className="w-3 h-3" />
+              <span>🔊 Ouvir</span>
+            </>
+          ) : (
+            <>
+              <Volume2 className="w-3 h-3" />
+              <span>🔊 Ouvir</span>
+            </>
+          )}
+        </button>
+
+        {/* Botão ⏸️ Pausar */}
+        <button
+          type="button"
+          onClick={() => pauseTTSPlayback()}
+          disabled={!isPlaying}
+          title="Pausar reprodução da voz"
+          className="botao px-2 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] disabled:opacity-40 text-[11px] font-semibold text-amber-600 dark:text-amber-400 hover:border-amber-500 inline-flex items-center gap-1 cursor-pointer"
+        >
+          <Pause className="w-3 h-3" />
+          <span>⏸️ Pausar</span>
+        </button>
+
+        {/* Botão ▶️ Continuar */}
+        <button
+          type="button"
+          onClick={() => resumeTTSPlayback()}
+          disabled={!isPaused}
+          title="Continuar reprodução da voz do ponto em que parou"
+          className="botao px-2 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] disabled:opacity-40 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:border-emerald-500 inline-flex items-center gap-1 cursor-pointer"
+        >
+          <Play className="w-3 h-3" />
+          <span>▶️ Continuar</span>
+        </button>
+
+        {/* Botão ⏹️ Parar */}
+        <button
+          type="button"
+          onClick={() => stopTTSPlayback()}
+          disabled={!isPlaying && !isPaused && !isLoading}
+          title="Parar imediatamente a reprodução do áudio"
+          className="botao px-2 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] disabled:opacity-40 text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:border-rose-500 inline-flex items-center gap-1 cursor-pointer"
+        >
+          <Square className="w-3 h-3" />
+          <span>⏹️ Parar</span>
+        </button>
+
+        {/* Seletor Centralizado de Voz Masculina Gemini TTS (Charon padrão + Achird, Algieba, Iapetus, Puck para teste) */}
+        <label className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[10px] font-semibold text-[var(--text-muted)]">
+          {!compact && <span>Voz Gemini:</span>}
+          <select
+            aria-label="Selecionar voz masculina Gemini TTS"
+            value={ttsState.voiceName}
+            onChange={(e) => setTTSVoiceName(e.target.value as GeminiMaleVoiceName)}
+            className="bg-transparent text-[var(--text-color)] font-mono font-bold focus:outline-none cursor-pointer"
           >
-            {wasPlayed ? (
-              <>
-                <RotateCcw className="w-3 h-3" />
-                <span>🔊 Ouvir novamente</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-3 h-3" />
-                <span>🔊 Ouvir</span>
-              </>
-            )}
-          </button>
-        )}
+            {AVAILABLE_GEMINI_MALE_VOICES.map((v) => (
+              <option key={v.id} value={v.id} className="bg-[var(--card-bg)] text-[var(--text-color)]">
+                { compact ? v.id : v.label }
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Controle de velocidade da fala */}
+        <label className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[10px] font-semibold text-[var(--text-muted)]">
+          <Gauge className="w-3 h-3 text-[var(--accent-color)]" />
+          {!compact && <span>Velocidade:</span>}
+          <select
+            aria-label="Controle de velocidade da fala"
+            value={ttsState.speed}
+            onChange={(e) => setTTSSpeed(Number(e.target.value) as SpeechSpeedOption)}
+            className="bg-transparent text-[var(--text-color)] font-mono font-bold focus:outline-none cursor-pointer"
+          >
+            {AVAILABLE_SPEECH_SPEEDS.map((spd) => (
+              <option key={spd} value={spd} className="bg-[var(--card-bg)] text-[var(--text-color)]">
+                {spd}x {spd === 1.0 ? '(Natural)' : ''}
+              </option>
+            ))}
+          </select>
+        </label>
 
         {isError && ttsState.errorMessage && (
           <div className="w-full mt-1 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-[11px] text-red-500 flex flex-wrap items-center justify-between gap-2">
@@ -268,7 +349,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
                 onClick={() => speakWithExplicitBrowserFallback(messageId, textToRead)}
                 className="underline text-[var(--text-muted)] hover:text-[var(--text-color)] cursor-pointer"
               >
-                Usar leitura local de contingência
+                Alternativa Web Speech API
               </button>
             </div>
           </div>
@@ -319,60 +400,103 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   ];
 
   const renderChatMessagesList = (compact = false) => (
-    <div className={`space-y-3.5 overflow-y-auto ${compact ? 'p-4 max-h-[300px]' : 'p-6 max-h-[420px]'}`}>
-      {chatMessages.map((msg) => (
-        <div
-          key={msg.id}
-          className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--text-muted)] mb-1.5 px-1 w-full max-w-[92%]">
-            <span>
-              {msg.sender === 'user'
-                ? `Você · ${msg.timestamp}`
-                : `${agentName} (Voz Natural Masculina pt-BR) · ${msg.timestamp}`}
-            </span>
-            {msg.sender === 'bot' && renderNaturalTTSControls(msg.id, msg.text)}
-          </div>
+    <div className={`space-y-4 overflow-y-auto ${compact ? 'p-4 max-h-[320px]' : 'p-6 max-h-[450px]'}`}>
+      {chatMessages.map((msg) => {
+        const parsed = msg.sender === 'bot' ? parseStructuredBotMessage(msg.text) : null;
 
+        return (
           <div
-            className={`max-w-[92%] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed whitespace-pre-line space-y-2 ${
-              msg.sender === 'user'
-                ? 'bg-[var(--accent-color)] text-white'
-                : msg.moderated
-                ? 'bg-red-500/10 border border-red-500/40 text-[var(--text-color)]'
-                : 'bg-[var(--surface-subtle)] border border-[var(--border-color)] text-[var(--text-color)]'
-            }`}
+            key={msg.id}
+            className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
           >
-            {msg.imagePreview && (
-              <div className="rounded-lg overflow-hidden border border-white/20 max-w-[210px]">
-                <img
-                  src={msg.imagePreview}
-                  alt="Imagem enviada para análise visual"
-                  className="w-full h-auto object-cover"
-                />
+            {/* Cabeçalho de Identificação (3. Análise da IA / Autor + Horário) */}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--text-muted)] mb-1.5 px-1 w-full max-w-[95%]">
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-[var(--text-color)]">
+                  {msg.sender === 'user' ? 'Você' : `${agentName}`}
+                </span>
+                <span aria-hidden="true">·</span>
+                <span>{msg.timestamp}</span>
+                {msg.sender === 'bot' && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span className="text-cyan-700 dark:text-cyan-300 font-semibold">
+                      Síntese & Análise da IA
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* 1. Texto produzido pelo PotiguarBot (sempre visível na tela) + 2. Fonte das informações separada */}
+            <div
+              className={`max-w-[95%] rounded-xl px-4 py-3 text-xs sm:text-sm leading-relaxed whitespace-pre-line space-y-3 ${
+                msg.sender === 'user'
+                  ? 'bg-[var(--accent-color)] text-white'
+                  : msg.moderated
+                  ? 'bg-red-500/10 border border-red-500/40 text-[var(--text-color)]'
+                  : 'bg-[var(--surface-subtle)] border border-[var(--border-color)] text-[var(--text-color)]'
+              }`}
+            >
+              {msg.imagePreview && (
+                <div className="rounded-lg overflow-hidden border border-white/20 max-w-[210px]">
+                  <img
+                    src={msg.imagePreview}
+                    alt="Imagem enviada para análise visual"
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              )}
+
+              {/* 1. Texto produzido pelo PotiguarBot */}
+              <div>{parsed ? parsed.mainBody : msg.text}</div>
+
+              {/* 2. Fonte das informações (separada estruturalmente quando presente) */}
+              {parsed?.sourceBlock && (
+                <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] text-[11px] text-[var(--text-muted)] space-y-0.5">
+                  <div className="font-bold text-[var(--text-color)] flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--success-color)]" />
+                    <span>Fonte e Classificação da Informação:</span>
+                  </div>
+                  <div className="whitespace-pre-line font-mono text-[10px]">
+                    {parsed.sourceBlock}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Reprodução em Áudio (Camada de voz independente; texto original permanece visível) */}
+              {msg.sender === 'bot' && (
+                <div className="pt-2.5 border-t border-[var(--border-color)] space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)]">
+                    <span>
+                      🎙️ Gemini TTS ({ttsState.languageCode} · Voz masculina: <strong>{ttsState.voiceName}</strong> · Tom {voiceConfig.tom})
+                    </span>
+                    <span>Auto-play: Desativado</span>
+                  </div>
+                  {renderNaturalTTSControls(msg.id, msg.text, compact)}
+                </div>
+              )}
+            </div>
+
+            {/* Sugestão de ações em botões abaixo da resposta do agente */}
+            {msg.sender === 'bot' && msg.suggestedActions && msg.suggestedActions.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5 max-w-[95%]">
+                {msg.suggestedActions.map((act) => (
+                  <button
+                    key={act}
+                    type="button"
+                    onClick={() => onSendPrompt(act)}
+                    disabled={isBotLoading}
+                    className="botao px-2.5 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-medium text-[var(--accent-color)] hover:border-[var(--accent-color)] transition-colors cursor-pointer"
+                  >
+                    ⚡ {act}
+                  </button>
+                ))}
               </div>
             )}
-            <div>{msg.text}</div>
           </div>
-
-          {/* Sugestão de ações em botões abaixo da resposta do agente */}
-          {msg.sender === 'bot' && msg.suggestedActions && msg.suggestedActions.length > 0 && (
-            <div className="mt-2 flex flex-wrap items-center gap-1.5 max-w-[94%]">
-              {msg.suggestedActions.map((act) => (
-                <button
-                  key={act}
-                  type="button"
-                  onClick={() => onSendPrompt(act)}
-                  disabled={isBotLoading}
-                  className="botao px-2.5 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-medium text-[var(--accent-color)] hover:border-[var(--accent-color)] transition-colors cursor-pointer"
-                >
-                  ⚡ {act}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
       {isBotLoading && (
         <div className="text-xs text-[var(--text-muted)] animate-pulse">
           {agentName} está consultando fontes verificadas (TSE, Firestore e Radar de Transparência)...
@@ -525,7 +649,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
                     {agentName} · Estúdio de Criação Multimodal
                   </h2>
                   <p className="text-xs text-[var(--text-muted)]">
-                    Voz TTS Natural Integrada ({voiceConfig.language} · Masculina · {voiceConfig.style}) · Cache de Áudio Ativo
+                    Voz Masculina Natural ({voiceConfig.idioma}) · Ritmo {voiceConfig.estilo} · Velocidade {ttsState.speed}x
                   </p>
                 </div>
               </div>
@@ -552,7 +676,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
             </div>
 
             <div className="text-[11px] text-[var(--text-muted)] bg-[var(--surface-subtle)] p-2.5 rounded-lg border border-[var(--border-color)]">
-              <strong>Diretriz Cívica, Rastreabilidade & Voz Natural:</strong> "{POTIGUAR_BOT_SYSTEM_PROMPT}" · Respostas identificam Fonte, Data, Tipo de informação e Status. {agentDirective}
+              <strong>Diretriz Cívica, Rastreabilidade & Voz Natural:</strong> "{POTIGUAR_BOT_SYSTEM_PROMPT}" · Separação garantida entre (1) texto do PotiguarBot, (2) fonte das informações, (3) análise da IA e (4) reprodução em áudio sob demanda.
             </div>
           </div>
 
@@ -574,24 +698,18 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
 
           {/* Card em Destaque: Leitura Direta da Última Publicação */}
           {ultimaPublicacaoMural && (
-            <div className="p-3.5 rounded-lg border-2 border-[var(--accent-color)] bg-[var(--surface-subtle)] space-y-2">
+            <div className="p-3.5 rounded-lg border-2 border-[var(--accent-color)] bg-[var(--surface-subtle)] space-y-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] font-semibold text-[var(--accent-color)] uppercase tracking-wide">
                   📌 Última Publicação Registrada Agora
                 </span>
-                <div className="flex flex-wrap items-center gap-2">
-                  {renderNaturalTTSControls(
-                    `mural-top-${ultimaPublicacaoMural.id}`,
-                    `Relato cidadão não verificado oficialmente. Autor: ${ultimaPublicacaoMural.autor}, bairro ${ultimaPublicacaoMural.bairro}. Mensagem: ${ultimaPublicacaoMural.mensagem}`
-                  )}
-                  <button
-                    type="button"
-                    onClick={lerUltimaPublicacaoNoBot}
-                    className="text-[11px] font-semibold text-[var(--text-color)] underline cursor-pointer"
-                  >
-                    Analisar na IA
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={lerUltimaPublicacaoNoBot}
+                  className="text-[11px] font-semibold text-[var(--text-color)] underline cursor-pointer"
+                >
+                  Analisar na IA
+                </button>
               </div>
               <p className="text-xs font-medium text-[var(--text-color)] leading-relaxed">
                 "{ultimaPublicacaoMural.mensagem}"
@@ -601,6 +719,13 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
                   Por <strong>{ultimaPublicacaoMural.autor}</strong> · {ultimaPublicacaoMural.bairro}
                 </span>
                 <span>{ultimaPublicacaoMural.horario}</span>
+              </div>
+              <div className="pt-2 border-t border-[var(--border-color)]">
+                {renderNaturalTTSControls(
+                  `mural-top-${ultimaPublicacaoMural.id}`,
+                  `Relato cidadão registrado por ${ultimaPublicacaoMural.autor} no bairro ${ultimaPublicacaoMural.bairro}. ${ultimaPublicacaoMural.mensagem}`,
+                  true
+                )}
               </div>
               {ultimaAvaliacao && (
                 <div className="pt-2 border-t border-[var(--border-color)] text-[11px] text-[var(--text-muted)]">
@@ -697,7 +822,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           <div
             role="dialog"
             aria-label="Chat Bot Flutuante Instantâneo PotiguarBot IA"
-            className="w-[94vw] sm:w-[440px] bg-[var(--card-bg)] border-2 border-[var(--accent-color)] rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all"
+            className="w-[94vw] sm:w-[450px] bg-[var(--card-bg)] border-2 border-[var(--accent-color)] rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all"
           >
             {/* Header do Chat Flutuante Instantâneo com X para Fechar */}
             <div className="px-4 py-3 bg-[#0f172a] text-white flex items-center justify-between gap-3">
@@ -707,11 +832,11 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs sm:text-sm font-bold truncate flex items-center gap-1.5">
-                    <span>{agentName} · Voz Natural pt-BR</span>
+                    <span>{agentName} · Voz Masculina pt-BR</span>
                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
                   <div className="text-[10px] text-slate-300 truncate">
-                    Estúdio Multimodal · Texto, Voz TTS Masculina e Imagem
+                    Áudio Natural Sob Demanda ({ttsState.speed}x) · Texto, Voz e Imagem
                   </div>
                 </div>
               </div>
