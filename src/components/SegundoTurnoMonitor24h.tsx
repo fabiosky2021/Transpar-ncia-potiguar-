@@ -7,16 +7,25 @@ import {
   Calculator,
   Filter,
   ExternalLink,
-  Megaphone,
   Activity,
   Scale,
-  ThumbsUp,
   Sparkles,
-  Landmark,
   Award,
   Search,
   RefreshCw,
+  ChevronRight,
+  ChevronLeft,
+  Volume2,
+  Square,
 } from 'lucide-react';
+import {
+  speakWithPotiguarTTS,
+  stopTTSPlayback,
+  subscribeTTSState,
+  TTSStateSnapshot,
+  voiceConfig,
+} from '../services/ttsService';
+import { generateAutonomousTSEFactCheck } from '../services/potiguarBotAutonomousEngine';
 import {
   ResponsiveContainer,
   BarChart,
@@ -32,10 +41,11 @@ import {
   EixoPlanoGoverno,
   StatusViabilidadeOrcamentaria,
   FICHAS_CANDIDATOS_2_TURNO,
+  FICHAS_CANDIDATOS_PRESIDENCIA_2_TURNO,
   ATOS_TRANSICAO_GOVERNO,
   ALERTAS_ANTI_DESINFORMACAO,
-  PROPOSTAS_PRESIDENCIA_ANALISE,
   QUIZ_AFINIDADE_TSE,
+  QUIZ_AFINIDADE_PRESIDENCIA_TSE,
   FeedbackComunidadeItem,
   AlertaDesinformacaoItem,
 } from '../data/segundoTurnoData';
@@ -52,31 +62,34 @@ interface SegundoTurnoMonitor24hProps {
 export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
   propostas,
   onLikeProposta,
-  feedbacks,
-  onSubmitFeedback,
-  onApoiarFeedback,
   onAskAgentAnalysis,
 }) => {
   const [eixoFiltro, setEixoFiltro] = useState<'Todos' | EixoPlanoGoverno>('Todos');
   const [viabilidadeFiltro, setViabilidadeFiltro] = useState<'Todas' | StatusViabilidadeOrcamentaria>('Todas');
-  const [respostasQuiz, setRespostasQuiz] = useState<Record<string, 'allyson-bezerra' | 'cadu-xavier'>>({});
+  const [esferaQuiz, setEsferaQuiz] = useState<'rn' | 'presidencia'>('presidencia');
+  const [respostasQuiz, setRespostasQuiz] = useState<Record<string, string>>({});
+  const [perguntaAtivaIdx, setPerguntaAtivaIdx] = useState<number>(0);
+  const [modoQuiz, setModoQuiz] = useState<'passo-a-passo' | 'todas'>('passo-a-passo');
+  const [mostrarAnaliseLocalQuiz, setMostrarAnaliseLocalQuiz] = useState<boolean>(false);
+  const [ttsQuizState, setTtsQuizState] = useState<TTSStateSnapshot>({
+    activeMessageId: null,
+    status: 'idle',
+    errorMessage: null,
+    usingFallback: false,
+    speed: voiceConfig.speed,
+    volume: voiceConfig.volume,
+    playedMessageIds: [],
+  });
+
+  React.useEffect(() => {
+    return subscribeTTSState(setTtsQuizState);
+  }, []);
 
   // Anti-Disinformation Real-Time Feed State
   const [alertasFeed, setAlertasFeed] = useState<AlertaDesinformacaoItem[]>(ALERTAS_ANTI_DESINFORMACAO);
   const [seloFiltro, setSeloFiltro] = useState<string>('Todos');
   const [inputChecagem, setInputChecagem] = useState<string>('');
   const [isChecandoTSE, setIsChecandoTSE] = useState<boolean>(false);
-
-  // Presidential Proposals Filter State
-  const [filtroPresidencia, setFiltroPresidencia] = useState<string>('Todas');
-
-  // Community Feedback Form State
-  const [fbAutor, setFbAutor] = useState('');
-  const [fbBairro, setFbBairro] = useState('Mãe Luíza · Zona Leste');
-  const [fbEixo, setFbEixo] = useState<FeedbackComunidadeItem['eixo']>('Saúde (SUS)');
-  const [fbTexto, setFbTexto] = useState('');
-  const [enviandoFb, setEnviandoFb] = useState(false);
-  const [fbSucesso, setFbSucesso] = useState<string | null>(null);
 
   // Filter proposals by Axis and Budgetary Viability
   const propostasFiltradas = useMemo(() => {
@@ -110,64 +123,63 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
     [propostas]
   );
 
-  // 5-Question Interactive Electoral Affinity Calculator Metrics
+  const listaPerguntasQuiz =
+    esferaQuiz === 'presidencia' ? QUIZ_AFINIDADE_PRESIDENCIA_TSE : QUIZ_AFINIDADE_TSE;
+  const fichasAtuaisQuiz =
+    esferaQuiz === 'presidencia' ? FICHAS_CANDIDATOS_PRESIDENCIA_2_TURNO : FICHAS_CANDIDATOS_2_TURNO;
+  const candIdA = esferaQuiz === 'presidencia' ? 'lula-13' : 'allyson-bezerra';
+  const candIdB = esferaQuiz === 'presidencia' ? 'flavio-bolsonaro-22' : 'cadu-xavier';
+
+  // 5-Question Interactive Electoral Affinity Calculator Metrics (Presidência do Brasil ou Governo do RN)
   const resultadoAfinidade = useMemo(() => {
-    const totalPerguntas = QUIZ_AFINIDADE_TSE.length; // 5 questions
-    const valores = Object.values(respostasQuiz);
+    const totalPerguntas = listaPerguntasQuiz.length; // 5 questions
+    const valores = listaPerguntasQuiz
+      .map((q) => respostasQuiz[q.id])
+      .filter(Boolean);
     const totalRespondidas = valores.length;
     if (totalRespondidas === 0) {
       return {
         totalPerguntas,
         totalRespondidas: 0,
-        pctAllyson: 50,
-        pctCadu: 50,
-        contAllyson: 0,
-        contCadu: 0,
+        pctA: 50,
+        pctB: 50,
+        contA: 0,
+        contB: 0,
         candidatoMaiorAfinidade: null,
         temasAlinhados: [] as string[],
       };
     }
-    const contAllyson = valores.filter((v) => v === 'allyson-bezerra').length;
-    const contCadu = valores.filter((v) => v === 'cadu-xavier').length;
-    const pctAllyson = Math.round((contAllyson / totalRespondidas) * 100);
-    const pctCadu = 100 - pctAllyson;
+    const contA = valores.filter((v) => v === candIdA).length;
+    const contB = valores.filter((v) => v === candIdB).length;
+    const pctA = Math.round((contA / totalRespondidas) * 100);
+    const pctB = 100 - pctA;
 
-    const vencedorId =
-      contAllyson > contCadu
-        ? 'allyson-bezerra'
-        : contCadu > contAllyson
-        ? 'cadu-xavier'
-        : null;
+    const vencedorId = contA > contB ? candIdA : contB > contA ? candIdB : null;
 
     const candidatoMaiorAfinidade = vencedorId
-      ? FICHAS_CANDIDATOS_2_TURNO.find((c) => c.id === vencedorId) || null
+      ? fichasAtuaisQuiz.find((c) => c.id === vencedorId) || null
       : null;
 
-    const temasAlinhados = QUIZ_AFINIDADE_TSE.filter(
-      (q) => respostasQuiz[q.id] === (vencedorId || 'allyson-bezerra')
-    ).map((q) => q.temaCurto);
+    const temasAlinhados = listaPerguntasQuiz
+      .filter((q) => respostasQuiz[q.id] === (vencedorId || candIdA))
+      .map((q) => q.temaCurto);
 
     return {
       totalPerguntas,
       totalRespondidas,
-      pctAllyson,
-      pctCadu,
-      contAllyson,
-      contCadu,
+      pctA,
+      pctB,
+      contA,
+      contB,
       candidatoMaiorAfinidade,
       temasAlinhados,
     };
-  }, [respostasQuiz]);
+  }, [respostasQuiz, listaPerguntasQuiz, fichasAtuaisQuiz, candIdA, candIdB]);
 
   const alertasFiltrados = useMemo(() => {
     if (seloFiltro === 'Todos') return alertasFeed;
     return alertasFeed.filter((a) => a.seloVerificacao === seloFiltro);
   }, [alertasFeed, seloFiltro]);
-
-  const propostasPresidenciaFiltradas = useMemo(() => {
-    if (filtroPresidencia === 'Todas') return PROPOSTAS_PRESIDENCIA_ANALISE;
-    return PROPOSTAS_PRESIDENCIA_ANALISE.filter((p) => p.eixo === filtroPresidencia);
-  }, [filtroPresidencia]);
 
   const executarChecagemTempoRealTSE = async (textoCustom?: string) => {
     const consulta = (textoCustom ?? inputChecagem).trim();
@@ -179,57 +191,29 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ falaOuTema: consulta }),
       });
+      if (!response.ok) throw new Error('Ativar motor autônomo TSE');
       const data = await response.json();
       if (data?.alerta) {
         setAlertasFeed((prev) => [data.alerta, ...prev]);
         setSeloFiltro('Todos');
         if (!textoCustom) setInputChecagem('');
+      } else {
+        throw new Error('Sem alerta retornado');
       }
     } catch {
-      // fallback local verification card if offline
-      const fallbackCard: AlertaDesinformacaoItem = {
-        id: `local-check-${Date.now()}`,
-        categoria: 'Fato ou Boato TSE · Tempo Real',
-        candidatoCitado: 'Consulta em Tempo Real · TSE',
-        falaAnalisada: `"${consulta}"`,
-        titulo: `Verificação Documental TSE: ${consulta.slice(0, 58)}`,
-        seloVerificacao: 'Fato Esclarecido · TSE',
-        topicosAnalisados: [
-          'Comparado com os planos de governo registrados no portal DivulgaCandContas TSE.',
-          'Cruzado com as resoluções oficiais do TRE-RN e Fato ou Boato da Justiça Eleitoral.',
-        ],
-        conclusaoAnalise:
-          'A afirmação foi verificada com base nos documentos formais registrados pelos candidatos no DivulgaCandContas TSE e comunicados do TRE-RN.',
-        fonteVerificacao: 'DivulgaCandContas TSE & Fato ou Boato TSE',
-        urlFonteOficial: 'https://www.justicaeleitoral.jus.br/fato-ou-boato/',
-        horario: 'Checado agora em tempo real',
-      };
+      const fallbackCard = generateAutonomousTSEFactCheck(consulta);
       setAlertasFeed((prev) => [fallbackCard, ...prev]);
+      setSeloFiltro('Todos');
+      if (!textoCustom) setInputChecagem('');
     } finally {
       setIsChecandoTSE(false);
     }
   };
 
-  const handleFeedbackSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!fbTexto.trim() || enviandoFb) return;
-    setEnviandoFb(true);
-    setFbSucesso(null);
-    await onSubmitFeedback({
-      autor: fbAutor.trim() || 'Eleitor Potiguar',
-      bairro: fbBairro,
-      eixo: fbEixo,
-      necessidade: fbTexto.trim(),
-    });
-    setFbTexto('');
-    setEnviandoFb(false);
-    setFbSucesso('✓ Necessidade da comunidade registrada em tempo real no Canal de Transparência Cívica!');
-  };
-
   return (
     <div id="monitoramento-24h" className="space-y-12">
       {/* BLOCO 1: Agente de Monitoramento Eleitoral 24h (DivulgaCandContas TSE - Planos de Governo 2º Turno) */}
-      <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 sm:p-8 space-y-6">
+      <section className="card-clean p-6 sm:p-8 space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-color)]">
@@ -253,7 +237,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
         </div>
 
         {/* Gráfico Público Comparativo Dinâmico de Aprovação Popular das Propostas por Eixo */}
-        <div className="p-5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-3">
+        <div className="subcard-clean p-5 sm:p-6 space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className="text-base font-semibold text-[var(--text-color)]">
@@ -341,7 +325,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
         </div>
 
         {/* Cards de Propostas Individuais com Contabilização de Likes e Etiqueta de Viabilidade Orçamentária */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {propostasFiltradas.map((prop) => {
             const isPrevisaoDireta =
               prop.viabilidadeOrcamentaria === 'Previsão Orçamentária (LOA/PPA)';
@@ -349,7 +333,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
             return (
               <article
                 key={prop.id}
-                className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--surface-subtle)] flex flex-col justify-between space-y-4"
+                className="subcard-clean p-6 flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-2.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -402,116 +386,10 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
         </div>
       </section>
 
-      {/* BLOCO 1.5: Propostas dos Candidatos à Presidência da República com Análise Técnica & Impacto no RN */}
-      <section
-        id="propostas-presidencia-analise"
-        className="bg-[var(--card-bg)] border-2 border-[var(--border-color)] rounded-xl p-6 sm:p-8 space-y-6"
-      >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-color)]">
-              <Landmark className="w-4 h-4" />
-              <span>Análise Programática Nacional · Impacto Direto no Rio Grande do Norte</span>
-            </div>
-            <h2 className="text-2xl font-semibold text-[var(--text-color)]">
-              Propostas dos Candidatos à Presidência com Análise Técnica e Orçamentária
-            </h2>
-            <p className="text-xs sm:text-sm text-[var(--text-muted)]">
-              Comparativo das propostas presidenciais formalizadas no TSE e pautas em debate nacional, avaliando viabilidade fiscal e reflexos diretos para os municípios potiguares.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1.5">
-            {(['Todas', 'Infraestrutura & PAC', 'Saúde & Educação', 'Economia, Previdência & Estatais'] as const).map(
-              (eixoPres) => (
-                <button
-                  key={eixoPres}
-                  type="button"
-                  onClick={() => setFiltroPresidencia(eixoPres)}
-                  className={`botao px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                    filtroPresidencia === eixoPres
-                      ? 'bg-[var(--accent-color)] text-white'
-                      : 'bg-[var(--surface-subtle)] text-[var(--text-color)] border border-[var(--border-color)]'
-                  }`}
-                >
-                  {eixoPres}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {propostasPresidenciaFiltradas.map((item) => (
-            <article
-              key={item.id}
-              className="p-5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2 text-xs">
-                  <span
-                    className="font-bold text-white px-2.5 py-0.5 rounded"
-                    style={{ backgroundColor: item.corTema }}
-                  >
-                    {item.partidoNumero}
-                  </span>
-                  <span className="font-semibold text-[var(--accent-color)]">{item.eixo}</span>
-                </div>
-
-                <div>
-                  <div className="text-xs font-semibold text-[var(--text-muted)]">
-                    {item.candidato}
-                  </div>
-                  <h3 className="text-base font-bold text-[var(--text-color)] mt-0.5 leading-snug">
-                    {item.propostaTitulo}
-                  </h3>
-                </div>
-
-                <p className="text-xs text-[var(--text-color)] leading-relaxed">
-                  <strong>Proposta:</strong> {item.resumoProposta}
-                </p>
-
-                <div className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1.5 text-xs">
-                  <div className="font-bold text-[var(--accent-color)]">
-                    Análise Técnica & Viabilidade (TSE / PPA):
-                  </div>
-                  <p className="text-[var(--text-muted)] leading-relaxed">{item.analiseTecnica}</p>
-                </div>
-
-                <div className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 text-xs">
-                  <div className="font-bold text-[var(--success-color)]">
-                    Impacto Direto no Rio Grande do Norte:
-                  </div>
-                  <p className="text-[var(--text-muted)] leading-relaxed">{item.impactoNoRN}</p>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between gap-2">
-                <span className="text-[11px] font-semibold text-[var(--text-muted)]">
-                  ● {item.statusPlanoTSE}
-                </span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    onAskAgentAnalysis(
-                      `Faça uma análise completa da proposta presidencial "${item.propostaTitulo}" (${item.candidato}) e explique como ela impacta o Rio Grande do Norte.`
-                    )
-                  }
-                  className="botao px-3 py-1.5 rounded-lg bg-[var(--accent-color)] text-white text-xs font-semibold inline-flex items-center gap-1 cursor-pointer shrink-0"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Analisar no Chat IA</span>
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
       {/* BLOCO 2: Módulo de Transparência e Transição de Governo Integrado */}
       <section
         id="transicao-governo"
-        className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 sm:p-8 space-y-6"
+        className="card-clean p-6 sm:p-8 space-y-6"
       >
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
           <div className="space-y-1">
@@ -541,28 +419,28 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
         </div>
 
         {/* Painel de Status Oficial da Transição */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          <div className="p-4 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="subcard-clean p-5">
             <div className="text-xs text-[var(--text-muted)]">Transição de Governo</div>
-            <div className="text-base font-semibold text-[var(--success-color)] mt-0.5">
+            <div className="text-base font-semibold text-[var(--success-color)] mt-1">
               ● Ativa e Monitorada 24h
             </div>
           </div>
-          <div className="p-4 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+          <div className="subcard-clean p-5">
             <div className="text-xs text-[var(--text-muted)]">Links Oficiais</div>
-            <div className="text-base font-semibold text-[var(--text-color)] mt-0.5">
+            <div className="text-base font-semibold text-[var(--text-color)] mt-1">
               Primeiros Decretos Publicados
             </div>
           </div>
-          <div className="p-4 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+          <div className="subcard-clean p-5">
             <div className="text-xs text-[var(--text-muted)]">Eixos Temáticos Prioritários</div>
-            <div className="text-base font-semibold text-[var(--text-color)] mt-0.5">
+            <div className="text-base font-semibold text-[var(--text-color)] mt-1">
               Saúde (SUS), Educação, Infraestrutura
             </div>
           </div>
-          <div className="p-4 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+          <div className="subcard-clean p-5">
             <div className="text-xs text-[var(--text-muted)]">Decretos Analisados</div>
-            <div className="text-base font-semibold text-[var(--success-color)] mt-0.5">
+            <div className="text-base font-semibold text-[var(--success-color)] mt-1">
               Nomeações Iniciais - Em conformidade
             </div>
           </div>
@@ -614,7 +492,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
         {/* Left 6 Columns: Módulo 'Alerta Anti-Desinformação' em Tempo Real (API TSE / Fontes Oficiais Verificadas) */}
         <div
           id="alerta-anti-desinformacao"
-          className="lg:col-span-6 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 space-y-5"
+          className="lg:col-span-6 card-clean p-6 sm:p-7 space-y-5"
         >
           <div className="space-y-2 border-b border-[var(--border-color)] pb-4">
             <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -719,7 +597,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
             {alertasFiltrados.map((alerta) => (
               <article
                 key={alerta.id}
-                className="p-5 rounded-xl border-2 border-amber-500/40 bg-[var(--surface-subtle)] space-y-3"
+                className="subcard-clean p-5 space-y-3.5"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="font-semibold text-[var(--accent-color)]">
@@ -743,7 +621,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
                 </h3>
 
                 {alerta.falaAnalisada && (
-                  <blockquote className="p-2.5 rounded-lg bg-[var(--card-bg)] border-l-4 border-l-amber-500 text-xs italic text-[var(--text-muted)]">
+                  <blockquote className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] text-xs italic text-[var(--text-muted)]">
                     Fala / Material checado: {alerta.falaAnalisada}
                   </blockquote>
                 )}
@@ -787,90 +665,317 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
           </div>
         </div>
 
-        {/* Right 6 Columns: Quiz Interativo de 5 Perguntas Rápidas (Afinidade Temática 2º Turno RN) */}
+        {/* Right 6 Columns: Quiz Interativo de 5 Perguntas Rápidas (Presidente do Brasil e Governo do RN) */}
         <div
           id="quiz-afinidade-5-perguntas"
-          className="lg:col-span-6 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 space-y-5"
+          className="lg:col-span-6 card-clean p-6 sm:p-7 space-y-5"
         >
-          <div className="space-y-2 border-b border-[var(--border-color)] pb-4">
-            <div className="flex items-center justify-between gap-2">
+          <div className="space-y-3 border-b border-[var(--border-color)] pb-4">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-color)]">
                 <Calculator className="w-4 h-4" />
-                <span>Quiz Interativo · 5 Perguntas Rápidas (2º Turno RN)</span>
+                <span>
+                  Quiz Interativo com IA · 5 Perguntas Rápidas ({esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do RN'})
+                </span>
               </div>
-              <span className="text-xs font-mono font-bold text-[var(--success-color)]">
-                {resultadoAfinidade.totalRespondidas}/{resultadoAfinidade.totalPerguntas} respondidas
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setModoQuiz((prev) => (prev === 'passo-a-passo' ? 'todas' : 'passo-a-passo'))
+                  }
+                  className="px-2.5 py-1 rounded border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[11px] font-semibold text-[var(--text-color)] hover:border-[var(--accent-color)] cursor-pointer"
+                >
+                  {modoQuiz === 'passo-a-passo' ? 'Ver todas as 5 juntas' : 'Modo Passo a Passo'}
+                </button>
+                <span className="text-xs font-mono font-bold text-[var(--success-color)]">
+                  {resultadoAfinidade.totalRespondidas}/{resultadoAfinidade.totalPerguntas} respondidas
+                </span>
+              </div>
             </div>
+
+            {/* Seletor de Esfera: Presidente do Brasil (Governo Federal) vs Governo do RN */}
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setEsferaQuiz('presidencia');
+                  setPerguntaAtivaIdx(0);
+                  setMostrarAnaliseLocalQuiz(false);
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  esferaQuiz === 'presidencia'
+                    ? 'bg-[var(--accent-color)] text-white shadow-sm'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'
+                }`}
+              >
+                🇧🇷 Presidente do Brasil (Federal)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEsferaQuiz('rn');
+                  setPerguntaAtivaIdx(0);
+                  setMostrarAnaliseLocalQuiz(false);
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  esferaQuiz === 'rn'
+                    ? 'bg-[var(--accent-color)] text-white shadow-sm'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'
+                }`}
+              >
+                🏛️ Governo do RN (Estadual)
+              </button>
+            </div>
+
             <h2 className="text-xl font-semibold text-[var(--text-color)]">
-              Calculadora de Afinidade Temática (5 Perguntas Rápidas)
+              {esferaQuiz === 'presidencia'
+                ? 'Quiz: Candidatos a Presidente do Brasil e Propostas de Governo Federal'
+                : 'Calculadora de Afinidade Temática · 2º Turno Governo do RN'}
             </h2>
             <p className="text-xs text-[var(--text-muted)]">
-              Responda às 5 perguntas rápidas abaixo para comparar suas prioridades com as propostas registradas de <strong>Allyson Bezerra (União · 44)</strong> e <strong>Cadu de Lula (PT · 13)</strong> no 2º turno.
+              {esferaQuiz === 'presidencia' ? (
+                <>
+                  Responda às 5 perguntas rápidas para comparar suas prioridades com as propostas de Governo Federal de{' '}
+                  <strong>Luiz Inácio Lula da Silva (PT · 13)</strong> e{' '}
+                  <strong>Flávio Bolsonaro (PL · 22)</strong> registradas no TSE.
+                </>
+              ) : (
+                <>
+                  Responda diretamente nas opções abaixo para comparar suas prioridades com as propostas registradas de{' '}
+                  <strong>Allyson Bezerra (União · 44)</strong> e{' '}
+                  <strong>Cadu de Lula (PT · 13)</strong> no 2º turno do RN.
+                </>
+              )}
             </p>
 
-            {/* Barra de Progresso das 5 Perguntas */}
-            <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden border border-[var(--border-color)]">
-              <div
-                className="h-full bg-[var(--accent-color)] transition-all duration-300"
-                style={{
-                  width: `${(resultadoAfinidade.totalRespondidas / resultadoAfinidade.totalPerguntas) * 100}%`,
-                }}
-              />
+            {/* Barra de Progresso + Seletor Rápido das 5 Perguntas */}
+            <div className="space-y-2">
+              <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden border border-[var(--border-color)]">
+                <div
+                  className="h-full bg-[var(--accent-color)] transition-all duration-300"
+                  style={{
+                    width: `${(resultadoAfinidade.totalRespondidas / resultadoAfinidade.totalPerguntas) * 100}%`,
+                  }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-1.5 pt-1">
+                {listaPerguntasQuiz.map((qItem, idx) => {
+                  const respondida = Boolean(respostasQuiz[qItem.id]);
+                  const isAtiva = modoQuiz === 'passo-a-passo' && perguntaAtivaIdx === idx;
+                  return (
+                    <button
+                      key={qItem.id}
+                      type="button"
+                      onClick={() => {
+                        setModoQuiz('passo-a-passo');
+                        setPerguntaAtivaIdx(idx);
+                      }}
+                      className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer truncate ${
+                        isAtiva
+                          ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] shadow-sm'
+                          : respondida
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
+                          : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-color)]'
+                      }`}
+                    >
+                      {idx + 1}. {qItem.temaCurto.split(' ')[0]} {respondida ? '✓' : ''}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="space-y-3.5 max-h-[540px] overflow-y-auto pr-1">
-            {QUIZ_AFINIDADE_TSE.map((q) => (
-              <div
-                key={q.id}
-                className="p-4 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-2.5"
-              >
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-[var(--accent-color)]">
-                    Eixo: {q.temaCurto} ({q.eixo})
-                  </span>
-                  {respostasQuiz[q.id] && (
-                    <span className="text-[11px] font-semibold text-[var(--success-color)]">
-                      ✓ Respondida
+          {/* Área de Perguntas: Passo a Passo (sem pular para o chat) ou Lista Completa */}
+          {modoQuiz === 'passo-a-passo' ? (
+            (() => {
+              const qAtual = listaPerguntasQuiz[perguntaAtivaIdx] || listaPerguntasQuiz[0];
+              return (
+                <div className="subcard-clean p-5 space-y-4">
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <span className="font-bold text-[var(--accent-color)] uppercase tracking-wide">
+                      Pergunta {perguntaAtivaIdx + 1} de {listaPerguntasQuiz.length} · Eixo: {qAtual.temaCurto} ({qAtual.eixo})
                     </span>
-                  )}
-                </div>
-                <div className="text-sm font-semibold text-[var(--text-color)]">
-                  {q.pergunta}
-                </div>
-                <div className="space-y-2">
-                  {q.opcoes.map((op) => {
-                    const selecionada = respostasQuiz[q.id] === op.candidatoId;
-                    return (
+                    <div className="flex items-center gap-2">
                       <button
-                        key={op.id}
                         type="button"
                         onClick={() =>
-                          setRespostasQuiz((prev) => ({ ...prev, [q.id]: op.candidatoId }))
+                          speakWithPotiguarTTS(
+                            `quiz-q-${qAtual.id}`,
+                            `${qAtual.pergunta} Opção 1: ${qAtual.opcoes[0].texto}. Opção 2: ${qAtual.opcoes[1].texto}.`
+                          )
                         }
-                        className={`botao w-full text-left p-3 rounded-lg border text-xs transition-all cursor-pointer ${
-                          selecionada
-                            ? 'border-[var(--accent-color)] bg-[var(--card-bg)] font-semibold text-[var(--text-color)] shadow-sm'
-                            : 'border-[var(--border-color)] bg-[var(--card-bg)]/60 text-[var(--text-muted)] hover:text-[var(--text-color)]'
-                        }`}
+                        className="px-2 py-1 rounded border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-semibold text-[var(--accent-color)] inline-flex items-center gap-1 cursor-pointer"
                       >
-                        <div>{op.texto}</div>
-                        {selecionada && (
-                          <div className="text-[11px] text-[var(--success-color)] mt-1">
-                            ✓ Proposta correspondente: {op.resumoPlanoTSE}
-                          </div>
-                        )}
+                        <Volume2 className="w-3 h-3" />
+                        <span>🔊 Ouvir Pergunta</span>
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+                      {respostasQuiz[qAtual.id] && (
+                        <span className="text-[11px] font-semibold text-[var(--success-color)]">
+                          ✓ Respondida
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-          {/* Card de Resultado: Candidato com Maior Afinidade Temática */}
-          <div className="p-5 rounded-xl border-2 border-[var(--accent-color)] bg-[var(--surface-subtle)] space-y-4">
+                  <div className="text-base font-bold text-[var(--text-color)] leading-snug">
+                    {qAtual.pergunta}
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {qAtual.opcoes.map((op) => {
+                      const selecionada = respostasQuiz[qAtual.id] === op.candidatoId;
+                      return (
+                        <button
+                          key={op.id}
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const novasRespostas = {
+                              ...respostasQuiz,
+                              [qAtual.id]: op.candidatoId,
+                            };
+                            setRespostasQuiz(novasRespostas);
+                            setMostrarAnaliseLocalQuiz(true);
+
+                            // Avança automaticamente para a próxima pergunta ainda não respondida sem sair do Quiz
+                            if (perguntaAtivaIdx < listaPerguntasQuiz.length - 1) {
+                              setTimeout(() => {
+                                setPerguntaAtivaIdx((prev) =>
+                                  prev < listaPerguntasQuiz.length - 1 ? prev + 1 : prev
+                                );
+                              }, 550);
+                            }
+                          }}
+                          className={`botao w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition-all cursor-pointer ${
+                            selecionada
+                              ? 'border-2 border-[var(--accent-color)] bg-[var(--card-bg)] font-semibold text-[var(--text-color)] shadow-sm'
+                              : 'border-[var(--border-color)] bg-[var(--card-bg)]/70 text-[var(--text-muted)] hover:text-[var(--text-color)] hover:border-[var(--accent-color)]'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span>{op.texto}</span>
+                            <span
+                              className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-bold ${
+                                selecionada
+                                  ? 'bg-[var(--accent-color)] text-white'
+                                  : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border border-[var(--border-color)]'
+                              }`}
+                            >
+                              {selecionada ? '✓ Selecionada' : 'Escolher'}
+                            </span>
+                          </div>
+                          {selecionada && (
+                            <div className="text-xs text-[var(--success-color)] mt-1.5 pt-1.5 border-t border-[var(--border-color)]">
+                              ✓ <strong>Proposta correspondente no TSE:</strong> {op.resumoPlanoTSE}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Navegação interna entre as 5 perguntas do Quiz */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-[var(--border-color)]">
+                    <button
+                      type="button"
+                      disabled={perguntaAtivaIdx === 0}
+                      onClick={() => setPerguntaAtivaIdx((prev) => Math.max(0, prev - 1))}
+                      className="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] disabled:opacity-40 text-xs font-semibold text-[var(--text-color)] inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span>Pergunta Anterior</span>
+                    </button>
+
+                    <span className="text-[11px] text-[var(--text-muted)] font-mono">
+                      {perguntaAtivaIdx + 1} / {listaPerguntasQuiz.length}
+                    </span>
+
+                    {perguntaAtivaIdx < listaPerguntasQuiz.length - 1 ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPerguntaAtivaIdx((prev) =>
+                            Math.min(listaPerguntasQuiz.length - 1, prev + 1)
+                          )
+                        }
+                        className="px-3.5 py-1.5 rounded-lg bg-[var(--accent-color)] text-white text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Próxima Pergunta</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setMostrarAnaliseLocalQuiz(true)}
+                        className="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Ver Parecer Completo Aqui</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
+          ) : (
+            <div className="space-y-3.5 max-h-[540px] overflow-y-auto pr-1">
+              {listaPerguntasQuiz.map((q) => (
+                <div
+                  key={q.id}
+                  className="p-4 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-2.5"
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-[var(--accent-color)]">
+                      Eixo: {q.temaCurto} ({q.eixo})
+                    </span>
+                    {respostasQuiz[q.id] && (
+                      <span className="text-[11px] font-semibold text-[var(--success-color)]">
+                        ✓ Respondida
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm font-semibold text-[var(--text-color)]">
+                    {q.pergunta}
+                  </div>
+                  <div className="space-y-2">
+                    {q.opcoes.map((op) => {
+                      const selecionada = respostasQuiz[q.id] === op.candidatoId;
+                      return (
+                        <button
+                          key={op.id}
+                          type="button"
+                          onClick={() => {
+                            const novas = { ...respostasQuiz, [q.id]: op.candidatoId };
+                            setRespostasQuiz(novas);
+                            setMostrarAnaliseLocalQuiz(true);
+                          }}
+                          className={`botao w-full text-left p-3 rounded-lg border text-xs transition-all cursor-pointer ${
+                            selecionada
+                              ? 'border-[var(--accent-color)] bg-[var(--card-bg)] font-semibold text-[var(--text-color)] shadow-sm'
+                              : 'border-[var(--border-color)] bg-[var(--card-bg)]/60 text-[var(--text-muted)] hover:text-[var(--text-color)]'
+                          }`}
+                        >
+                          <div>{op.texto}</div>
+                          {selecionada && (
+                            <div className="text-[11px] text-[var(--success-color)] mt-1">
+                              ✓ Proposta correspondente: {op.resumoPlanoTSE}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Card de Resultado: Candidato com Maior Afinidade Temática (Exibido diretamente no Quiz, sem pular para o chat) */}
+          <div className="subcard-clean p-5 space-y-4">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-[var(--text-color)] uppercase tracking-wide flex items-center gap-1.5">
                 <Award className="w-4 h-4 text-[var(--accent-color)]" />
@@ -881,7 +986,13 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
               {resultadoAfinidade.totalRespondidas > 0 && (
                 <button
                   type="button"
-                  onClick={() => setRespostasQuiz({})}
+                  onClick={() => {
+                    const novoMapa = { ...respostasQuiz };
+                    listaPerguntasQuiz.forEach((q) => delete novoMapa[q.id]);
+                    setRespostasQuiz(novoMapa);
+                    setPerguntaAtivaIdx(0);
+                    setMostrarAnaliseLocalQuiz(false);
+                  }}
                   className="text-[var(--accent-color)] underline font-semibold cursor-pointer"
                 >
                   Reiniciar 5 Perguntas
@@ -890,201 +1001,148 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
             </div>
 
             {resultadoAfinidade.candidatoMaiorAfinidade ? (
-              <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                  <img
-                    src={resultadoAfinidade.candidatoMaiorAfinidade.fotoOficial}
-                    alt={resultadoAfinidade.candidatoMaiorAfinidade.nome}
-                    className="w-14 h-16 rounded-lg object-cover object-top border border-[var(--border-color)] shrink-0"
-                  />
-                  <div className="space-y-1">
-                    <div className="text-[11px] font-bold uppercase text-[var(--success-color)]">
-                      ★ Candidato com Maior Afinidade Temática
+              <div className="space-y-3">
+                <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <img
+                      src={resultadoAfinidade.candidatoMaiorAfinidade.fotoOficial}
+                      alt={resultadoAfinidade.candidatoMaiorAfinidade.nome}
+                      onError={(e) => {
+                        const img = e.currentTarget;
+                        const fb = (resultadoAfinidade.candidatoMaiorAfinidade as any)?.fotoFallback;
+                        if (fb && img.src !== window.location.origin + fb) {
+                          img.src = fb;
+                        }
+                      }}
+                      className="w-14 h-16 rounded-lg object-cover object-top border border-[var(--border-color)] shrink-0"
+                    />
+                    <div className="space-y-1">
+                      <div className="text-[11px] font-bold uppercase text-[var(--success-color)]">
+                        ★ Candidato com Maior Afinidade Temática ({esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do RN'})
+                      </div>
+                      <div className="text-base font-bold text-[var(--text-color)]">
+                        {resultadoAfinidade.candidatoMaiorAfinidade.nome} (Nº{' '}
+                        {resultadoAfinidade.candidatoMaiorAfinidade.numero})
+                      </div>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        Temas alinhados: <strong>{resultadoAfinidade.temasAlinhados.join(', ')}</strong>
+                      </div>
                     </div>
-                    <div className="text-base font-bold text-[var(--text-color)]">
-                      {resultadoAfinidade.candidatoMaiorAfinidade.nome} (Nº{' '}
-                      {resultadoAfinidade.candidatoMaiorAfinidade.numero})
-                    </div>
-                    <div className="text-xs text-[var(--text-muted)]">
-                      Temas alinhados: <strong>{resultadoAfinidade.temasAlinhados.join(', ')}</strong>
-                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setMostrarAnaliseLocalQuiz((prev) => !prev)}
+                      className="botao px-3.5 py-2 rounded-lg bg-[var(--accent-color)] text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>
+                        {mostrarAnaliseLocalQuiz
+                          ? 'Ocultar Análise Aqui'
+                          : 'Ver Análise Completa Aqui'}
+                      </span>
+                    </button>
+
+                    {ttsQuizState.activeMessageId === 'quiz-resultado-tts' &&
+                    ttsQuizState.status === 'playing' ? (
+                      <button
+                        type="button"
+                        onClick={() => stopTTSPlayback()}
+                        className="botao px-3 py-2 rounded-lg bg-rose-600 text-white text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Square className="w-3.5 h-3.5" />
+                        <span>⏹️ Parar</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          speakWithPotiguarTTS(
+                            'quiz-resultado-tts',
+                            `Resultado do Quiz de Afinidade Temática para ${
+                              esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do Rio Grande do Norte'
+                            }. Você respondeu ${resultadoAfinidade.totalRespondidas} de ${resultadoAfinidade.totalPerguntas} perguntas. Candidato com maior afinidade: ${resultadoAfinidade.candidatoMaiorAfinidade?.nome}, número ${resultadoAfinidade.candidatoMaiorAfinidade?.numero}, com ${
+                              resultadoAfinidade.candidatoMaiorAfinidade?.id === candIdA
+                                ? resultadoAfinidade.pctA
+                                : resultadoAfinidade.pctB
+                            } por cento de convergência nos temas: ${resultadoAfinidade.temasAlinhados.join(', ')}. Fonte: Planos de governo registrados no DivulgaCandContas TSE.`
+                          )
+                        }
+                        className="botao px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--accent-color)] inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                        <span>🔊 Ouvir Resultado</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    onAskAgentAnalysis(
-                      `No quiz de 5 perguntas rápidas tive maior afinidade temática com ${resultadoAfinidade.candidatoMaiorAfinidade?.nome} (${resultadoAfinidade.pctAllyson}% Allyson 44 vs ${resultadoAfinidade.pctCadu}% Cadu de Lula 13). Compare as propostas deles nos temas: ${resultadoAfinidade.temasAlinhados.join(', ')}.`
-                    )
-                  }
-                  className="botao px-3.5 py-2 rounded-lg bg-[var(--accent-color)] text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shrink-0"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Ver Análise no Chat IA</span>
-                </button>
+                {/* Parecer do PotiguarBot renderizado diretamente dentro do Quiz (sem jogar para o texto do chat) */}
+                {mostrarAnaliseLocalQuiz && (
+                  <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-[var(--subcard-shadow)] space-y-2.5 text-xs">
+                    <div className="font-bold text-[var(--accent-color)] flex items-center justify-between">
+                      <span>
+                        🤖 Parecer Técnico do PotiguarBot IA ({esferaQuiz === 'presidencia' ? 'Plano de Governo Federal' : 'Plano Estadual RN'})
+                      </span>
+                      <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                        Fonte: DivulgaCandContas TSE
+                      </span>
+                    </div>
+                    <p className="text-[var(--text-color)] leading-relaxed">
+                      Com base nas suas <strong>{resultadoAfinidade.totalRespondidas} respostas</strong>, suas prioridades tiveram{' '}
+                      <strong>{resultadoAfinidade.pctA}%</strong> de convergência com{' '}
+                      <strong>{fichasAtuaisQuiz[0].nome} ({fichasAtuaisQuiz[0].partido} · {fichasAtuaisQuiz[0].numero})</strong> e{' '}
+                      <strong>{resultadoAfinidade.pctB}%</strong> com{' '}
+                      <strong>{fichasAtuaisQuiz[1].nome} ({fichasAtuaisQuiz[1].partido} · {fichasAtuaisQuiz[1].numero})</strong>.
+                    </p>
+                    <div className="space-y-1.5 pt-1 border-t border-[var(--border-color)]">
+                      {listaPerguntasQuiz.map((qItem, idx) => {
+                        const escolhaId = respostasQuiz[qItem.id];
+                        const opEscolhida = qItem.opcoes.find((o) => o.candidatoId === escolhaId);
+                        if (!opEscolhida) return null;
+                        return (
+                          <div key={qItem.id} className="text-[11px] text-[var(--text-muted)]">
+                            <strong className="text-[var(--text-color)]">
+                              {idx + 1}. {qItem.temaCurto}:
+                            </strong>{' '}
+                            {opEscolhida.resumoPlanoTSE}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-xs text-[var(--text-muted)]">
-                Selecione suas respostas nas 5 perguntas acima para descobrir qual candidato do 2º turno possui maior afinidade temática com você.
+                Selecione suas respostas nas 5 perguntas acima para descobrir qual candidato ({esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do RN'}) possui maior afinidade temática com você.
               </p>
             )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)]">
-                <div className="text-xs text-[var(--text-muted)]">Allyson Bezerra (União · 44)</div>
-                <div className="text-xl font-bold font-tabular text-[#0d6efd]">
-                  {resultadoAfinidade.pctAllyson}% ({resultadoAfinidade.contAllyson}/5)
+                <div className="text-xs text-[var(--text-muted)]">
+                  {fichasAtuaisQuiz[0].nome} (Nº {fichasAtuaisQuiz[0].numero})
+                </div>
+                <div
+                  className="text-xl font-bold font-tabular"
+                  style={{ color: fichasAtuaisQuiz[0].cor }}
+                >
+                  {resultadoAfinidade.pctA}% ({resultadoAfinidade.contA}/5)
                 </div>
               </div>
               <div className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)]">
-                <div className="text-xs text-[var(--text-muted)]">Cadu de Lula (PT · 13)</div>
-                <div className="text-xl font-bold font-tabular text-[#e11d48]">
-                  {resultadoAfinidade.pctCadu}% ({resultadoAfinidade.contCadu}/5)
+                <div className="text-xs text-[var(--text-muted)]">
+                  {fichasAtuaisQuiz[1].nome} (Nº {fichasAtuaisQuiz[1].numero})
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* BLOCO 4: Canal de Feedback Comunitário (Necessidades dos Bairros em Tempo Real) */}
-      <section
-        id="canal-feedback-comunidade"
-        className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 sm:p-8 space-y-6"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-color)]">
-              <Megaphone className="w-4 h-4" />
-              <span>Canal de Transparência Cívica & Participação Popular</span>
-            </div>
-            <h2 className="text-2xl font-semibold text-[var(--text-color)]">
-              Canal de Feedback: Relate Necessidades da Sua Comunidade
-            </h2>
-            <p className="text-xs sm:text-sm text-[var(--text-muted)]">
-              Envie demandas reais do seu bairro em Saúde (SUS), Educação, Infraestrutura, Segurança ou Mobilidade para acompanhamento direto na transição de governo.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <form onSubmit={handleFeedbackSubmit} className="lg:col-span-5 space-y-3.5 bg-[var(--surface-subtle)] p-5 rounded-xl border border-[var(--border-color)]">
-            <h3 className="text-base font-semibold text-[var(--text-color)]">
-              Registrar Nova Demanda Comunitária
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <input
-                type="text"
-                value={fbAutor}
-                onChange={(e) => setFbAutor(e.target.value)}
-                placeholder="Seu nome ou apelido (opcional · LGPD)"
-                className="px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] text-xs text-[var(--text-color)]"
-              />
-              <select
-                value={fbBairro}
-                onChange={(e) => setFbBairro(e.target.value)}
-                className="px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] text-xs text-[var(--text-color)]"
-              >
-                <option value="Mãe Luíza · Zona Leste">Mãe Luíza · Zona Leste</option>
-                <option value="Alecrim · Zona Leste">Alecrim · Zona Leste</option>
-                <option value="Pajuçara · Zona Norte">Pajuçara · Zona Norte</option>
-                <option value="Nossa Sra. da Apresentação · Zona Norte">Nossa Sra. da Apresentação · Zona Norte</option>
-                <option value="Tirol · Zona Leste">Tirol · Zona Leste</option>
-                <option value="Ponta Negra · Zona Sul">Ponta Negra · Zona Sul</option>
-                <option value="Lagoa Nova · Zona Sul">Lagoa Nova · Zona Sul</option>
-                <option value="Cidade da Esperança · Zona Oeste">Cidade da Esperança · Zona Oeste</option>
-                <option value="Felipe Camarão · Zona Oeste">Felipe Camarão · Zona Oeste</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">
-                Eixo Prioritário da Necessidade
-              </label>
-              <select
-                value={fbEixo}
-                onChange={(e) => setFbEixo(e.target.value as FeedbackComunidadeItem['eixo'])}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] text-xs text-[var(--text-color)]"
-              >
-                <option value="Saúde (SUS)">Saúde (SUS)</option>
-                <option value="Educação">Educação</option>
-                <option value="Infraestrutura">Infraestrutura</option>
-                <option value="Segurança">Segurança</option>
-                <option value="Mobilidade">Mobilidade</option>
-              </select>
-            </div>
-
-            <textarea
-              rows={3}
-              value={fbTexto}
-              onChange={(e) => setFbTexto(e.target.value)}
-              placeholder="Descreva a necessidade urgente do seu bairro ou rua (ex: reforma de posto de saúde SUS, creche, pavimentação)..."
-              className="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] text-xs text-[var(--text-color)]"
-            />
-
-            {fbSucesso && (
-              <div className="p-2.5 rounded-lg bg-[var(--success-bg)] text-[var(--success-color)] text-xs font-semibold">
-                {fbSucesso}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={enviandoFb || !fbTexto.trim()}
-              className="botao w-full py-2.5 px-4 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-white text-xs font-semibold cursor-pointer"
-            >
-              {enviandoFb ? 'Salvando no Banco de Dados...' : 'Enviar Necessidade da Comunidade'}
-            </button>
-          </form>
-
-          <div className="lg:col-span-7 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-[var(--text-color)]">
-                Demandas da Comunidade Monitoradas em Tempo Real ({feedbacks.length})
-              </h3>
-              <span className="text-xs text-[var(--text-muted)]">
-                Clique em Apoiar Demanda para priorizar na transição
-              </span>
-            </div>
-
-            <div className="space-y-3 max-h-[340px] overflow-y-auto">
-              {feedbacks.map((item) => (
                 <div
-                  key={item.id}
-                  className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--surface-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="text-xl font-bold font-tabular"
+                  style={{ color: fichasAtuaisQuiz[1].cor }}
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="font-semibold text-[var(--accent-color)]">
-                        [{item.eixo}]
-                      </span>
-                      <span className="font-semibold text-[var(--text-color)]">
-                        {item.autor} · {item.bairro}
-                      </span>
-                      <span className="text-[var(--text-muted)]">· {item.horario}</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-[var(--text-color)] leading-relaxed">
-                      {item.necessidade}
-                    </p>
-                    <div className="text-[11px] text-[var(--success-color)]">
-                      ✓ {item.status}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => onApoiarFeedback(item.id)}
-                    className="botao px-3.5 py-2 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] hover:border-[var(--accent-color)] text-xs font-semibold text-[var(--text-color)] inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
-                  >
-                    <ThumbsUp className="w-3.5 h-3.5 text-[var(--accent-color)]" />
-                    <span>
-                      Apoiar (<span className="font-tabular">{item.apoios}</span>)
-                    </span>
-                  </button>
+                  {resultadoAfinidade.pctB}% ({resultadoAfinidade.contB}/5)
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>

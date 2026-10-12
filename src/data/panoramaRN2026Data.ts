@@ -30,6 +30,185 @@ export interface CandidatoCargoRN2026 {
   fotoFallbackUrl: string;
 }
 
+export interface CandidatoPresidenteBrasil2026 {
+  id: string;
+  nome: string;
+  nomeUrna: string;
+  partido: string;
+  siglaPartido: string;
+  numero: string;
+  porcentagemPrimeiroTurno: string;
+  segundoTurno: boolean;
+  destaque: string;
+  resumoPlanoFederal: string;
+  propostasGovernoFederal: {
+    eixo: string;
+    proposta: string;
+  }[];
+  analiseIA: string;
+  impactoNoRN: string;
+  statusTSE: string;
+  fotoUrl: string;
+  fotoFallbackUrl: string;
+  corTema: string;
+}
+
+export const CANDIDATOS_PRESIDENCIA_BRASIL_2026: CandidatoPresidenteBrasil2026[] = [
+  {
+    id: 'pres-lula-13',
+    nome: 'Luiz Inácio Lula da Silva (Presidente Lula)',
+    nomeUrna: 'Lula (PT · 13)',
+    partido: 'Partido dos Trabalhadores (Coligação Brasil da Esperança)',
+    siglaPartido: 'PT',
+    numero: '13',
+    porcentagemPrimeiroTurno: '45,16% (2º Turno Nacional)',
+    segundoTurno: true,
+    destaque: '2º Turno Presidencial · Plano de Governo Federal Registrado no TSE (84 páginas)',
+    resumoPlanoFederal:
+      'Plano de governo federal com foco em trabalho e renda (fim da escala 6x1 e jornada de 40h semanais sem redução salarial), valorização real do salário mínimo, Novo PAC (duplicação da BR-304 no RN), SUS Digital com diagnósticos online, ensino em tempo integral e criação do Ministério da Segurança Pública.',
+    propostasGovernoFederal: [
+      {
+        eixo: 'Trabalho & Renda',
+        proposta:
+          'Fim da escala 6x1, redução da jornada para 40h semanais sem corte salarial, valorização real do salário mínimo e proteção para trabalhadores de aplicativos.',
+      },
+      {
+        eixo: 'Economia & Infraestrutura (Novo PAC)',
+        proposta:
+          'Arcabouço fiscal com tributação progressiva sobre altas rendas, duplicação da BR-304 no RN, conclusão do Ramal do Apodi e retorno da Petrobras à distribuição.',
+      },
+      {
+        eixo: 'Saúde, Educação & Social',
+        proposta:
+          'SUS Digital (telessaúde e diagnósticos online), Mais Médicos, escolas em tempo integral, Pé-de-Meia, ampliação de creches e preservação do Bolsa Família.',
+      },
+      {
+        eixo: 'Segurança Pública & Clima',
+        proposta:
+          'Criação do Ministério da Segurança Pública, combate ao crime organizado e investimentos em transição energética e adaptação climática.',
+      },
+    ],
+    analiseIA:
+      'Análise PotiguarBot IA (Base TSE/PPA): As propostas de Saúde (SUS Digital), Educação Integral (FUNDEB/FNDE) e Novo PAC (BR-304) possuem dotação orçamentária ativa no PPA Federal. A redução da jornada para 40h e o fim da escala 6x1 dependem de aprovação legislativa no Congresso Nacional.',
+    impactoNoRN:
+      'Impacto direto nas obras federais da BR-304, recursos para UFRN/IFRN, expansão do SUS Digital em bairros como Mãe Luíza e parceria direta com a candidatura de Cadu de Lula (PT · 13) no RN.',
+    statusTSE: 'Plano de Governo Oficial Registrado no DivulgaCandContas TSE',
+    fotoUrl: '/candidates/presidente-lula.jpg',
+    fotoFallbackUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29.jpg',
+    corTema: '#e11d48',
+  },
+  {
+    id: 'pres-flavio-bolsonaro-22',
+    nome: 'Flávio Bolsonaro',
+    nomeUrna: 'Flávio Bolsonaro (PL · 22)',
+    partido: 'Partido Liberal',
+    siglaPartido: 'PL',
+    numero: '22',
+    porcentagemPrimeiroTurno: '47,03% (2º Turno Nacional)',
+    segundoTurno: true,
+    destaque: '2º Turno Presidencial · Plataforma Liberal-Conservadora de Governo Federal',
+    resumoPlanoFederal:
+      'Plataforma federal ancorada na redução do tamanho do Estado, desestatização e revisão de estatais, corte de gastos públicos, desburocratização econômica, fim do instituto da reeleição executiva e endurecimento na segurança pública.',
+    propostasGovernoFederal: [
+      {
+        eixo: 'Economia & Desestatização',
+        proposta:
+          'Redução do Estado, programa de privatizações, revisão de estatais, corte de despesas públicas e abertura ao investimento privado.',
+      },
+      {
+        eixo: 'Reforma Política & Institucional',
+        proposta:
+          'Defesa do fim da reeleição para cargos do Executivo ("compromisso de apenas um mandato") e segurança jurídica para o mercado.',
+      },
+      {
+        eixo: 'Segurança Pública',
+        proposta:
+          'Endurecimento da legislação penal, combate ostensivo ao crime organizado e retaguarda jurídica às forças policiais.',
+      },
+      {
+        eixo: 'Verificação Documental TSE',
+        proposta:
+          'Checagem Oficial: Áudios virais atribuindo aposentadoria aos 70 anos e jornada de 12h não constam no plano de governo formalizado no TSE.',
+      },
+    ],
+    analiseIA:
+      'Análise PotiguarBot IA (Base TSE): A agenda de desestatização, fim da reeleição e reformas estruturais exige Emendas à Constituição (PEC) e maioria qualificada no Congresso. O Radar Anti-Desinformação destaca que boatos sobre escala de 12h e aposentadoria aos 70 anos não fazem parte do documento oficial no TSE.',
+    impactoNoRN:
+      'Forte repercussão sobre o modelo de operação da Petrobras na Bacia Potiguar (Mossoró/Alto do Rodrigues), concessões federais e alinhamento com bancadas conservadoras no RN (como Rogério Marinho 555 e Álvaro Dias 22).',
+    statusTSE: 'Candidatura Registrada no TSE · Monitoramento Documental Ativo',
+    fotoUrl: 'https://www.senado.leg.br/senadores/img/fotos-oficiais/senador5894.jpg',
+    fotoFallbackUrl: '/candidates/flavio-bolsonaro.svg',
+    corTema: '#1e3a8a',
+  },
+  {
+    id: 'pres-romeu-zema-30',
+    nome: 'Romeu Zema',
+    nomeUrna: 'Romeu Zema (NOVO · 30)',
+    partido: 'Partido Novo',
+    siglaPartido: 'NOVO',
+    numero: '30',
+    porcentagemPrimeiroTurno: '1º Turno Nacional · Plataforma Liberal',
+    segundoTurno: false,
+    destaque: 'Candidato à Presidência (1º Turno) · Gestão Fiscal e Privatizações',
+    resumoPlanoFederal:
+      'Propostas de governo federal baseadas em ajuste fiscal rigoroso, reforma administrativa, privatização de estatais, concessões de rodovias e portos à iniciativa privada e simplificação tributária.',
+    propostasGovernoFederal: [
+      {
+        eixo: 'Gestão Fiscal & Reforma Administrativa',
+        proposta:
+          'Corte de gastos públicos, redução de ministérios, meritocracia no serviço público federal e cumprimento estrito de metas de superávit.',
+      },
+      {
+        eixo: 'Infraestrutura Privada & Concessões',
+        proposta:
+          'Ampliação de Parcerias Público-Privadas (PPPs) e concessões rodoviárias, ferroviárias e portuárias para destravar a logística nacional.',
+      },
+    ],
+    analiseIA:
+      'Análise PotiguarBot IA (Base TSE): Propõe substituir investimentos públicos diretos por concessões privadas, exigindo modelagem regulatória via ANTT e ANTAQ.',
+    impactoNoRN:
+      'Debate sobre concessão privada de trechos rodoviários federais e atração de investimentos em energia solar e eólica no RN.',
+    statusTSE: 'Plano de Governo Registrado no 1º Turno (DivulgaCandContas TSE)',
+    fotoUrl: '/candidates/romeu-zema.svg',
+    fotoFallbackUrl: '/candidates/romeu-zema.svg',
+    corTema: '#ea580c',
+  },
+  {
+    id: 'pres-ronaldo-caiado-55',
+    nome: 'Ronaldo Caiado',
+    nomeUrna: 'Ronaldo Caiado (PSD · 55)',
+    partido: 'Partido Social Democrático',
+    siglaPartido: 'PSD',
+    numero: '55',
+    porcentagemPrimeiroTurno: '1º Turno Nacional · Segurança & Agro',
+    segundoTurno: false,
+    destaque: 'Candidato à Presidência (1º Turno) · Segurança Pública e Pacto Federativo',
+    resumoPlanoFederal:
+      'Plano de governo federal voltado ao enfrentamento rigoroso às facções criminosas, fortalecimento do agronegócio, segurança jurídica no campo, saúde regionalizada e autonomia financeira para estados e municípios.',
+    propostasGovernoFederal: [
+      {
+        eixo: 'Segurança Pública & Ordem',
+        proposta:
+          'Integração nacional de inteligência policial, endurecimento da execução penal e bloqueio financeiro de organizações criminosas.',
+      },
+      {
+        eixo: 'Agronegócio, Saúde & Estados',
+        proposta:
+          'Crédito e infraestrutura para o setor produtivo rural, mutirões de saúde e fortalecimento do Fundo de Participação dos Estados e Municípios (FPE/FPM).',
+      },
+    ],
+    analiseIA:
+      'Análise PotiguarBot IA (Base TSE): Foco em cooperação federativa com governadores na área de segurança pública e repasses do FPM/FPE.',
+    impactoNoRN:
+      'Impacto na fruticultura irrigada do Vale do Açu/Mossoró, segurança nas divisas estaduais e repasses federais aos 167 municípios potiguares.',
+    statusTSE: 'Plano de Governo Registrado no 1º Turno (DivulgaCandContas TSE)',
+    fotoUrl: '/candidates/ronaldo-caiado.svg',
+    fotoFallbackUrl: '/candidates/ronaldo-caiado.svg',
+    corTema: '#0284c7',
+  },
+];
+
 export const PRESIDENTE_REFERENCIA_2026: CandidatoCargoRN2026 = {
   id: 'presidente-lula-13',
   nome: 'Luiz Inácio Lula da Silva (Presidente Lula)',
@@ -121,6 +300,76 @@ export const DISPUTA_GOVERNO_RN_2026: CandidatoGovernoRN2026[] = [
 ];
 
 export const PANORAMA_CARGOS_RN_2026: CandidatoCargoRN2026[] = [
+  // CANDIDATOS A PRESIDENTE DO BRASIL (PROPOSTAS DE GOVERNO FEDERAL)
+  {
+    id: 'presidente-lula-13-cargo',
+    nome: 'Luiz Inácio Lula da Silva (Presidente Lula)',
+    cargo: 'Presidente da República',
+    partido: 'PT',
+    numero: '13',
+    destaque: '2º Turno Presidencial (45,16%) · Plano de Governo Federal no TSE',
+    resumoAtuacao:
+      'Propõe o fim da escala 6x1 e jornada de 40h semanais sem redução salarial, valorização real do salário mínimo, Novo PAC (duplicação da BR-304 no RN), SUS Digital com diagnósticos online, escolas em tempo integral e criação do Ministério da Segurança Pública.',
+    propostasChave: [
+      'Fim da escala 6x1 (40h semanais), valorização do salário mínimo e proteção a trabalhadores de apps',
+      'Novo PAC no RN: duplicação da BR-304, Ramal do Apodi e Petrobras na distribuição',
+      'SUS Digital (diagnósticos online), ensino em tempo integral, Pé-de-Meia e Bolsa Família',
+    ],
+    alinhamentoMaeLuiza: true,
+    fotoUrl: '/candidates/presidente-lula.jpg',
+    fotoFallbackUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29.jpg',
+  },
+  {
+    id: 'presidente-flavio-bolsonaro-22-cargo',
+    nome: 'Flávio Bolsonaro',
+    cargo: 'Presidente da República',
+    partido: 'PL',
+    numero: '22',
+    destaque: '2º Turno Presidencial (47,03%) · Plataforma Liberal-Conservadora Federal',
+    resumoAtuacao:
+      'Defende redução do tamanho do Estado, privatizações e revisão de estatais, corte de gastos públicos, fim da reeleição executiva e endurecimento penal na segurança pública.',
+    propostasChave: [
+      'Desestatização, corte de despesas públicas e incentivo à livre iniciativa privada',
+      'Fim da reeleição para cargos do Executivo e endurecimento penal contra o crime organizado',
+      'Checagem TSE: Áudios sobre aposentadoria aos 70 anos e escala de 12h não constam no plano oficial',
+    ],
+    fotoUrl: 'https://www.senado.leg.br/senadores/img/fotos-oficiais/senador5894.jpg',
+    fotoFallbackUrl: '/candidates/flavio-bolsonaro.svg',
+  },
+  {
+    id: 'presidente-romeu-zema-30-cargo',
+    nome: 'Romeu Zema',
+    cargo: 'Presidente da República',
+    partido: 'NOVO',
+    numero: '30',
+    destaque: 'Candidato à Presidência (1º Turno) · Agenda Econômica Liberal',
+    resumoAtuacao:
+      'Plataforma federal focada em equilíbrio fiscal, reforma administrativa, privatizações e concessões de rodovias e portos à iniciativa privada.',
+    propostasChave: [
+      'Reforma administrativa federal, redução de ministérios e corte de gastos públicos',
+      'Concessões privadas em infraestrutura logística e simplificação regulatória',
+    ],
+    fotoUrl: '/candidates/romeu-zema.svg',
+    fotoFallbackUrl: '/candidates/romeu-zema.svg',
+  },
+  {
+    id: 'presidente-ronaldo-caiado-55-cargo',
+    nome: 'Ronaldo Caiado',
+    cargo: 'Presidente da República',
+    partido: 'PSD',
+    numero: '55',
+    destaque: 'Candidato à Presidência (1º Turno) · Segurança Pública e Agronegócio',
+    resumoAtuacao:
+      'Plano federal focado em tolerância zero contra facções criminosas, fortalecimento do agronegócio, saúde regionalizada e descentralização de recursos para estados e municípios.',
+    propostasChave: [
+      'Política nacional de segurança pública ostensiva e inteligência contra facções',
+      'Fortalecimento do agronegócio, segurança jurídica no campo e repasses FPE/FPM',
+    ],
+    fotoUrl: '/candidates/ronaldo-caiado.svg',
+    fotoFallbackUrl: '/candidates/ronaldo-caiado.svg',
+  },
+
   // SENADORES MAIS CITADOS
   {
     id: 'carlos-eduardo-senado',

@@ -588,6 +588,14 @@ export async function speakWithPotiguarTTS(
     }
     inFlightRequestKey = null;
     currentAbortController = null;
+
+    // Se estiver hospedado em ambiente estático externo (ex: Netlify sem backend TTS ativo),
+    // aciona automaticamente o fallback de voz masculina pt-BR do navegador para nunca falhar.
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      speakWithExplicitBrowserFallback(messageId, rawText);
+      return;
+    }
+
     updateState({
       activeMessageId: messageId,
       status: 'error',

@@ -56,10 +56,11 @@ export const PWAInstallButton: React.FC = () => {
         type="button"
         onClick={handleInstallClick}
         title="Instalar Aplicativo Transparência Potiguar no seu celular ou computador"
-        className="botao px-3.5 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-transform active:scale-95 shadow-sm"
+        className="botao px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white text-[11px] sm:text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-transform active:scale-95 shadow-sm shrink-0"
       >
         <Download className="w-3.5 h-3.5 shrink-0" />
-        <span>Instalar App</span>
+        <span className="sm:hidden">App</span>
+        <span className="hidden sm:inline">Instalar App</span>
       </button>
 
       {showInstallModal && (

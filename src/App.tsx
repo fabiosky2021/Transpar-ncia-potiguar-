@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Heart,
   Share2,
@@ -25,7 +25,14 @@ import {
   X,
   RotateCcw,
   Download,
+  Clock,
+  Flame,
 } from 'lucide-react';
+import {
+  generateAutonomousPotiguarBotReply,
+  generateAutonomousDailyBulletin,
+  checkLocalModerationLGPD,
+} from './services/potiguarBotAutonomousEngine';
 import { PWAInstallButton, OfflineIndicator } from './components/PWAInstallButton';
 import { db, handleFirestoreError, OperationType } from './lib/firebase';
 import { doc, collection, onSnapshot, updateDoc, getDoc, addDoc, setDoc } from 'firebase/firestore';
@@ -35,11 +42,12 @@ import { MultimodalStudioChat, StudioChatMessage } from './components/Multimodal
 import { SegundoTurnoMonitor24h } from './components/SegundoTurnoMonitor24h';
 import { PrimeirasNoticiasSlides24h } from './components/PrimeirasNoticiasSlides24h';
 import { PanoramaPoliticoRN2026Section } from './components/PanoramaPoliticoRN2026Section';
-import { RankingPropostasBairroSection } from './components/RankingPropostasBairroSection';
 import { RadarTransparenciaSection } from './components/RadarTransparenciaSection';
+import { AtualizacaoLegislativaSection } from './components/AtualizacaoLegislativaSection';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
+  PEC_221_2019_JSON,
   PropostaTSEItem,
   FeedbackComunidadeItem,
 } from './data/segundoTurnoData';
@@ -233,6 +241,86 @@ export default function App() {
   const [candidateFilter, setCandidateFilter] = useState<'todos' | 'segundo-turno' | 'senado'>('todos');
   const [userPollVote, setUserPollVote] = useState<string | null>(null);
 
+  // Smooth vote counting (tweening) state for the 2º Turno Poll card
+  const [animatedTotalVotos, setAnimatedTotalVotos] = useState<number>(
+    INITIAL_PLATFORM_DATA.enqueteSegundoTurno.totalVotos
+  );
+  const [isTweeningVotes, setIsTweeningVotes] = useState<boolean>(false);
+  const prevTotalVotosRef = useRef<number>(INITIAL_PLATFORM_DATA.enqueteSegundoTurno.totalVotos);
+
+  // Dynamic countdown timer state for the 2º Turno Poll ('Encerrando em breve')
+  const [pollCountdown, setPollCountdown] = useState<{
+    hours: string;
+    minutes: string;
+    seconds: string;
+    urgencyLabel: string;
+  }>({
+    hours: '04',
+    minutes: '59',
+    seconds: '59',
+    urgencyLabel: 'Encerrando em breve',
+  });
+
+  useEffect(() => {
+    const targetTotal = platformData.enqueteSegundoTurno.totalVotos;
+    const startTotal = prevTotalVotosRef.current;
+    if (targetTotal === startTotal) {
+      setAnimatedTotalVotos(targetTotal);
+      return;
+    }
+
+    setIsTweeningVotes(true);
+    const durationMs = 700;
+    const startTime = performance.now();
+    let rafId = 0;
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      // Ease-out cubic for smooth natural counting
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentVal = Math.round(startTotal + (targetTotal - startTotal) * eased);
+      setAnimatedTotalVotos(currentVal);
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(step);
+      } else {
+        setAnimatedTotalVotos(targetTotal);
+        prevTotalVotosRef.current = targetTotal;
+        setIsTweeningVotes(false);
+      }
+    };
+
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
+  }, [platformData.enqueteSegundoTurno.totalVotos]);
+
+  useEffect(() => {
+    // Dynamic countdown to the daily poll closing cycle (creates urgency in real time)
+    const updateCountdown = () => {
+      const now = new Date();
+      const endOfCycle = new Date(now);
+      endOfCycle.setHours(23, 59, 59, 999);
+      const diffMs = Math.max(0, endOfCycle.getTime() - now.getTime());
+
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const hrs = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+
+      setPollCountdown({
+        hours: String(hrs).padStart(2, '0'),
+        minutes: String(mins).padStart(2, '0'),
+        seconds: String(secs).padStart(2, '0'),
+        urgencyLabel: hrs < 6 ? 'Encerrando em breve · Últimas horas do lote diário' : 'Encerrando em breve · Lote diário ativo',
+      });
+    };
+
+    updateCountdown();
+    const timerId = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timerId);
+  }, []);
+
   // Modals & Banners
   const [lgpdAccepted, setLgpdAccepted] = useState<boolean>(() => {
     try {
@@ -269,7 +357,7 @@ export default function App() {
   ]);
   const [chatInput, setChatInput] = useState<string>('');
   const [isBotLoading, setIsBotLoading] = useState<boolean>(false);
-  const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(true);
+  const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(false);
 
   // Moderated Citizen Reports (Mural de Utilidade Pública)
   const [relatos, setRelatos] = useState<RelatoCidadao[]>(INITIAL_RELATOS_CIDADAOS);
@@ -354,28 +442,36 @@ export default function App() {
     }
   };
 
-  // Handle voting in the 2º Turno Poll
-  const votarSegundoTurno = async (opcaoId: string) => {
-    if (userPollVote === opcaoId) return;
+  // Handle voting in the 2º Turno Poll (with optimistic local update so tweening animation triggers immediately)
+  const votarSegundoTurno = async (opcaoId: string, bonusIncrement = 1) => {
+    const ops = platformData.enqueteSegundoTurno.opcoes;
+    const isSwitchingCandidate = userPollVote !== null && userPollVote !== opcaoId && bonusIncrement === 1;
+
+    const novasOpcoes = ops.map((op) => {
+      if (op.id === opcaoId) {
+        return { ...op, votos: op.votos + bonusIncrement };
+      }
+      if (isSwitchingCandidate && op.id === userPollVote) {
+        return { ...op, votos: Math.max(0, op.votos - 1) };
+      }
+      return op;
+    });
+
+    const novoTotal = novasOpcoes.reduce((acc, item) => acc + item.votos, 0);
+    const novosVotosAllyson = novasOpcoes.find((o) => o.id === 'allyson-bezerra')?.votos ?? 0;
+    const novosVotosCadu = novasOpcoes.find((o) => o.id === 'cadu-xavier')?.votos ?? 0;
+
+    setPlatformData((prev) => ({
+      ...prev,
+      enqueteSegundoTurno: {
+        ...prev.enqueteSegundoTurno,
+        totalVotos: novoTotal,
+        opcoes: novasOpcoes,
+      },
+    }));
+    setUserPollVote(opcaoId);
 
     try {
-      const ops = platformData.enqueteSegundoTurno.opcoes;
-      const jaVotou = userPollVote !== null;
-      
-      const novasOpcoes = ops.map((op) => {
-        if (op.id === opcaoId) {
-          return { ...op, votos: op.votos + 1 };
-        }
-        if (jaVotou && op.id === userPollVote) {
-          return { ...op, votos: Math.max(0, op.votos - 1) };
-        }
-        return op;
-      });
-
-      const novoTotal = novasOpcoes.reduce((acc, item) => acc + item.votos, 0);
-      const novosVotosAllyson = novasOpcoes.find((o) => o.id === 'allyson-bezerra')?.votos ?? 0;
-      const novosVotosCadu = novasOpcoes.find((o) => o.id === 'cadu-xavier')?.votos ?? 0;
-
       await updateDoc(doc(db, 'enquete', 'resultado'), {
         totalVotos: novoTotal,
         votosAllyson: novosVotosAllyson,
@@ -383,8 +479,6 @@ export default function App() {
         votosPaulinho: novosVotosAllyson,
         votosNatalia: novosVotosCadu,
       });
-
-      setUserPollVote(opcaoId);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, 'enquete/resultado');
     }
@@ -503,18 +597,23 @@ export default function App() {
     setIsUpdatingBoletim(true);
     try {
       const response = await fetch('/api/daily-ai-update', { method: 'POST' });
+      if (!response.ok) throw new Error('Endpoint indisponível');
       const data = await response.json();
       if (data.boletim) {
         setBoletinsIA((prev) => [data.boletim, ...prev]);
+      } else {
+        setBoletinsIA((prev) => [generateAutonomousDailyBulletin(), ...prev]);
       }
     } catch {
-      // fallback already handled
+      // Fallback autônomo para funcionar perfeitamente na Netlify ou hospedagem estática
+      const novoBoletimLocal = generateAutonomousDailyBulletin();
+      setBoletinsIA((prev) => [novoBoletimLocal, ...prev]);
     } finally {
       setIsUpdatingBoletim(false);
     }
   };
 
-  // Send message or image to PotiguarBot IA via server-side Gemini endpoint
+  // Send message or image to PotiguarBot IA via server-side Gemini endpoint OR Autonomous Multi-Environment Engine (Netlify compatible)
   const enviarPerguntaBot = async (
     customPrompt?: string,
     imageBase64?: string,
@@ -550,27 +649,45 @@ export default function App() {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
       const data = await response.json();
+      if (data.useAutonomousFallback || !data.reply) {
+        throw new Error('Ativar motor autônomo');
+      }
+
       const botMsg: StudioChatMessage = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
-        text:
-          data.reply ||
-          data.error ||
-          'O Passe Livre está confirmado em todas as zonas de Natal e rotas intermunicipais das 06h às 20h.',
+        text: data.reply,
         timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
         moderated: Boolean(data.moderated),
         suggestedActions: data.suggestedActions,
       };
       setChatMessages((prev) => [...prev, botMsg]);
     } catch {
+      // Motor Autônomo Multi-Ambiente (garante funcionamento 100% na Netlify, Vercel, GitHub Pages ou offline)
+      const autonomousResult = generateAutonomousPotiguarBotReply({
+        message: textToSend,
+        imageBase64,
+        imageMimeType,
+        platformJson: platformData,
+        unlockedAffiliates,
+        latestRelatos: relatos,
+        latestAvaliacoes: avaliacoes,
+      });
+
       setChatMessages((prev) => [
         ...prev,
         {
-          id: `bot-err-${Date.now()}`,
+          id: `bot-auto-${Date.now()}`,
           sender: 'bot',
-          text: 'Serviço em consulta local: O Passe Livre nos bairros de Natal garante catracas liberadas das 06h às 20h no dia de votação.',
+          text: autonomousResult.reply,
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          moderated: autonomousResult.moderated,
+          suggestedActions: autonomousResult.suggestedActions,
         },
       ]);
     } finally {
@@ -578,13 +695,38 @@ export default function App() {
     }
   };
 
-  // Submit citizen report on Passe Livre / Elections with real-time LGPD AI moderation & Firestore persistence
+  // Submit citizen report on Passe Livre / Elections with real-time LGPD AI moderation & Firestore persistence (Netlify compatible)
   const enviarRelatoCidadao = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!novaMensagem.trim() || isModerating) return;
 
     setIsModerating(true);
     setModerationFeedback(null);
+
+    const publicarRelatoValidado = async (reasonMsg: string) => {
+      const novoRelatoDoc = {
+        autor: novoAutor.trim() || 'Eleitor Potiguar',
+        bairro: novoBairro,
+        horario: `Hoje, ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+        mensagem: novaMensagem.trim(),
+        statusModeracao: 'Aprovado pela Moderação LGPD' as const,
+      };
+      const novoItem: RelatoCidadao = {
+        id: `rel-${Date.now()}`,
+        ...novoRelatoDoc,
+      };
+      setRelatos((prev) => [novoItem, ...prev]);
+      try {
+        await addDoc(collection(db, 'relatos'), novoRelatoDoc);
+      } catch (err) {
+        handleFirestoreError(err, OperationType.CREATE, 'relatos');
+      }
+      setNovaMensagem('');
+      setModerationFeedback({
+        type: 'success',
+        text: `Publicação registrada no banco de dados! ${reasonMsg}`,
+      });
+    };
 
     try {
       const response = await fetch('/api/moderate-comment', {
@@ -597,30 +739,10 @@ export default function App() {
         }),
       });
 
+      if (!response.ok) throw new Error('Fallback moderação local');
       const data = await response.json();
       if (data.approved) {
-        const novoRelatoDoc = {
-          autor: novoAutor.trim() || 'Eleitor Potiguar',
-          bairro: novoBairro,
-          horario: `Hoje, ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
-          mensagem: novaMensagem.trim(),
-          statusModeracao: 'Aprovado pela Moderação LGPD' as const,
-        };
-        const novoItem: RelatoCidadao = {
-          id: `rel-${Date.now()}`,
-          ...novoRelatoDoc,
-        };
-        setRelatos((prev) => [novoItem, ...prev]);
-        try {
-          await addDoc(collection(db, 'relatos'), novoRelatoDoc);
-        } catch (err) {
-          handleFirestoreError(err, OperationType.CREATE, 'relatos');
-        }
-        setNovaMensagem('');
-        setModerationFeedback({
-          type: 'success',
-          text: `Publicação registrada no banco de dados! ${data.reason || 'Verificado pela Moderação Ativa LGPD.'}`,
-        });
+        await publicarRelatoValidado(data.reason || 'Verificado pela Moderação Ativa LGPD.');
       } else {
         setModerationFeedback({
           type: 'error',
@@ -630,10 +752,15 @@ export default function App() {
         });
       }
     } catch {
-      setModerationFeedback({
-        type: 'error',
-        text: 'Não foi possível validar o relato no momento. Verifique sua conexão.',
-      });
+      const localCheck = checkLocalModerationLGPD(novaMensagem.trim());
+      if (localCheck.approved) {
+        await publicarRelatoValidado(localCheck.reason);
+      } else {
+        setModerationFeedback({
+          type: 'error',
+          text: localCheck.reason,
+        });
+      }
     } finally {
       setIsModerating(false);
     }
@@ -722,20 +849,20 @@ export default function App() {
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-color)] text-[var(--text-color)]">
-      {/* Top Navigation Bar following strict 3-Zone Top Bar Contract */}
-      <header className="sticky top-0 z-40 bg-[var(--card-bg)] border-b border-[var(--border-color)] px-4 sm:px-8 py-3.5">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
-          {/* Zone 1: Single text element wordmark */}
+    <div className="min-h-screen flex flex-col bg-[var(--bg-color)] text-[var(--text-color)] overflow-x-hidden w-full max-w-[100vw] pb-16 lg:pb-0">
+      {/* Top Navigation Bar following strict Responsive Multi-Device Contract (Celular, App PWA, Notebook & PC) */}
+      <header className="sticky top-0 z-40 bg-[var(--card-bg)]/95 backdrop-blur-md border-b border-[var(--border-color)] px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 w-full max-w-[100vw]">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-2 sm:gap-4 min-w-0">
+          {/* Zone 1: Wordmark */}
           <a
             href="#topo"
-            className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text-color)] font-editorial whitespace-nowrap shrink-0"
+            className="text-base sm:text-xl font-semibold tracking-tight text-[var(--text-color)] font-editorial truncate min-w-0"
           >
             Transparência Potiguar
           </a>
 
-          {/* Zone 2: 5 single-line navigation links */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-[var(--text-muted)]">
+          {/* Zone 2: Navigation links on wide screens */}
+          <nav className="hidden xl:flex items-center gap-5 text-sm font-medium text-[var(--text-muted)] shrink-0">
             <a
               href="#colinha-politica-2026"
               className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-[var(--accent-color)]"
@@ -743,16 +870,16 @@ export default function App() {
               Colinha RN 2026
             </a>
             <a
+              href="#atualizacao-legislativa"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-emerald-600 dark:text-emerald-400"
+            >
+              PEC 221/2019 (6x1)
+            </a>
+            <a
               href="#utilidade-publica"
               className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
             >
               Utilidade Pública
-            </a>
-            <a
-              href="#monitoramento"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
-              Ranking por Bairro
             </a>
             <a
               href="#radar-transparencia"
@@ -768,31 +895,47 @@ export default function App() {
             </a>
           </nav>
 
-          {/* Zone 3: 2 primary actions (Accessibility Mode Switcher + WhatsApp Share) */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          {/* Zone 3: Responsive actions for Mobile, App, Notebook & Desktop */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsFloatingChatOpen((prev) => !prev)}
+              title="Abrir ou fechar o Painel de Estúdio do Agente PotiguarBot IA"
+              className={`botao px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap border ${
+                isFloatingChatOpen
+                  ? 'bg-emerald-600 text-white border-emerald-500'
+                  : 'bg-[var(--surface-subtle)] text-[var(--accent-color)] border-[var(--border-color)] hover:border-[var(--accent-color)]'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Estúdio IA</span>
+              <span className="sm:hidden">IA</span>
+            </button>
+
             <PWAInstallButton />
+
             <button
               type="button"
               onClick={cycleTheme}
               title="Alternar tema de visualização: Claro, Noturno ou Alto Contraste"
-              className="px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--text-color)] hover:opacity-90 transition-opacity inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[11px] sm:text-xs font-semibold text-[var(--text-color)] hover:opacity-90 transition-opacity inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
             >
               {theme === 'light' && (
                 <>
-                  <Moon className="w-3.5 h-3.5" />
-                  <span>Noturno</span>
+                  <Moon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Noturno</span>
                 </>
               )}
               {theme === 'dark-mode' && (
                 <>
-                  <Contrast className="w-3.5 h-3.5" />
-                  <span>Alto Contraste</span>
+                  <Contrast className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Contraste</span>
                 </>
               )}
               {theme === 'high-contrast' && (
                 <>
-                  <Sun className="w-3.5 h-3.5" />
-                  <span>Modo Claro</span>
+                  <Sun className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Claro</span>
                 </>
               )}
             </button>
@@ -800,17 +943,64 @@ export default function App() {
             <button
               type="button"
               onClick={() => setShareModalOpen(true)}
-              className="px-4 py-2 rounded-lg bg-[#10b981] hover:bg-[#059669] text-white text-xs sm:text-sm font-semibold transition-transform active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-[#10b981] hover:bg-[#059669] text-white text-[11px] sm:text-xs font-semibold transition-transform active:scale-95 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
             >
-              <Share2 className="w-4 h-4 shrink-0" />
-              <span>Compartilhar no WhatsApp</span>
+              <Share2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden md:inline">Compartilhar no WhatsApp</span>
+              <span className="md:hidden">WhatsApp</span>
             </button>
           </div>
         </div>
+
+        {/* Barra de Navegação Deslizante para Celular, App e Notebook (< xl) — Sem estourar a largura */}
+        <div className="xl:hidden max-w-[1200px] mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 mt-2 border-t border-[var(--border-color)] text-xs">
+          <a
+            href="#colinha-politica-2026"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--accent-color)] font-semibold whitespace-nowrap no-underline shrink-0"
+          >
+            Colinha RN 2026
+          </a>
+          <a
+            href="#candidatos-presidente-brasil-2026"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
+          >
+            Presidente 2026
+          </a>
+          <a
+            href="#atualizacao-legislativa"
+            className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold whitespace-nowrap no-underline shrink-0"
+          >
+            PEC 221/2019 (6x1)
+          </a>
+          <a
+            href="#enquete-2-turno"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
+          >
+            Enquete 2º Turno
+          </a>
+          <a
+            href="#utilidade-publica"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
+          >
+            Passe Livre
+          </a>
+          <a
+            href="#radar-transparencia"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
+          >
+            Radar TSE
+          </a>
+          <a
+            href="#potiguar-bot"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--accent-color)] font-semibold whitespace-nowrap no-underline shrink-0"
+          >
+            PotiguarBot IA
+          </a>
+        </div>
       </header>
 
-      {/* Main Content Container (1200px max-width for 1440px desktop baseline) */}
-      <main id="topo" className="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-8 py-8 space-y-12">
+      {/* Main Content Container (Responsive across Celular, App, Notebook & Desktop) */}
+      <main id="topo" className="flex-1 max-w-[1200px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-12 overflow-x-hidden min-w-0">
         {/* Section 0: Slides das Primeiras Notícias · Atualização em Tempo Real 24h */}
         <PrimeirasNoticiasSlides24h
           boletins={boletinsIA}
@@ -831,6 +1021,15 @@ export default function App() {
           onLikeCandidate={curtirEUnlock}
           onOpenAffiliateEditor={abrirEditorAfiliado}
           onAskAgent={(prompt) => {
+            setIsFloatingChatOpen(true);
+            enviarPerguntaBot(prompt);
+          }}
+        />
+
+        {/* Section 0.8: Componente Dedicado de Atualização Legislativa — PEC 221/2019 (Fim da Escala 6x1 · JSON Integrado) */}
+        <AtualizacaoLegislativaSection
+          dadosJson={PEC_221_2019_JSON}
+          onAskPotiguarBot={(prompt) => {
             setIsFloatingChatOpen(true);
             enviarPerguntaBot(prompt);
           }}
@@ -861,7 +1060,7 @@ export default function App() {
           </div>
 
           {/* Focal Anchor: Passe Livre Alert Card + Visual Hero */}
-          <div className="bg-[var(--card-bg)] border border-[var(--border-color)] border-l-4 border-l-[var(--accent-color)] rounded-xl overflow-hidden">
+          <div className="card-clean overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12">
               {/* Left 7 columns: Core Public Utility Alert & Like-to-Unlock */}
               <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
@@ -936,9 +1135,9 @@ export default function App() {
                             href={noticiaMobilidade.linkAfiliado}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 no-underline whitespace-nowrap"
+                            className="px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 no-underline"
                           >
-                            <ExternalLink className="w-4 h-4" />
+                            <ExternalLink className="w-4 h-4 shrink-0" />
                             <span>Ver Produto Recomendado: {noticiaMobilidade.produtoRecomendado}</span>
                           </a>
                         ) : (
@@ -952,9 +1151,9 @@ export default function App() {
                                 noticiaMobilidade.produtoRecomendado
                               )
                             }
-                            className="px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                            className="px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer text-left sm:text-center"
                           >
-                            <SlidersHorizontal className="w-4 h-4" />
+                            <SlidersHorizontal className="w-4 h-4 shrink-0" />
                             <span>Ver Produto Recomendado (Aguardando seu link · Clique para definir)</span>
                           </button>
                         )}
@@ -1060,55 +1259,63 @@ export default function App() {
           </div>
         </section>
 
-        {/* Section 2: Ranking de Propostas por Bairro (Google AI Studio JSON) + Simulado 2º Turno (Zero Duplicação de Candidatos) */}
-        <section id="monitoramento" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left 7 Columns: Ranquear Propostas por Bairro (Estrutura JSON para Google AI Studio) */}
-          <div className="lg:col-span-7">
-            <RankingPropostasBairroSection
-              propostas={propostasTSE}
-              feedbacks={feedbacksComunidade}
-              onLikeProposta={async (propostaId: string) => {
-                const propAtual = propostasTSE.find((p) => p.id === propostaId);
-                if (!propAtual) return;
-                const novoLikes = propAtual.likes + 1;
-                setPropostasTSE((prev) =>
-                  prev.map((p) => (p.id === propostaId ? { ...p, likes: novoLikes } : p))
-                );
-                try {
-                  await setDoc(doc(db, 'propostasTSE', propostaId), {
-                    ...propAtual,
-                    likes: novoLikes,
-                  });
-                } catch (error) {
-                  handleFirestoreError(error, OperationType.WRITE, `propostasTSE/${propostaId}`);
-                }
-              }}
-              onAskAgent={(prompt) => {
-                setIsFloatingChatOpen(true);
-                enviarPerguntaBot(prompt);
-              }}
-            />
-          </div>
+        {/* Section 2: Simulado de Preferência - 2º Turno (RN) & Conformidade Democrática LGPD (Sem Duplicação de Propostas) */}
+        <section id="monitoramento" className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start min-w-0">
+          {/* Left 8 Columns: Simulado de Preferência - 2º Turno (Natal/RN) com Gráfico Dinâmico Recharts */}
+          <div id="segundo-turno" className="lg:col-span-8 space-y-6 min-w-0">
+            <div id="enquete-2-turno" className="card-clean p-4 sm:p-8 space-y-6 overflow-hidden">
+              <div className="space-y-3 border-b border-[var(--border-color)] pb-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-[var(--success-color)]">
+                      Enquete Interativa · Status: {platformData.enqueteSegundoTurno.status.toUpperCase()}
+                    </span>
+                    <span aria-hidden="true">·</span>
+                    {/* Selo dinâmico 'Encerrando em breve' com contador regressivo ao vivo */}
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-semibold">
+                      <Flame className="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" />
+                      <span>{pollCountdown.urgencyLabel}</span>
+                      <span className="font-tabular font-bold text-[var(--text-color)] inline-flex items-center gap-1 ml-1">
+                        <Clock className="w-3 h-3 text-amber-500" />
+                        {pollCountdown.hours}h:{pollCountdown.minutes}m:{pollCountdown.seconds}s
+                      </span>
+                    </span>
+                  </div>
 
-          {/* Right 5 Columns: Simulado de Preferência - 2º Turno (Natal/RN) com Gráfico Dinâmico Recharts */}
-          <div id="segundo-turno" className="lg:col-span-5 space-y-6">
-            <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 space-y-6">
-              <div className="space-y-2 border-b border-[var(--border-color)] pb-4">
-                <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
-                  <span className="font-semibold text-[var(--success-color)]">
-                    Enquete Interativa · Status: {platformData.enqueteSegundoTurno.status.toUpperCase()}
-                  </span>
-                  <span className="font-tabular">
-                    Total: {platformData.enqueteSegundoTurno.totalVotos.toLocaleString('pt-BR')} votos
-                  </span>
+                  {/* Contador de votos totais com animação de contagem suave (tweening) */}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`font-tabular text-sm font-bold transition-all duration-200 px-2.5 py-1 rounded-lg border ${
+                        isTweeningVotes
+                          ? 'scale-105 bg-emerald-500/15 text-[var(--success-color)] border-emerald-500/40'
+                          : 'bg-[var(--surface-subtle)] text-[var(--text-color)] border-[var(--border-color)]'
+                      }`}
+                    >
+                      Total: {animatedTotalVotos.toLocaleString('pt-BR')} votos
+                    </span>
+                  </div>
                 </div>
 
-                <h2 className="text-xl font-semibold text-[var(--text-color)]">
-                  {platformData.enqueteSegundoTurno.titulo}
-                </h2>
-                <p className="text-xs text-[var(--text-muted)]">
-                  Visualização comparativa dinâmica da diferença de votos entre os candidatos em Natal.
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h2 className="text-xl font-semibold text-[var(--text-color)]">
+                      {platformData.enqueteSegundoTurno.titulo}
+                    </h2>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Visualização comparativa dinâmica da diferença de votos entre os candidatos no Rio Grande do Norte.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      votarSegundoTurno(userPollVote || 'allyson-bezerra', 12)
+                    }
+                    title="Simular chegada de novos votos para visualizar a animação de contagem suave (tweening)"
+                    className="botao self-start sm:self-auto px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] hover:border-[var(--accent-color)] text-xs font-semibold text-[var(--accent-color)] cursor-pointer whitespace-nowrap"
+                  >
+                    + Simular Lote de Votos
+                  </button>
+                </div>
               </div>
 
               {/* Dynamic Bar Chart using Recharts */}
@@ -1122,12 +1329,12 @@ export default function App() {
                   </span>
                 </div>
 
-                <div className="w-full h-56 pt-2 pb-1 px-2 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+                <div className="w-full h-56 pt-2 pb-1 px-1 sm:px-2 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] overflow-hidden">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={pollChartData}
                       layout="vertical"
-                      margin={{ top: 12, right: 85, left: 10, bottom: 8 }}
+                      margin={{ top: 12, right: 62, left: 4, bottom: 8 }}
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
@@ -1143,8 +1350,8 @@ export default function App() {
                       <YAxis
                         type="category"
                         dataKey="nomeCurto"
-                        width={118}
-                        tick={{ fontSize: 12, fontWeight: 600, fill: 'var(--text-color)' }}
+                        width={102}
+                        tick={{ fontSize: 11, fontWeight: 600, fill: 'var(--text-color)' }}
                         stroke="var(--border-color)"
                       />
                       <Tooltip
@@ -1203,10 +1410,10 @@ export default function App() {
                   return (
                     <div
                       key={opcao.id}
-                      className={`p-4 rounded-lg border transition-colors ${
+                      className={`p-5 rounded-xl border transition-all shadow-[var(--subcard-shadow)] ${
                         isSelected
                           ? 'border-[var(--accent-color)] bg-[var(--surface-subtle)]'
-                          : 'border-[var(--border-color)]'
+                          : 'border-[var(--border-color)] bg-[var(--surface-subtle)]/60'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3 mb-3">
@@ -1249,7 +1456,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => votarSegundoTurno(opcao.id)}
-                        className={`w-full py-2 px-4 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
+                        className={`w-full py-2 px-3 sm:px-4 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                           isSelected
                             ? 'bg-[var(--success-color)] text-white'
                             : 'bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white'
@@ -1290,9 +1497,11 @@ export default function App() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Governance & LGPD Moderation Status Card */}
-            <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 space-y-3">
+          {/* Right 4 Columns: Governance & LGPD Moderation Status Card */}
+          <div className="lg:col-span-4">
+            <div className="card-clean p-6 sm:p-7 space-y-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-color)]">
                 <ShieldCheck className="w-4 h-4 text-[var(--success-color)] shrink-0" />
                 <span>Conformidade Democrática & LGPD</span>
@@ -1459,7 +1668,7 @@ export default function App() {
         />
 
         {/* Section 4: Central de Monetização & Configuração de Links de Afiliado */}
-        <section id="afiliados" className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 sm:p-8 space-y-6">
+        <section id="afiliados" className="card-clean p-6 sm:p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--text-color)]">

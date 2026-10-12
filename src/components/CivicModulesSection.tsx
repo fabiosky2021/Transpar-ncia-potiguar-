@@ -297,7 +297,7 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
         {/* Left 6 Columns: Módulo de Busca de Local de Votação por Número de Seção (Integrado ao PotiguarBot IA) */}
         <div
           id="localizador-secao"
-          className="lg:col-span-6 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 space-y-5"
+          className="lg:col-span-6 card-clean p-6 sm:p-7 space-y-5"
         >
           <div className="space-y-1.5 border-b border-[var(--border-color)] pb-4">
             <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -374,7 +374,7 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
 
           {/* Card de Retorno Estruturado do PotiguarBot IA (Colégio Eleitoral, Horário Sugerido e Data) */}
           {resultadoSecao && (
-            <div className="p-4 rounded-xl border-2 border-[var(--accent-color)] bg-[var(--surface-subtle)] space-y-3">
+            <div className="subcard-clean p-5 space-y-3.5">
               <div className="flex items-center justify-between gap-2 flex-wrap border-b border-[var(--border-color)] pb-2.5">
                 <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-color)]">
                   <Bot className="w-4 h-4" />
@@ -450,22 +450,6 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
                   </button>
                 </div>
               </div>
-
-              {/* Estado de Conversação Atual do PotiguarBot IA Sincronizado */}
-              {ultimaMensagemBot && (
-                <div className="p-3 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 text-xs">
-                  <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)]">
-                    <span className="font-semibold text-[var(--accent-color)] inline-flex items-center gap-1">
-                      <MessageSquare className="w-3 h-3" />
-                      <span>Estado Atual da Conversa (PotiguarBot IA):</span>
-                    </span>
-                    <span>{ultimaMensagemBot.timestamp}</span>
-                  </div>
-                  <p className="text-xs text-[var(--text-color)] line-clamp-3 whitespace-pre-line leading-relaxed">
-                    {ultimaMensagemBot.text}
-                  </p>
-                </div>
-              )}
             </div>
           )}
 
@@ -484,33 +468,35 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
             </a>
           </div>
 
-          {/* Lista de Polos e Faixas de Seções Eleitorais */}
-          <div className="space-y-2.5 max-h-[240px] overflow-y-auto">
-            {locaisFiltrados.map((item) => (
-              <div
-                key={item.id}
-                className="p-3.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] space-y-1.5"
-              >
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="font-semibold text-xs sm:text-sm text-[var(--text-color)]">
-                    {item.local}
-                  </span>
-                  <span className="text-xs font-mono font-semibold text-[var(--accent-color)]">
-                    {item.secoes}
-                  </span>
+          {/* Demais Polos e Faixas de Seções Eleitorais Validados (Sem repetir o polo já destacado acima) */}
+          <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+            {locaisFiltrados
+              .filter((item) => item.local !== resultadoSecao?.colegioEleitoral)
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="subcard-clean p-4 space-y-1.5"
+                >
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="font-semibold text-xs sm:text-sm text-[var(--text-color)]">
+                      {item.local}
+                    </span>
+                    <span className="text-xs font-mono font-semibold text-[var(--accent-color)]">
+                      {item.secoes}
+                    </span>
+                  </div>
+                  <div className="text-xs text-[var(--text-muted)]">
+                    📍 <strong>Endereço:</strong> {item.endereco} · ⏰ <strong>Sugerido:</strong> {item.horarioSugerido}
+                  </div>
                 </div>
-                <div className="text-xs text-[var(--text-muted)]">
-                  📍 <strong>Endereço:</strong> {item.endereco} · ⏰ <strong>Sugerido:</strong> {item.horarioSugerido}
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
         {/* Right 6 Columns: Enquete de Benefícios dos Candidatos (O que fez de bom / O que não fez + 👍 Aprovado / 👎 Não Aprovado) */}
         <div
           id="enquete-beneficios"
-          className="lg:col-span-6 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-6 space-y-5"
+          className="lg:col-span-6 card-clean p-6 sm:p-7 space-y-5"
         >
           <div className="space-y-1.5 border-b border-[var(--border-color)] pb-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-[var(--success-color)]">
@@ -629,11 +615,11 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
           </form>
 
           {/* Lista das Últimas Avaliações Publicadas */}
-          <div className="space-y-2.5 pt-2 border-t border-[var(--border-color)] max-h-[230px] overflow-y-auto">
+          <div className="space-y-3 pt-2 border-t border-[var(--border-color)] max-h-[230px] overflow-y-auto pr-1">
             {avaliacoes.map((av, index) => (
               <div
                 key={av.id}
-                className="p-3 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-1.5 text-xs"
+                className="subcard-clean p-4 space-y-1.5 text-xs"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-[var(--text-color)]">

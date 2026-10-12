@@ -198,10 +198,10 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
       aria-label="Slides das Primeiras Notícias - Atualização em Tempo Real 24h"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="bg-[var(--card-bg)] border-2 border-[var(--accent-color)] rounded-xl overflow-hidden shadow-sm"
+      className="card-clean overflow-hidden"
     >
       {/* Top Breaking News Bar 24h */}
-      <div className="bg-[#0f172a] text-white px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
+      <div className="bg-[#0f172a] text-white px-5 sm:px-7 py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-red-600 text-white text-[11px] font-bold uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-white animate-ping" />
@@ -222,7 +222,7 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
             type="button"
             onClick={onTriggerDailyUpdate}
             disabled={isUpdatingBoletim}
-            className="botao px-3 py-1 rounded-md bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] disabled:opacity-60 text-white text-[11px] font-semibold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            className="botao px-3 py-1.5 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] disabled:opacity-60 text-white text-[11px] font-semibold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
             <RefreshCw className={`w-3 h-3 ${isUpdatingBoletim ? 'animate-spin' : ''}`} />
             <span>
@@ -233,31 +233,33 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
       </div>
 
       {/* Main Slide Body */}
-      <div className="p-5 sm:p-7 space-y-5 relative">
+      <div className="p-6 sm:p-8 space-y-6 relative">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2 font-semibold text-[var(--accent-color)]">
             {renderSlideIcon(currentSlide.icone)}
             <span>{currentSlide.categoria}</span>
           </div>
-          <span className="font-mono text-[11px] text-[var(--text-muted)] bg-[var(--surface-subtle)] px-2.5 py-1 rounded border border-[var(--border-color)]">
+          <span className="font-mono text-[11px] text-[var(--text-muted)] bg-[var(--surface-subtle)] px-3 py-1 rounded-lg border border-[var(--border-color)]">
             Slide {currentIndex + 1} de {slides.length} · {currentSlide.tagTempoReal}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          <div className="lg:col-span-8 space-y-3">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-[var(--text-color)] leading-snug">
-              {currentSlide.titulo}
-            </h2>
-            <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed">
-              {currentSlide.resumo}
-            </p>
-            <div className="p-3 rounded-lg bg-[var(--surface-subtle)] border-l-4 border-[var(--accent-color)] text-xs text-[var(--text-color)]">
-              <strong>Destaque 24h:</strong> {currentSlide.destaqueSecundario}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-8 space-y-3.5 flex flex-col justify-between">
+            <div className="space-y-3">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-[var(--text-color)] leading-snug">
+                {currentSlide.titulo}
+              </h2>
+              <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed">
+                {currentSlide.resumo}
+              </p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] text-xs text-[var(--text-color)]">
+              <strong className="text-[var(--accent-color)]">Destaque 24h:</strong> {currentSlide.destaqueSecundario}
             </div>
           </div>
 
-          <div className="lg:col-span-4 bg-[var(--surface-subtle)] border border-[var(--border-color)] rounded-xl p-4 space-y-3 flex flex-col justify-between">
+          <div className="lg:col-span-4 subcard-clean p-5 space-y-4 flex flex-col justify-between">
             <div className="space-y-1.5">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                 Ações Rápidas da Manchete
@@ -267,7 +269,7 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
               </p>
             </div>
 
-            <div className="space-y-2 pt-1">
+            <div className="space-y-2.5 pt-1">
               {currentSlide.ctaPrimarioHref && (
                 <a
                   href={currentSlide.ctaPrimarioHref}
@@ -288,14 +290,14 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
               </button>
             </div>
 
-            <div className="text-[11px] text-[var(--text-muted)] pt-1 border-t border-[var(--border-color)]">
+            <div className="text-[11px] text-[var(--text-muted)] pt-2 border-t border-[var(--border-color)]">
               💡 <strong>Dica:</strong> Candidatos já eleitos no 1º turno são informados apenas se você perguntar ao Agente IA.
             </div>
           </div>
         </div>
 
         {/* Slide Controls & Numbered Navigation Pills */}
-        <div className="pt-3 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-3">
+        <div className="pt-4 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-1.5">
             {slides.map((s, idx) => (
               <button

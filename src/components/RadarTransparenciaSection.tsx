@@ -17,6 +17,11 @@ import {
   Filter,
   Landmark,
   Eye,
+  Scale,
+  ExternalLink,
+  PlayCircle,
+  Code2,
+  Copy,
 } from 'lucide-react';
 import {
   CandidatoItem,
@@ -30,6 +35,8 @@ import {
   ATOS_TRANSICAO_GOVERNO,
   ALERTAS_ANTI_DESINFORMACAO,
   PROPOSTAS_PRESIDENCIA_ANALISE,
+  ATUALIZACOES_LEGISLATIVAS,
+  PEC_221_2019_JSON,
 } from '../data/segundoTurnoData';
 import {
   voiceConfig,
@@ -52,6 +59,7 @@ export type ClassificacaoInformacao =
 
 export type CategoriaRadar =
   | 'todas'
+  | 'legislativas'
   | 'atencao'
   | 'oficiais'
   | 'propostas'
@@ -155,11 +163,12 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
   boletins,
   onAskPotiguarBot,
 }) => {
-  const [abaAtiva, setAbaAtiva] = useState<CategoriaRadar>('todas');
+  const [abaAtiva, setAbaAtiva] = useState<CategoriaRadar>('legislativas');
   const [filtroClassificacao, setFiltroClassificacao] = useState<
     'Todas' | ClassificacaoInformacao
   >('Todas');
   const [buscaTexto, setBuscaTexto] = useState<string>('');
+  const [copiadoJsonPec, setCopiadoJsonPec] = useState<boolean>(false);
   const [ttsState, setTtsState] = useState<TTSStateSnapshot>({
     activeMessageId: null,
     status: 'idle',
@@ -177,6 +186,23 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
   // Consolida todas as estruturas existentes sem duplicar modelos ou criar dados fictícios
   const itensConsolidados = useMemo<ItemRadarConsolidado[]>(() => {
     const lista: ItemRadarConsolidado[] = [];
+
+    // 0. ⚖️ Atualizações Legislativas (PEC 221/2019 · Fim da Escala 6x1 Aprovada na CCJ do Senado)
+    ATUALIZACOES_LEGISLATIVAS.forEach((pec) => {
+      lista.push({
+        id: `radar-leg-${pec.id}`,
+        categoria: 'legislativas',
+        classificacao: 'Informação oficial',
+        titulo: `${pec.Proposicao} — ${pec.Status} (${pec.titulo})`,
+        descricao: `${pec.resumo} Próxima etapa: ${pec.proximaEtapa}.`,
+        entidadeRelacionada: pec.orgao,
+        fonte: `Senado Federal (${pec.Link})`,
+        dataReferencia: pec.Data_Ultima_Movimentacao,
+        status: `${pec.Status} · Rumo ao Plenário`,
+        novaAtualizacaoOficial: true,
+        detalheComplementar: `Impacto no RN: ${pec.impactoPotiguar} | Vídeo Oficial: ${pec.Video_Link}`,
+      });
+    });
 
     // 1. 🔎 O que merece atenção (Alertas de checagem TSE + Propostas que exigem reformas/convênio federal + Demandas prioritárias)
     ALERTAS_ANTI_DESINFORMACAO.forEach((alerta) => {
@@ -348,6 +374,7 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
   const contadores = useMemo(() => {
     return {
       total: itensConsolidados.length,
+      legislativas: itensConsolidados.filter((i) => i.categoria === 'legislativas').length,
       atencao: itensConsolidados.filter((i) => i.categoria === 'atencao').length,
       oficiais: itensConsolidados.filter((i) => i.categoria === 'oficiais').length,
       propostas: itensConsolidados.filter((i) => i.categoria === 'propostas').length,
@@ -433,7 +460,7 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
   return (
     <section
       id="radar-transparencia"
-      className="bg-[var(--card-bg)] border-2 border-[var(--accent-color)] rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm"
+      className="card-clean p-4 sm:p-8 space-y-6 overflow-hidden"
     >
       {/* Cabeçalho do Radar de Transparência */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-5">
@@ -451,7 +478,7 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
         </div>
 
         {/* Selo de Diretriz Apartidária & Classificação Rigorosa */}
-        <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] text-xs space-y-1 max-w-sm shrink-0">
+        <div className="subcard-clean p-4 text-xs space-y-1.5 max-w-sm shrink-0">
           <div className="font-bold text-[var(--text-color)] flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-[var(--success-color)] shrink-0" />
             <span>Compromisso de Neutralidade e Rigor</span>
@@ -462,10 +489,15 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
         </div>
       </div>
 
-      {/* Navegação das 7 Visões do Radar de Transparência */}
+      {/* Navegação das Visões do Radar de Transparência (incluindo Aba de Atualizações Legislativas - PEC 221/2019) */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           {[
+            {
+              id: 'legislativas' as const,
+              label: `⚖️ Atualizações Legislativas (${contadores.legislativas})`,
+              icon: Scale,
+            },
             { id: 'todas' as const, label: `Visão Geral (${contadores.total})`, icon: Eye },
             {
               id: 'atencao' as const,
@@ -565,6 +597,26 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
         </div>
       </div>
 
+      {/* Atalho Conciso na Aba de Atualizações Legislativas (Sem Repetir Player de Vídeo e JSON da PEC 221/2019) */}
+      {abaAtiva === 'legislativas' && (
+        <div className="subcard-clean p-5 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="space-y-0.5">
+            <span className="font-bold text-emerald-700 dark:text-emerald-300">
+              ⚖️ Atualização Legislativa Consolidada — PEC 221/2019 (Aprovada na CCJ em 02/09/2026) & Transparência CLT
+            </span>
+            <p className="text-[var(--text-muted)]">
+              Para evitar repetição de blocos na página, o vídeo informativo, o JSON oficial e a análise da CLT estão centralizados na seção dedicada acima.
+            </p>
+          </div>
+          <a
+            href="#atualizacao-legislativa"
+            className="botao px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold no-underline shrink-0"
+          >
+            Ir para Atualização Legislativa & CLT ↑
+          </a>
+        </div>
+      )}
+
       {/* Renderização em Modo Linha do Tempo (🕐 Linha do tempo) ou Cards Classificados */}
       {abaAtiva === 'linha-do-tempo' ? (
         <div className="space-y-4">
@@ -575,13 +627,13 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
             <span>{itensExibidos.length} registros cronológicos</span>
           </div>
 
-          <div className="relative pl-6 border-l-2 border-[var(--accent-color)] space-y-4 max-h-[600px] overflow-y-auto pr-2">
+          <div className="relative pl-6 border-l border-[var(--border-color)] space-y-4 max-h-[600px] overflow-y-auto pr-2">
             {itensExibidos.map((item) => {
               const estilo = obterEstiloClassificacao(item.classificacao);
               return (
                 <div
                   key={`timeline-${item.id}`}
-                  className="relative p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-2"
+                  className="relative subcard-clean p-5 space-y-2.5"
                 >
                   <span
                     className={`w-3 h-3 rounded-full ${estilo.dotColor} absolute -left-[31px] top-5 border-2 border-[var(--card-bg)]`}
@@ -642,13 +694,13 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[680px] overflow-y-auto pr-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-[680px] overflow-y-auto pr-1">
           {itensExibidos.map((item) => {
             const estilo = obterEstiloClassificacao(item.classificacao);
             return (
               <article
                 key={item.id}
-                className="p-5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] flex flex-col justify-between space-y-3.5"
+                className="subcard-clean p-5 sm:p-6 flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-2">
                   {/* Metadados limpos com diferenciação visual da classificação (Parte 2) */}

@@ -51,14 +51,140 @@ export interface PropostaPresidenciaAnaliseItem {
   candidato: string;
   partidoNumero: string;
   fotoUrl: string;
+  fotoFallbackUrl?: string;
   corTema: string;
-  eixo: 'Infraestrutura & PAC' | 'Saúde & Educação' | 'Economia, Previdência & Estatais';
+  eixo:
+    | 'Trabalho & Renda'
+    | 'Infraestrutura & PAC'
+    | 'Saúde & Educação'
+    | 'Economia, Previdência & Estatais'
+    | 'Segurança & Pacto Federativo';
   propostaTitulo: string;
   resumoProposta: string;
   analiseTecnica: string;
   impactoNoRN: string;
   statusPlanoTSE: 'Registrado Oficialmente (TSE / PPA)' | 'Debate Público / Sem Formalização no TSE' | 'Em Execução Federal / Novo PAC';
 }
+
+export interface ProposicaoLegislativaJSON {
+  Proposicao: string;
+  Status: string;
+  Data_Ultima_Movimentacao: string;
+  Link: string;
+  Video_Link: string;
+}
+
+export interface AtualizacaoLegislativaItem extends ProposicaoLegislativaJSON {
+  id: string;
+  titulo: string;
+  resumo: string;
+  orgao: string;
+  proximaEtapa: string;
+  impactoPotiguar: string;
+  youtubeId: string;
+}
+
+export const PEC_221_2019_JSON: ProposicaoLegislativaJSON = {
+  Proposicao: 'PEC 221/2019',
+  Status: 'Aprovada na CCJ',
+  Data_Ultima_Movimentacao: '02/09/2026',
+  Link: 'https://www25.senado.leg.br/web/atividade/materias',
+  Video_Link: 'https://www.youtube.com/watch?v=Kj3PJaRntHc',
+};
+
+export interface TransparenciaTrabalhistaCLTJSON {
+  tema: string;
+  nome_completo: string;
+  funcao: string;
+  acesso_informacao: string;
+}
+
+export const TRANSPARENCIA_CLT_JSON: TransparenciaTrabalhistaCLTJSON = {
+  tema: 'CLT',
+  nome_completo: 'Consolidação das Leis do Trabalho',
+  funcao:
+    'Principal conjunto de leis que regulamenta as relações individuais e coletivas de trabalho no Brasil',
+  acesso_informacao: 'Público',
+};
+
+export interface AnaliseJornadaECLT {
+  arquivoReferencia: string;
+  promptSistemaCLT: string;
+  conceitoFundamentalCLT: string;
+  papelContrapesoJuridico: string;
+  jsonCLT: TransparenciaTrabalhistaCLTJSON;
+  analisesJornadaQuatroHoras: {
+    id: string;
+    perfilFamiliar: string;
+    focoCustos: string;
+    riscoIdentificado: string;
+    sinteseAnalise: string;
+  }[];
+  analiseDesvinculacaoBpcAposentadorias: {
+    titulo: string;
+    beneficiariosImpactados: string;
+    sinteseEconomica: string;
+    projecao2027: string;
+    perspectivaAposentado: string;
+  };
+  statusDesduplicacao: string;
+}
+
+export const ANALISE_JORNADA_TRABALHO_E_CLT: AnaliseJornadaECLT = {
+  arquivoReferencia: 'agente_clt.md',
+  promptSistemaCLT:
+    'Você é um agente assistente especializado em transparência jurídica sobre as leis trabalhistas do Brasil. Seu papel é explicar conceitos fundamentais de forma clara, neutra e baseada na legislação oficial.',
+  conceitoFundamentalCLT:
+    'A CLT (Consolidação das Leis do Trabalho) é o principal conjunto de leis que regulamenta as relações individuais e coletivas de trabalho no Brasil.',
+  papelContrapesoJuridico:
+    'A legislação trabalhista atua como um contrapeso fundamental para a assimetria de poder entre empregado e empregador, garantindo direitos básicos e evitando abusos em um cenário onde o trabalhador, sob pressão econômica, tem pouco poder de barganha.',
+  jsonCLT: TRANSPARENCIA_CLT_JSON,
+  analisesJornadaQuatroHoras: [
+    {
+      id: 'jornada-4h-casal',
+      perfilFamiliar: 'Casal (2 Pessoas)',
+      focoCustos: 'Moradia, alimentação e transporte',
+      riscoIdentificado: 'Alto risco de vulnerabilidade e necessidade financeira sob as condições atuais',
+      sinteseAnalise:
+        'Análise indica que uma jornada de quatro horas diárias gera salário proporcional insuficiente para cobrir custos de vida básicos, como moradia, alimentação e transporte, de um casal, resultando em alto risco de vulnerabilidade e necessidade financeira sob as condições atuais.',
+    },
+    {
+      id: 'jornada-4h-familia-6',
+      perfilFamiliar: 'Família de 6 Pessoas',
+      focoCustos: 'Custos de vida e alimentação familiar',
+      riscoIdentificado: 'Alto risco de vulnerabilidade alimentar sob as condições inflacionárias atuais',
+      sinteseAnalise:
+        'Análise indica que uma jornada de quatro horas diárias gera salário proporcional insuficiente para cobrir custos de vida e alimentação de uma família de seis pessoas, resultando em alto risco de vulnerabilidade alimentar sob as condições inflacionárias atuais.',
+    },
+  ],
+  analiseDesvinculacaoBpcAposentadorias: {
+    titulo: 'Desvinculação do BPC, Pensões e Aposentadorias do Salário Mínimo (Projeção 2027)',
+    beneficiariosImpactados: 'Cerca de 28 milhões de beneficiários no Brasil',
+    sinteseEconomica:
+      'A proposta de desvincular o BPC, pensões e aposentadorias do reajuste do salário mínimo visa conter despesas obrigatórias, mas gera alertas entre economistas. A medida pode resultar no congelamento real dos benefícios, limitando-os apenas à reposição da inflação, o que impactaria negativamente o poder de compra de cerca de 28 milhões de beneficiários, aumentando a vulnerabilidade social e reduzindo a circulação de renda no comércio local.',
+    projecao2027:
+      'Para 2027, as projeções indicam que o poder de compra dos aposentados, pensionistas e beneficiários do BPC começaria a estagnar, caso os reajustes acompanhem apenas a inflação, sem os aumentos reais do salário mínimo, aumentando a vulnerabilidade social e reduzindo a circulação de renda no comércio local.',
+    perspectivaAposentado:
+      'De acordo com a perspectiva de um aposentado analisada, a manutenção do poder de compra e a garantia de estabilidade financeira contra o aumento dos preços são prioridades, com a incerteza sobre reajustes futuros gerando grande insegurança.',
+  },
+  statusDesduplicacao:
+    'Layout e base de dados validados: conteúdos repetidos foram removidos, mantendo apenas uma instância única e verificada de cada tema.',
+};
+
+export const ATUALIZACOES_LEGISLATIVAS: AtualizacaoLegislativaItem[] = [
+  {
+    ...PEC_221_2019_JSON,
+    id: 'pec-221-2019',
+    titulo: 'Atualização Legislativa - PEC 221/2019 (Fim da Escala de Trabalho 6x1)',
+    resumo:
+      'A proposta que prevê o fim da escala de trabalho 6x1 foi aprovada na Comissão de Constituição e Justiça (CCJ) do Senado e segue para votação no Plenário.',
+    orgao: 'Comissão de Constituição e Justiça (CCJ) · Senado Federal',
+    proximaEtapa: 'Segue para votação em dois turnos no Plenário do Senado Federal',
+    impactoPotiguar:
+      'Alcança diretamente trabalhadores do comércio, turismo, hotelaria, call centers e serviços em Natal, Mossoró e todos os municípios do Rio Grande do Norte.',
+    youtubeId: 'Kj3PJaRntHc',
+  },
+];
 
 export interface PerguntaQuizAfinidade {
   id: string;
@@ -69,6 +195,19 @@ export interface PerguntaQuizAfinidade {
     id: string;
     texto: string;
     candidatoId: 'allyson-bezerra' | 'cadu-xavier';
+    resumoPlanoTSE: string;
+  }[];
+}
+
+export interface PerguntaQuizPresidencia {
+  id: string;
+  eixo: string;
+  temaCurto: string;
+  pergunta: string;
+  opcoes: {
+    id: string;
+    texto: string;
+    candidatoId: 'lula-13' | 'flavio-bolsonaro-22';
     resumoPlanoTSE: string;
   }[];
 }
@@ -287,52 +426,115 @@ export const ATOS_TRANSICAO_GOVERNO: AtoTransicaoItem[] = [
 
 export const PROPOSTAS_PRESIDENCIA_ANALISE: PropostaPresidenciaAnaliseItem[] = [
   {
+    id: 'pres-lula-trabalho-6x1',
+    candidato: 'Luiz Inácio Lula da Silva (Presidente Lula)',
+    partidoNumero: 'PT · 13 (2º Turno)',
+    fotoUrl: '/candidates/presidente-lula.jpg',
+    fotoFallbackUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29.jpg',
+    corTema: '#e11d48',
+    eixo: 'Trabalho & Renda',
+    propostaTitulo:
+      'Governo Federal: Fim da Escala 6x1 (PEC 221/2019 Aprovada na CCJ), Salário Mínimo e Direitos para Apps',
+    resumoProposta:
+      'Plano de governo de 84 páginas registrado no TSE propõe o fim da escala 6x1 com redução da jornada para 40 horas semanais sem redução salarial, política permanente de ganho real do salário mínimo e regulação protetiva para trabalhadores de aplicativos.',
+    analiseTecnica:
+      'Atualização Legislativa (02/09/2026): A PEC 221/2019, que prevê o fim da escala 6x1, foi aprovada na Comissão de Constituição e Justiça (CCJ) do Senado e segue para votação no Plenário. A valorização do salário mínimo já possui lei federal vigente.',
+    impactoNoRN:
+      'Impacta diretamente trabalhadores do comércio, turismo e serviços em Natal, Mossoró e Região Metropolitana, além de elevar a renda dos municípios potiguares via piso previdenciário e salarial.',
+    statusPlanoTSE: 'Registrado Oficialmente (TSE / PPA)',
+  },
+  {
     id: 'pres-lula-infra-rn',
     candidato: 'Luiz Inácio Lula da Silva (Presidente Lula)',
-    partidoNumero: 'PT · 13',
+    partidoNumero: 'PT · 13 (2º Turno)',
     fotoUrl: '/candidates/presidente-lula.jpg',
+    fotoFallbackUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29.jpg',
     corTema: '#e11d48',
     eixo: 'Infraestrutura & PAC',
-    propostaTitulo: 'Novo PAC no RN: Duplicação da BR-304, Transição Energética e Obras Hídricas',
+    propostaTitulo:
+      'Governo Federal: Novo PAC no RN (Duplicação da BR-304, Ramal do Apodi e Petrobras)',
     resumoProposta:
-      'Execução federal direta de obras rodoviárias estruturantes (duplicação da BR-304 ligando Natal a Mossoró e divisa com o Ceará), conclusão do Ramal do Apodi e investimentos em energia limpa.',
+      'Execução federal direta de obras rodoviárias estruturantes (duplicação da BR-304 ligando Natal a Mossoró e divisa com o Ceará), conclusão do Ramal do Apodi, transição energética e retorno da Petrobras à distribuição de combustíveis.',
     analiseTecnica:
-      'Possui dotação no Plano Plurianual (PPA) e no orçamento do Novo PAC via DNIT e Ministério dos Transportes. Exige articulação contínua com o Governo do Estado para licenciamento e contrapartidas logísticas.',
+      'Parecer IA (TSE / PPA): Possui dotação no Plano Plurianual (PPA) e no orçamento do Novo PAC via DNIT e Ministério dos Transportes, combinando responsabilidade fiscal e investimentos públicos e privados.',
     impactoNoRN:
-      'Reduz o custo de frete e acidentes no principal corredor econômico potiguar (BR-304) e fortalece a parceria administrativa com a candidatura de Cadu de Lula (PT 13).',
+      'Reduz o custo de frete e acidentes no principal corredor econômico potiguar (BR-304), impulsiona a Bacia Potiguar e fortalece a parceria administrativa com Cadu de Lula (PT · 13).',
     statusPlanoTSE: 'Em Execução Federal / Novo PAC',
   },
   {
     id: 'pres-lula-saude-edu',
     candidato: 'Luiz Inácio Lula da Silva (Presidente Lula)',
-    partidoNumero: 'PT · 13',
+    partidoNumero: 'PT · 13 (2º Turno)',
     fotoUrl: '/candidates/presidente-lula.jpg',
+    fotoFallbackUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29.jpg',
     corTema: '#e11d48',
     eixo: 'Saúde & Educação',
-    propostaTitulo: 'SUS Digital (Telessaúde), Mais Médicos e Escolas em Tempo Integral (Pé-de-Meia)',
+    propostaTitulo:
+      'Governo Federal: SUS Digital (Telessaúde), Mais Médicos, Ensino Integral (Pé-de-Meia) e Bolsa Família',
     resumoProposta:
-      'Expansão nacional de centrais de diagnósticos médicos online pelo SUS Digital, ampliação de matrículas em tempo integral com repasse do FNDE e incentivo financeiro-educacional Pé-de-Meia.',
+      'Expansão nacional de centrais de diagnósticos médicos online pelo SUS Digital, ampliação de matrículas em tempo integral e creches com repasse do FNDE, programa Pé-de-Meia e fortalecimento do Bolsa Família.',
     analiseTecnica:
-      'Alta viabilidade orçamentária por utilizar fundos constitucionais (FUNDEB/FNDE e Piso da Atenção Especializada do SUS). Conecta-se diretamente às metas estaduais de regionalização hospitalar.',
+      'Parecer IA (TSE / Orçamento): Alta viabilidade orçamentária por utilizar fundos constitucionais (FUNDEB/FNDE e Piso da Atenção Especializada do SUS). Conecta-se diretamente às metas estaduais de regionalização hospitalar.',
     impactoNoRN:
       'Beneficia diretamente bairros populares de Natal (como Mãe Luíza) e municípios do interior do RN com redução de filas de exames e permanência escolar.',
     statusPlanoTSE: 'Registrado Oficialmente (TSE / PPA)',
   },
   {
     id: 'pres-flavio-economia-reformas',
-    candidato: 'Flávio Bolsonaro (Debate Presidencial / Oposição)',
-    partidoNumero: 'PL · 22',
-    fotoUrl: '/candidates/rogerio-marinho.jpg',
-    corTema: '#1e293b',
+    candidato: 'Flávio Bolsonaro',
+    partidoNumero: 'PL · 22 (2º Turno)',
+    fotoUrl: 'https://www.senado.leg.br/senadores/img/fotos-oficiais/senador5894.jpg',
+    fotoFallbackUrl: '/candidates/flavio-bolsonaro.svg',
+    corTema: '#1e3a8a',
     eixo: 'Economia, Previdência & Estatais',
-    propostaTitulo: 'Desestatização, Desburocratização Econômica e Debate sobre Reforma Previdenciária/Trabalhista',
+    propostaTitulo:
+      'Governo Federal: Desestatização, Corte de Gastos, Fim da Reeleição e Checagem TSE sobre Previdência',
     resumoProposta:
-      'Pauta econômica liberal voltada à redução do Estado, atração de capital privado, revisão de estatais (como debate sobre a Petrobras) e flexibilização regulatória.',
+      'Pauta econômica liberal-conservadora voltada à redução do tamanho do Estado, privatizações, corte de despesas públicas, fim da reeleição executiva ("apenas um mandato") e incentivo ao capital privado.',
     analiseTecnica:
-      'Análise Documental TSE: Afirmações virais em áudios sobre aumento da idade mínima de aposentadoria para 70 anos (homens) / 65 anos (mulheres), desvinculação do salário mínimo e jornada de 12 horas diárias NÃO constam em plano de governo formalizado no TSE, circulando como projeções de debate político.',
+      'Parecer IA (TSE): Desestatizações de controle acionário e fim da reeleição exigem aprovação do Congresso Nacional. Análise Documental TSE: Afirmações virais em áudios sobre aposentadoria aos 70 anos e jornada de 12h NÃO constam no plano formalizado no TSE.',
     impactoNoRN:
-      'Eventuais mudanças na Petrobras ou regras previdenciárias têm forte repercussão na Bacia Potiguar (Mossoró/Alto do Rodrigues) e nos municípios dependentes do FPM e transferências previdenciárias.',
+      'Eventuais mudanças em estatais como a Petrobras ou regras fiscais repercutem na Bacia Potiguar (Mossoró/Alto do Rodrigues) e nos municípios dependentes de transferências federais.',
     statusPlanoTSE: 'Debate Público / Sem Formalização no TSE',
+  },
+  {
+    id: 'pres-flavio-seguranca-publica',
+    candidato: 'Flávio Bolsonaro',
+    partidoNumero: 'PL · 22 (2º Turno)',
+    fotoUrl: 'https://www.senado.leg.br/senadores/img/fotos-oficiais/senador5894.jpg',
+    fotoFallbackUrl: '/candidates/flavio-bolsonaro.svg',
+    corTema: '#1e3a8a',
+    eixo: 'Segurança & Pacto Federativo',
+    propostaTitulo:
+      'Governo Federal: Endurecimento Penal, Combate ao Crime Organizado e Pauta Conservadora',
+    resumoProposta:
+      'Proposta federal de revisão da legislação penal e processual penal para endurecer o cumprimento de penas, ampliar operações contra facções e garantir retaguarda jurídica a agentes de segurança.',
+    analiseTecnica:
+      'Parecer IA (TSE / Legislativo): Alterações no Código Penal e na Lei de Execução Penal são de competência privativa da União e dependem de aprovação da Câmara dos Deputados e do Senado Federal.',
+    impactoNoRN:
+      'Atua sobre o sistema prisional federal (como a Penitenciária Federal de Mossoró) e operações integradas das forças federais no RN.',
+    statusPlanoTSE: 'Registrado Oficialmente (TSE / PPA)',
+  },
+  {
+    id: 'pres-zema-caiado-1turno',
+    candidato: 'Romeu Zema (NOVO · 30) & Ronaldo Caiado (PSD · 55)',
+    partidoNumero: '1º Turno Presidencial',
+    fotoUrl: '/candidates/romeu-zema.svg',
+    fotoFallbackUrl: '/candidates/ronaldo-caiado.svg',
+    corTema: '#ea580c',
+    eixo: 'Segurança & Pacto Federativo',
+    propostaTitulo:
+      'Propostas de 1º Turno (Governo Federal): Concessões Privadas, Reforma Administrativa e Segurança no Campo',
+    resumoProposta:
+      'Romeu Zema (NOVO 30) propôs reforma administrativa, corte de gastos e concessões privadas em rodovias/portos; Ronaldo Caiado (PSD 55) defendeu tolerância zero contra facções, apoio ao agronegócio e descentralização fiscal aos estados.',
+    analiseTecnica:
+      'Parecer IA (TSE): Pautas debatidas no 1º turno presidencial que agora influenciam as negociações programáticas de apoio no 2º turno nacional.',
+    impactoNoRN:
+      'Relevante para o setor de energias renováveis, fruticultura irrigada do Vale do Açu/Mossoró e repasses do FPE/FPM aos municípios do RN.',
+    statusPlanoTSE: 'Registrado Oficialmente (TSE / PPA)',
   },
 ];
 
@@ -514,6 +716,160 @@ export const QUIZ_AFINIDADE_TSE: PerguntaQuizAfinidade[] = [
         texto: 'Alinhamento com investimentos federais, transição energética e fortalecimento dos serviços públicos.',
         candidatoId: 'cadu-xavier',
         resumoPlanoTSE: 'Cadu de Lula (PT · 13): Articulação federal, geração de renda e inclusão social.',
+      },
+    ],
+  },
+];
+
+export const FICHAS_CANDIDATOS_PRESIDENCIA_2_TURNO = [
+  {
+    id: 'lula-13' as const,
+    nome: 'Luiz Inácio Lula da Silva (Presidente Lula)',
+    numero: '13',
+    partido: 'PT (45,16% no 1º Turno · 2º Turno Presidencial)',
+    coligacao: 'Coligação Brasil da Esperança (PT/PCdoB/PV, PSB, MDB e aliados)',
+    fotoOficial: '/candidates/presidente-lula.jpg',
+    fotoFallback:
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29.jpg',
+    cor: '#e11d48',
+    urlTSE: 'https://divulgacandcontas.tse.jus.br/',
+  },
+  {
+    id: 'flavio-bolsonaro-22' as const,
+    nome: 'Flávio Bolsonaro',
+    numero: '22',
+    partido: 'PL (47,03% no 1º Turno · 2º Turno Presidencial)',
+    coligacao: 'Partido Liberal e coalizão conservadora',
+    fotoOficial: 'https://www.senado.leg.br/senadores/img/fotos-oficiais/senador5894.jpg',
+    fotoFallback: '/candidates/flavio-bolsonaro.svg',
+    cor: '#1e3a8a',
+    urlTSE: 'https://divulgacandcontas.tse.jus.br/',
+  },
+];
+
+export const QUIZ_AFINIDADE_PRESIDENCIA_TSE: PerguntaQuizPresidencia[] = [
+  {
+    id: 'qp-trabalho',
+    eixo: 'Trabalho & Renda',
+    temaCurto: 'Trabalho & Escala 6x1',
+    pergunta:
+      '1. Para Trabalho, Jornada e Salário Mínimo no Governo Federal, qual proposta você prioriza?',
+    opcoes: [
+      {
+        id: 'qp1-lula',
+        texto:
+          'Fim da escala 6x1 (redução da jornada para 40h semanais sem corte salarial), valorização real do salário mínimo e proteção a trabalhadores de aplicativos.',
+        candidatoId: 'lula-13',
+        resumoPlanoTSE:
+          'Lula (PT · 13): Fim da escala 6x1, jornada de 40h semanais e valorização real do salário mínimo (Plano TSE de 84 páginas).',
+      },
+      {
+        id: 'qp1-flavio',
+        texto:
+          'Flexibilização trabalhista, desburocratização para empresas contratarem e livre negociação entre empregadores e empregados.',
+        candidatoId: 'flavio-bolsonaro-22',
+        resumoPlanoTSE:
+          'Flávio Bolsonaro (PL · 22): Desburocratização econômica, redução de encargos e estímulo ao livre mercado.',
+      },
+    ],
+  },
+  {
+    id: 'qp-economia',
+    eixo: 'Economia & Estatais',
+    temaCurto: 'Economia & Petrobras',
+    pergunta:
+      '2. Na Economia Federal e Papel das Estatais (como a Petrobras), qual modelo você defende?',
+    opcoes: [
+      {
+        id: 'qp2-lula',
+        texto:
+          'Novo PAC (obras como a duplicação da BR-304 no RN), tributação progressiva sobre altas rendas e fortalecimento da Petrobras na distribuição e transição energética.',
+        candidatoId: 'lula-13',
+        resumoPlanoTSE:
+          'Lula (PT · 13): Novo PAC, reindustrialização e Petrobras investindo em energia e distribuição.',
+      },
+      {
+        id: 'qp2-flavio',
+        texto:
+          'Redução do tamanho do Estado, programa amplo de privatizações/desestatização e corte de despesas públicas.',
+        candidatoId: 'flavio-bolsonaro-22',
+        resumoPlanoTSE:
+          'Flávio Bolsonaro (PL · 22): Agenda de desestatização, enxugamento do Estado e atração de capital privado.',
+      },
+    ],
+  },
+  {
+    id: 'qp-saude-educacao',
+    eixo: 'Saúde & Educação Federal',
+    temaCurto: 'SUS Digital & Educação',
+    pergunta:
+      '3. Em Saúde (SUS) e Educação Federal, qual diretriz deve ser prioridade da Presidência?',
+    opcoes: [
+      {
+        id: 'qp3-lula',
+        texto:
+          'Expansão do SUS Digital (diagnósticos online), Mais Médicos, ampliação de escolas em tempo integral, Pé-de-Meia e novas creches públicas.',
+        candidatoId: 'lula-13',
+        resumoPlanoTSE:
+          'Lula (PT · 13): SUS Digital, Mais Médicos, ensino integral, Pé-de-Meia e fortalecimento do Bolsa Família.',
+      },
+      {
+        id: 'qp3-flavio',
+        texto:
+          'Parcerias com o setor privado na saúde e educação, revisão de gastos ministeriais e foco em ensino básico tradicional.',
+        candidatoId: 'flavio-bolsonaro-22',
+        resumoPlanoTSE:
+          'Flávio Bolsonaro (PL · 22): Parcerias privadas na prestação de serviços e pauta educacional conservadora.',
+      },
+    ],
+  },
+  {
+    id: 'qp-seguranca',
+    eixo: 'Segurança Pública Nacional',
+    temaCurto: 'Segurança Pública',
+    pergunta:
+      '4. No combate à criminalidade pelo Governo Federal, qual estratégia você considera mais adequada?',
+    opcoes: [
+      {
+        id: 'qp4-lula',
+        texto:
+          'Criação do Ministério da Segurança Pública, integração de inteligência policial federal/estadual e prevenção social da violência.',
+        candidatoId: 'lula-13',
+        resumoPlanoTSE:
+          'Lula (PT · 13): Criação do Ministério da Segurança Pública e atuação integrada com os estados.',
+      },
+      {
+        id: 'qp4-flavio',
+        texto:
+          'Endurecimento da legislação penal, redução de benefícios na execução penal e ampliação do acesso à legítima defesa.',
+        candidatoId: 'flavio-bolsonaro-22',
+        resumoPlanoTSE:
+          'Flávio Bolsonaro (PL · 22): Endurecimento penal e enfrentamento ostensivo às facções.',
+      },
+    ],
+  },
+  {
+    id: 'qp-institucional',
+    eixo: 'Institucional & Governança',
+    temaCurto: 'Reformas & Redes',
+    pergunta:
+      '5. Sobre Governança Federal, Reeleição e Combate à Desinformação, qual posição você prefere?',
+    opcoes: [
+      {
+        id: 'qp5-lula',
+        texto:
+          'Defesa de regras contra a desinformação nas plataformas digitais preservando a liberdade de expressão e fortalecimento de políticas de adaptação climática.',
+        candidatoId: 'lula-13',
+        resumoPlanoTSE:
+          'Lula (PT · 13): Combate à desinformação digital, transição ecológica e programas sociais.',
+      },
+      {
+        id: 'qp5-flavio',
+        texto:
+          'Fim do instituto da reeleição para cargos do Executivo ("apenas um mandato") e oposição à regulação estatal das plataformas.',
+        candidatoId: 'flavio-bolsonaro-22',
+        resumoPlanoTSE:
+          'Flávio Bolsonaro (PL · 22): Fim da reeleição executiva e desregulamentação.',
       },
     ],
   },
