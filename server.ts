@@ -257,14 +257,35 @@ ${unlockedString}`;
 
       const replyText =
         response.text ||
-        'Olá! Aqui está a leitura atualizada do painel Transparência Potiguar.';
+        'Olá! Aqui está a síntese produzida pelo Estúdio de Criação PotiguarBot IA.';
 
-      const suggestedActions = [
+      let suggestedActions = [
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-        'Quais candidatos estão alinhados com a comunidade de Mãe Luíza?',
+        'Consultar atualização da PEC 221/2019 (Fim da Escala 6x1) e CLT',
         'Onde está meu local de votação e qual documento levar?',
-        'Verificar status dos ônibus e Passe Livre na internet',
+        'Verificar linhas de ônibus gratuitas com Passe Livre',
       ];
+
+      if (imageBase64) {
+        suggestedActions = [
+          'Transformar esta análise visual em post para Instagram',
+          'Criar mensagem curta para WhatsApp com estes dados',
+          'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+          'Verificar conformidade documental no TSE',
+        ];
+      } else if (
+        textPrompt.toLowerCase().includes('post') ||
+        textPrompt.toLowerCase().includes('whatsapp') ||
+        textPrompt.toLowerCase().includes('roteiro') ||
+        textPrompt.toLowerCase().includes('criar')
+      ) {
+        suggestedActions = [
+          'Copiar texto pronto para o WhatsApp',
+          'Ouvir este roteiro na voz masculina natural do PotiguarBot',
+          'Adaptar para versão de 30 segundos em vídeo',
+          'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        ];
+      }
 
       res.json({
         reply: replyText,

@@ -26,6 +26,14 @@ import {
   ChevronUp,
   ArrowUp,
   CheckCircle2,
+  Copy,
+  Check,
+  Share2,
+  Download,
+  Wand2,
+  FileText,
+  Radio,
+  Camera,
 } from 'lucide-react';
 import {
   RelatoCidadao,
@@ -146,6 +154,9 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [selectedImageMime, setSelectedImageMime] = useState<string>('image/jpeg');
   const [selectedImageName, setSelectedImageName] = useState<string>('');
+  const [studioMode, setStudioMode] = useState<'geral' | 'redacao' | 'visao' | 'roteiro' | 'clt'>('geral');
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const [showBotQuiz, setShowBotQuiz] = useState<boolean>(false);
   const [botQuizEsfera, setBotQuizEsfera] = useState<'presidencia' | 'rn'>('presidencia');
   const [botQuizIdx, setBotQuizIdx] = useState<number>(0);
@@ -169,6 +180,60 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   const recognitionRef = useRef<any>(null);
   const mainChatListRef = useRef<HTMLDivElement | null>(null);
   const floatingChatListRef = useRef<HTMLDivElement | null>(null);
+
+  const copyMessageText = async (id: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageId(id);
+      setTimeout(() => setCopiedMessageId(null), 2500);
+    } catch {
+      // clipboard fallback
+    }
+  };
+
+  const shareMessageOnWhatsApp = (text: string) => {
+    const cleanText = text.replace(/«[\s\S]*?»/g, '').trim();
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(cleanText)}`;
+    window.open(url, '_blank');
+  };
+
+  const downloadMessageAsText = (text: string, title = 'conteudo-estudio-potiguar') => {
+    const cleanText = text.replace(/«[\s\S]*?»/g, '').trim();
+    const blob = new Blob([cleanText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title}-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImageMime(file.type || 'image/jpeg');
+      setSelectedImageName(file.name);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setSelectedImageBase64(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const ultimaPublicacaoMural = relatos[0];
   const ultimaAvaliacao = avaliacoes[0];
@@ -413,13 +478,158 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
     onSendPrompt('Pode ler a última publicação que eu fiz agora no mural e na enquete de benefícios?');
   };
 
-  const quickSuggestions = [
-    'Transparência Jurídica CLT e análise da jornada de 4h (casal e família de 6)',
-    'Candidatos a Presidente do Brasil e propostas de governo federal',
-    'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-    'Resumo do Radar de Transparência (Fontes Oficiais TSE x Relatos)',
-    'Pode ler a última publicação que eu fiz agora?',
-  ];
+  const getPlaceholderForMode = () => {
+    switch (studioMode) {
+      case 'redacao':
+        return 'Escreva o tema ou pauta para gerar post, thread ou mensagem para WhatsApp...';
+      case 'visao':
+        return 'Envie uma foto, cartaz ou panfleto e descreva o que deseja analisar ou checar...';
+      case 'roteiro':
+        return 'Solicite um roteiro de áudio ou vídeo de 15s, 30s ou 1min com marcações de voz...';
+      case 'clt':
+        return 'Pergunte sobre a PEC 221/2019 (escala 6x1), jornada de 4h diárias ou direitos trabalhistas...';
+      default:
+        return 'Digite, fale no microfone (voz) ou envie imagem para o Estúdio de Criação...';
+    }
+  };
+
+  const studioQuickSuggestionsMap: Record<
+    'geral' | 'redacao' | 'visao' | 'roteiro' | 'clt',
+    Array<{ label: string; prompt: string }>
+  > = {
+    geral: [
+      {
+        label: '✍️ Criar post WhatsApp 2º Turno',
+        prompt:
+          'Crie uma postagem informativa e checada para WhatsApp sobre o 2º Turno no RN (Allyson 44 x Cadu de Lula 13)',
+      },
+      {
+        label: '🎨 Roteiro de vídeo 30s: Passe Livre',
+        prompt:
+          'Crie um roteiro de vídeo curto de 30 segundos sobre o Passe Livre nos ônibus em Natal',
+      },
+      {
+        label: '⚖️ CLT: Jornada 4h & Escala 6x1',
+        prompt:
+          'Transparência Jurídica CLT e análise da jornada de 4h (casal e família de 6) e PEC 221/2019',
+      },
+      {
+        label: '🔍 Análise Visual de Panfleto',
+        prompt:
+          'Como funciona a análise visual de panfletos eleitorais e checagem de CNPJ no TSE?',
+      },
+      {
+        label: '🗳️ Comparar Allyson 44 x Cadu 13',
+        prompt:
+          'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+      },
+      {
+        label: '🇧🇷 Presidência: Lula x Flávio',
+        prompt:
+          'Candidatos a Presidente do Brasil e propostas de governo federal',
+      },
+      {
+        label: '📍 Onde votar e documento oficial',
+        prompt:
+          'Onde está meu local de votação e qual documento levar?',
+      },
+      {
+        label: '🚌 Linhas com Passe Livre',
+        prompt:
+          'Quais linhas de ônibus têm Passe Livre gratuito no dia da eleição?',
+      },
+    ],
+    redacao: [
+      {
+        label: '📱 Post curto para WhatsApp',
+        prompt:
+          'Crie uma mensagem curta com bullets e fontes oficiais para compartilhar no WhatsApp',
+      },
+      {
+        label: '📸 Post Instagram / Carrossel',
+        prompt:
+          'Crie um post completo para Instagram com gancho, corpo explicativo e hashtags sobre o 2º Turno RN',
+      },
+      {
+        label: '🧵 Thread explicativa PEC 6x1',
+        prompt:
+          'Redija uma thread informativa em tópicos claros explicando a PEC 221/2019 do fim da escala 6x1',
+      },
+      {
+        label: '📰 Resumo para Boletim Comunitário',
+        prompt:
+          'Crie um boletim resumido de utilidade pública para moradores de Mãe Luíza e Alecrim',
+      },
+    ],
+    visao: [
+      {
+        label: '🔍 Análise Visual Completa',
+        prompt:
+          'Realize uma análise visual minuciosa dos elementos, textos e símbolos presentes na imagem',
+      },
+      {
+        label: '⚖️ Checar CNPJ & Fatos no TSE',
+        prompt:
+          'Verifique se a imagem possui CNPJ de campanha ou elementos oficiais conforme regras do TSE',
+      },
+      {
+        label: '📝 Extrair Dados & Tabela',
+        prompt:
+          'Extraia os números, datas e informações textuais contidos na imagem de forma estruturada',
+      },
+      {
+        label: '🎨 Criar Post a partir da Imagem',
+        prompt:
+          'Transforme as informações visuais desta imagem em uma publicação cívica para redes sociais',
+      },
+    ],
+    roteiro: [
+      {
+        label: '🎙️ Roteiro de 30s Passe Livre',
+        prompt:
+          'Crie um roteiro de locução de 30 segundos sobre as linhas de ônibus com Passe Livre',
+      },
+      {
+        label: '📻 Script de Podcast Cívico',
+        prompt:
+          'Escreva um roteiro dinâmico de 1 minuto para podcast debatendo as propostas para o RN',
+      },
+      {
+        label: '⏱️ Roteiro Reels / TikTok 15s',
+        prompt:
+          'Crie um roteiro ultra-rápido de 15 segundos para vídeo curto com gancho forte',
+      },
+      {
+        label: '📢 Chamada de Rádio para Eleitor',
+        prompt:
+          'Crie um spot de utilidade pública alertando sobre documentos obrigatórios e local de votação',
+      },
+    ],
+    clt: [
+      {
+        label: '⚖️ Jornada 4h: Casal e Família 6',
+        prompt:
+          'Explique a análise socioeconômica da jornada de 4 horas diárias para casal e família de 6 pessoas',
+      },
+      {
+        label: '📜 Status PEC 221/2019 (Escala 6x1)',
+        prompt:
+          'Qual é o status oficial da PEC 221/2019 aprovada na CCJ do Senado e seus próximos passos?',
+      },
+      {
+        label: '🏛️ Papel de Contrapeso da CLT',
+        prompt:
+          'Explique como a legislação trabalhista atua como contrapeso na assimetria de poder',
+      },
+      {
+        label: '💰 Alerta BPC e Previdência 2027',
+        prompt:
+          'Qual é o alerta dos economistas sobre a desvinculação do BPC e aposentadorias do salário mínimo?',
+      },
+    ],
+  };
+
+  const activeQuickSuggestions = studioQuickSuggestionsMap[studioMode] || studioQuickSuggestionsMap.geral;
 
   const botListaQuiz =
     botQuizEsfera === 'presidencia' ? QUIZ_AFINIDADE_PRESIDENCIA_TSE : QUIZ_AFINIDADE_TSE;
@@ -767,75 +977,255 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
               )}
             </div>
 
+            {/* Ações Profissionais do Estúdio (Copiar Conteúdo, WhatsApp, Baixar .txt) */}
+            {msg.sender === 'bot' && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-1.5 max-w-[95%]">
+                <button
+                  type="button"
+                  onClick={() => copyMessageText(msg.id, msg.text)}
+                  title="Copiar texto gerado para a área de transferência"
+                  className="botao px-2.5 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-medium text-[var(--text-color)] hover:border-[var(--accent-color)] inline-flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                >
+                  {copiedMessageId === msg.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-emerald-500 font-bold">Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-[var(--accent-color)]" />
+                      <span>Copiar Texto</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => shareMessageOnWhatsApp(msg.text)}
+                  title="Compartilhar conteúdo no WhatsApp"
+                  className="botao px-2.5 py-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 inline-flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => downloadMessageAsText(msg.text, 'conteudo-estudio-potiguar')}
+                  title="Baixar conteúdo em arquivo .txt"
+                  className="botao px-2.5 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-medium text-[var(--text-muted)] hover:text-[var(--text-color)] inline-flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Baixar .txt</span>
+                </button>
+              </div>
+            )}
+
             {/* Sugestão de ações em botões abaixo da resposta do agente */}
             {msg.sender === 'bot' && msg.suggestedActions && msg.suggestedActions.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 max-w-[95%]">
-                {msg.suggestedActions.map((act) => (
-                  <button
-                    key={act}
-                    type="button"
-                    onClick={() => onSendPrompt(act)}
-                    disabled={isBotLoading}
-                    className="botao px-2.5 py-1 rounded-md border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-medium text-[var(--accent-color)] hover:border-[var(--accent-color)] transition-colors cursor-pointer"
-                  >
-                    ⚡ {act}
-                  </button>
-                ))}
+              <div className="mt-2.5 space-y-1.5 max-w-[95%]">
+                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-1">
+                  <Wand2 className="w-3 h-3 text-[var(--accent-color)]" />
+                  <span>Ações Sugeridas pelo Estúdio de Criação:</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {msg.suggestedActions.map((act) => (
+                    <button
+                      key={act}
+                      type="button"
+                      onClick={() => onSendPrompt(act)}
+                      disabled={isBotLoading}
+                      className="botao px-3 py-1.5 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-semibold text-[var(--accent-color)] hover:border-[var(--accent-color)] hover:bg-[var(--surface-subtle)] transition-all cursor-pointer shadow-2xs active:scale-95"
+                    >
+                      ⚡ {act}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         );
       })}
       {isBotLoading && (
-        <div className="text-xs text-[var(--text-muted)] animate-pulse">
-          {agentName} está consultando fontes verificadas (TSE, Firestore e Radar de Transparência)...
+        <div className="text-xs text-[var(--text-muted)] animate-pulse flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+          <Wand2 className="w-4 h-4 text-[var(--accent-color)] animate-spin" />
+          <span>{agentName} está processando no Estúdio de Criação com fontes oficiais do TSE e moderação LGPD...</span>
         </div>
       )}
+    </div>
+  );
+
+  const renderStudioToolbar = () => (
+    <div className="px-3 py-2 bg-[var(--surface-subtle)] border-b border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 max-w-full">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mr-1 shrink-0 flex items-center gap-1">
+          <Wand2 className="w-3 h-3 text-[var(--accent-color)]" />
+          <span>Modo:</span>
+        </span>
+        {[
+          { id: 'geral', label: '🎨 Geral Multimodal' },
+          { id: 'redacao', label: '✍️ Redação & Posts' },
+          { id: 'visao', label: '🔍 Visão Avançada' },
+          { id: 'roteiro', label: '🎙️ Roteiro de Voz' },
+          { id: 'clt', label: '⚖️ Transparência CLT' },
+        ].map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => setStudioMode(m.id as any)}
+            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${
+              studioMode === m.id
+                ? 'bg-[var(--accent-color)] text-white shadow-xs'
+                : 'bg-[var(--card-bg)] text-[var(--text-muted)] border border-[var(--border-color)] hover:text-[var(--text-color)]'
+            }`}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-1.5 shrink-0 text-[10px]">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          Estúdio Multimodal Ativo
+        </span>
+      </div>
     </div>
   );
 
   const renderMultimodalInputForm = (inputRefToUse: React.RefObject<HTMLInputElement | null>, compact = false) => (
     <form
       onSubmit={handleFormSubmit}
-      className={`${compact ? 'p-3' : 'p-4'} border-t border-[var(--border-color)] bg-[var(--surface-subtle)] space-y-2.5`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`${compact ? 'p-3' : 'p-4'} border-t border-[var(--border-color)] bg-[var(--surface-subtle)] space-y-3 transition-colors ${
+        isDragOver ? 'ring-2 ring-dashed ring-[var(--accent-color)] bg-[var(--card-bg)]' : ''
+      }`}
     >
+      {/* Banner de Gravação por Voz Ativa (Microfone em Tempo Real) */}
+      {isListening && (
+        <div className="p-2.5 rounded-xl bg-rose-500/10 border-2 border-rose-500 flex items-center justify-between gap-2 text-xs text-rose-600 dark:text-rose-400 animate-pulse">
+          <div className="flex items-center gap-2 font-bold min-w-0">
+            <Radio className="w-4 h-4 animate-ping text-rose-500 shrink-0" />
+            <span className="truncate">🎙️ Microfone ativo: fale sua pergunta ou comando para o Estúdio IA...</span>
+          </div>
+          <button
+            type="button"
+            onClick={toggleMicrophone}
+            className="px-2.5 py-1 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-sm cursor-pointer shrink-0"
+          >
+            ⏹️ Concluir
+          </button>
+        </div>
+      )}
+
+      {/* Painel Profissional de Imagem Carregada para Análise Visual Avançada */}
       {(selectedImageBase64 || voiceStatus) && (
-        <div className="px-3 py-2 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-2.5 shadow-xs">
           {selectedImageBase64 && (
-            <div className="flex items-center gap-2">
-              <img
-                src={selectedImageBase64}
-                alt="Preview upload"
-                className="w-9 h-9 rounded object-cover border border-[var(--border-color)]"
-              />
-              <div>
-                <div className="font-semibold text-[var(--text-color)] flex items-center gap-1 text-[11px]">
-                  <Eye className="w-3.5 h-3.5 text-[var(--accent-color)]" />
-                  <span>Análise Visual Avançada Pronta</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <img
+                    src={selectedImageBase64}
+                    alt="Preview upload"
+                    className="w-12 h-12 rounded-lg object-cover border border-[var(--border-color)] shrink-0 shadow-2xs"
+                  />
+                  <div className="min-w-0">
+                    <div className="font-bold text-[var(--text-color)] flex items-center gap-1.5 text-xs">
+                      <Eye className="w-4 h-4 text-[var(--accent-color)] shrink-0" />
+                      <span>Análise Visual Avançada Pronta</span>
+                    </div>
+                    <div className="text-[10px] text-[var(--text-muted)] truncate max-w-[220px]">
+                      {selectedImageName || 'Imagem carregada para o estúdio'}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-[10px] text-[var(--text-muted)] truncate max-w-[160px]">
-                  {selectedImageName}
-                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedImageBase64(null);
+                    setSelectedImageName('');
+                  }}
+                  title="Remover imagem"
+                  className="w-7 h-7 rounded-full bg-[var(--surface-subtle)] hover:bg-red-500 hover:text-white text-[var(--text-muted)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedImageBase64(null);
-                  setSelectedImageName('');
-                }}
-                className="p-1 text-[var(--text-muted)] hover:text-red-500 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+
+              {/* Botões de Ações Imediatas para a Imagem */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-[var(--border-color)]">
+                <span className="text-[10px] font-bold text-[var(--text-muted)]">Ação rápida com imagem:</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onSendPrompt(
+                      'Realize uma análise visual minuciosa dos elementos, textos e símbolos presentes nesta imagem.',
+                      selectedImageBase64,
+                      selectedImageMime
+                    )
+                  }
+                  className="botao px-2.5 py-1 rounded-full border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[10px] font-semibold text-[var(--accent-color)] hover:border-[var(--accent-color)] cursor-pointer"
+                >
+                  🔍 Análise Completa
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onSendPrompt(
+                      'Transforme as informações visuais desta imagem em um post cívico para redes sociais e WhatsApp.',
+                      selectedImageBase64,
+                      selectedImageMime
+                    )
+                  }
+                  className="botao px-2.5 py-1 rounded-full border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[10px] font-semibold text-[var(--accent-color)] hover:border-[var(--accent-color)] cursor-pointer"
+                >
+                  ✍️ Criar Post com Imagem
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onSendPrompt(
+                      'Verifique se a imagem possui CNPJ de campanha ou elementos oficiais conforme regras do TSE.',
+                      selectedImageBase64,
+                      selectedImageMime
+                    )
+                  }
+                  className="botao px-2.5 py-1 rounded-full border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[10px] font-semibold text-[var(--accent-color)] hover:border-[var(--accent-color)] cursor-pointer"
+                >
+                  ⚖️ Checar CNPJ & Fatos TSE
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onSendPrompt(
+                      'Extraia todos os dados numéricos, tabelas e textos contidos na imagem de forma estruturada.',
+                      selectedImageBase64,
+                      selectedImageMime
+                    )
+                  }
+                  className="botao px-2.5 py-1 rounded-full border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[10px] font-semibold text-[var(--accent-color)] hover:border-[var(--accent-color)] cursor-pointer"
+                >
+                  📝 Extrair Dados & Texto
+                </button>
+              </div>
             </div>
           )}
-          {voiceStatus && (
-            <div className="text-[11px] font-medium text-[var(--accent-color)]">{voiceStatus}</div>
+
+          {voiceStatus && !isListening && (
+            <div className="text-[11px] font-medium text-[var(--accent-color)] flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>{voiceStatus}</span>
+            </div>
           )}
         </div>
       )}
 
-      <div className="flex items-center gap-1.5">
+      {/* Linha Principal de Entrada Multimodal: Upload Imagem + Microfone + Texto + Envio 🔼 */}
+      <div className="flex items-center gap-2">
         <input
           ref={inputRefToUse}
           type="file"
@@ -848,28 +1238,34 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
         <button
           type="button"
           onClick={() => inputRefToUse.current?.click()}
-          title="Upload de Imagem para Análise Visual Avançada"
-          className={`w-10 h-10 rounded-full border transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center ${
+          title="Upload de Imagem para Análise Visual Avançada (ou arraste e solte)"
+          aria-label="Upload de Imagem para Análise Visual Avançada"
+          className={`w-10 h-10 rounded-full border-2 transition-all cursor-pointer shrink-0 inline-flex items-center justify-center shadow-2xs ${
             selectedImageBase64
-              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)]'
-              : 'bg-[var(--card-bg)] text-[var(--text-color)] border-[var(--border-color)] hover:border-[var(--accent-color)]'
+              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] ring-2 ring-[var(--accent-color)]/30'
+              : 'bg-[var(--card-bg)] text-[var(--accent-color)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:bg-[var(--surface-subtle)]'
           }`}
         >
-          <ImageIcon className="w-4 h-4" />
+          <ImageIcon className="w-4 h-4 stroke-[2.2]" />
         </button>
 
         {/* Botão de Microfone Ativo (Entrada por Voz · Arredondado) */}
         <button
           type="button"
           onClick={toggleMicrophone}
-          title="Entrada por Voz (Microfone)"
-          className={`w-10 h-10 rounded-full border transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center ${
+          title={isListening ? 'Gravando voz... Clique para parar' : 'Entrada por Voz (Microfone)'}
+          aria-label={isListening ? 'Parar gravação de voz' : 'Iniciar gravação de voz'}
+          className={`w-10 h-10 rounded-full border-2 transition-all cursor-pointer shrink-0 inline-flex items-center justify-center shadow-2xs ${
             isListening
-              ? 'bg-red-600 text-white border-red-600 animate-pulse'
-              : 'bg-[var(--card-bg)] text-[var(--text-color)] border-[var(--border-color)] hover:border-[var(--accent-color)]'
+              ? 'bg-rose-600 text-white border-rose-500 animate-pulse ring-4 ring-rose-500/30'
+              : 'bg-[var(--card-bg)] text-[var(--accent-color)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:bg-[var(--surface-subtle)]'
           }`}
         >
-          {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          {isListening ? (
+            <MicOff className="w-4 h-4 text-white stroke-[2.2]" />
+          ) : (
+            <Mic className="w-4 h-4 stroke-[2.2]" />
+          )}
         </button>
 
         {/* Entrada por Texto (Arredondada) */}
@@ -877,8 +1273,8 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           type="text"
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
-          placeholder="Digite, fale no microfone ou envie imagem..."
-          className="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] text-xs sm:text-sm text-[var(--text-color)] focus:outline-none focus:border-[var(--accent-color)]"
+          placeholder={getPlaceholderForMode()}
+          className="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] text-xs sm:text-sm text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)]/20 transition-all shadow-2xs"
         />
 
         {/* Botão de Envio do Chat 🔼 Arredondado */}
@@ -887,29 +1283,38 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           disabled={isBotLoading || (!chatInput.trim() && !selectedImageBase64)}
           title="Enviar mensagem (🔼)"
           aria-label="Enviar mensagem"
-          className="botao h-10 px-4 rounded-full bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0 shadow-sm"
+          className="botao h-10 px-4 rounded-full bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0 shadow-sm active:scale-95 transition-all"
         >
           <ArrowUp className="w-4 h-4 stroke-[2.5]" />
-          <span>Enviar</span>
+          <span className="hidden sm:inline">Enviar</span>
         </button>
       </div>
 
-      {/* Sugestões rápidas abaixo do campo de texto (Arredondadas) */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-        <span className="text-[10px] font-semibold text-[var(--text-muted)]">
-          Sugestões rápidas:
-        </span>
-        {quickSuggestions.map((promptText) => (
-          <button
-            key={promptText}
-            type="button"
-            onClick={() => onSendPrompt(promptText)}
-            disabled={isBotLoading}
-            className="botao px-3 py-1 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] text-[10px] text-[var(--text-color)] hover:border-[var(--accent-color)] transition-colors cursor-pointer truncate max-w-full"
-          >
-            {promptText}
-          </button>
-        ))}
+      {/* Sugestões rápidas abaixo do campo de texto (Pílulas Arredondadas) */}
+      <div className="space-y-1.5 pt-0.5">
+        <div className="flex items-center justify-between text-[11px] font-bold text-[var(--text-muted)]">
+          <span className="flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Sugestões rápidas abaixo do campo de texto:</span>
+          </span>
+          <span className="text-[10px] font-normal text-[var(--text-muted)]">
+            Clique para enviar instantaneamente
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          {activeQuickSuggestions.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => onSendPrompt(item.prompt)}
+              disabled={isBotLoading}
+              className="botao px-3 py-1.5 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] text-[11px] font-medium text-[var(--text-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:bg-[var(--surface-subtle)] transition-all cursor-pointer truncate max-w-full shadow-2xs active:scale-95"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
     </form>
   );
@@ -981,6 +1386,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
             </div>
           </div>
 
+          {renderStudioToolbar()}
           {showBotQuiz && renderInteractiveBotQuizWidget()}
           {renderChatMessagesList(false)}
           {renderMultimodalInputForm(fileInputRef, false)}
@@ -1111,67 +1517,101 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
         </div>
       </section>
 
-      {/* BARRA INFERIOR NATIVA DE APLICATIVO (CELULAR & PWA) — Evita ficar "por fora do lado" no celular */}
-      <nav
-        aria-label="Navegação Rápida de Aplicativo Mobile"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--card-bg)]/95 backdrop-blur-md border-t border-[var(--border-color)] px-2 py-1.5 shadow-[0_-4px_20px_rgba(15,23,42,0.08)]"
-      >
-        <div className="max-w-md mx-auto grid grid-cols-5 items-center gap-1 text-[10px] font-semibold">
+      {/* BEGIN: Bottom Navigation Bar (Navegação Inferior Estilo App Potiguar) */}
+      <footer className="fixed bottom-0 left-0 right-0 max-w-[420px] lg:max-w-md mx-auto z-40 px-3 pb-3 pointer-events-auto">
+        <nav
+          aria-label="Navegação Inferior"
+          data-purpose="navegacao-inferior"
+          className="bg-[#0d3830] text-white rounded-3xl py-2 px-3 shadow-[0_-4px_20px_rgba(11,46,38,0.35)] flex items-center justify-around border border-emerald-500/20 backdrop-blur-md"
+        >
+          {/* Tab 1: Home (Active State) */}
           <a
-            href="#topo"
+            href="#portal-home"
             onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center justify-center py-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--accent-color)] no-underline truncate"
+            className="flex flex-col items-center space-y-0.5 text-[#fdb913] hover:text-[#fdb913] transition-colors group no-underline"
           >
-            <Sparkles className="w-4 h-4 mb-0.5 text-[var(--accent-color)]" />
-            <span>Início</span>
+            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+            </svg>
+            <span className="text-[10px] font-bold tracking-tight">Home</span>
           </a>
 
+          {/* Tab 2: Busca */}
+          <a
+            href="#hero-search"
+            onClick={() => setIsFloatingOpen(false)}
+            className="flex flex-col items-center space-y-0.5 text-white/75 hover:text-white transition-colors group no-underline"
+          >
+            <svg
+              className="w-5 h-5 stroke-current fill-none stroke-[2.2]"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="text-[10px] font-medium tracking-tight">Busca</span>
+          </a>
+
+          {/* Tab 3: Alertas (Com pip indicador de notificação) */}
+          <a
+            href="#utilidade-publica"
+            onClick={() => setIsFloatingOpen(false)}
+            className="flex flex-col items-center space-y-0.5 text-white/75 hover:text-white transition-colors group relative no-underline"
+          >
+            <svg
+              className="w-5 h-5 stroke-current fill-none stroke-[2.2]"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="absolute top-0 right-1 w-2 h-2 bg-amber-400 rounded-full animate-ping" />
+            <span className="absolute top-0 right-1 w-2 h-2 bg-amber-400 rounded-full" />
+            <span className="text-[10px] font-medium tracking-tight">Alertas</span>
+          </a>
+
+          {/* Tab 4: Favoritos (Colinha RN) */}
           <a
             href="#colinha-politica-2026"
             onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center justify-center py-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--accent-color)] no-underline truncate"
+            className="flex flex-col items-center space-y-0.5 text-white/75 hover:text-white transition-colors group no-underline"
           >
-            <Award className="w-4 h-4 mb-0.5 text-amber-500" />
-            <span>Colinha</span>
+            <svg
+              className="w-5 h-5 stroke-current fill-none stroke-[2.2]"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="text-[10px] font-medium tracking-tight">Favoritos</span>
           </a>
 
-          {/* Botão Central Integrado do Agente de IA no Modo App Mobile */}
+          {/* Tab 5: Agente IA / Menu */}
           <button
             type="button"
             onClick={() => setIsFloatingOpen(!isFloatingOpen)}
-            aria-label="Abrir ou fechar Agente PotiguarBot IA"
-            className={`botao flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl text-white font-bold shadow-md cursor-pointer transition-transform active:scale-95 ${
-              isFloatingOpen
-                ? 'bg-emerald-600'
-                : 'bg-[var(--accent-color)]'
+            aria-label="Abrir ou fechar Painel PotiguarBot IA"
+            className={`flex flex-col items-center space-y-0.5 transition-colors cursor-pointer ${
+              isFloatingOpen ? 'text-[#fdb913] font-bold' : 'text-white/75 hover:text-white'
             }`}
           >
-            <div className="flex items-center gap-1">
-              <Bot className="w-4 h-4" />
-              <ChevronUp className={`w-3.5 h-3.5 transition-transform ${isFloatingOpen ? 'rotate-180' : ''}`} />
+            <div className="relative">
+              <Bot className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
             </div>
-            <span className="text-[10px] leading-tight mt-0.5">Agente IA</span>
+            <span className="text-[10px] font-medium tracking-tight">Estúdio IA</span>
           </button>
-
-          <a
-            href="#atualizacao-legislativa"
-            onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center justify-center py-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--accent-color)] no-underline truncate"
-          >
-            <ShieldCheck className="w-4 h-4 mb-0.5 text-emerald-500" />
-            <span>PEC 6x1</span>
-          </a>
-
-          <a
-            href="#enquete-2-turno"
-            onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center justify-center py-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--accent-color)] no-underline truncate"
-          >
-            <Calculator className="w-4 h-4 mb-0.5 text-[var(--accent-color)]" />
-            <span>Enquete</span>
-          </a>
-        </div>
-      </nav>
+        </nav>
+      </footer>
 
       {/* PAINEL DO AGENTE DE IA ACOPLADO (ESTILO PREVIEW LATERAL NO NOTEBOOK/COMPUTADOR & GAVETA ENCAIXADA NO CELULAR) */}
       {isFloatingOpen ? (
@@ -1237,6 +1677,8 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
               </button>
             </div>
           </div>
+
+          {renderStudioToolbar()}
 
           <div className="flex-1 overflow-y-auto flex flex-col min-h-0">
             {showBotQuiz && renderInteractiveBotQuizWidget()}

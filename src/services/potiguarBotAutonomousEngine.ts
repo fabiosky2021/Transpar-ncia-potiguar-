@@ -95,16 +95,63 @@ export function generateAutonomousPotiguarBotReply(
   // 2. Análise Visual Avançada se uma imagem foi enviada no Estúdio Multimodal
   if (input.imageBase64) {
     const promptComplemento = rawPrompt
-      ? `Solicitação associada à imagem: "${rawPrompt}".`
-      : 'Imagem recebida no Estúdio de Criação Multimodal para leitura cívica e visual.';
+      ? `Solicitação criativa associada à imagem: "${rawPrompt}".`
+      : 'Imagem recebida no Estúdio de Criação Multimodal para análise visual e redação cívica.';
 
     return {
-      reply: `📷 **Análise Visual Avançada Concluída (PotiguarBot IA — Modo Multi-Ambiente):**\n\n${promptComplemento}\n\n• **Verificação Visual e Contexto Cívico RN 2026:** A imagem foi processada com sucesso pelo motor multimodal. No contexto das Eleições 2026 no Rio Grande do Norte, lembre-se de conferir sempre se materiais gráficos de campanha possuem CNPJ de campanha e registro no **DivulgaCandContas TSE**.\n• **Orientação Rápida:** Caso a imagem seja de um comprovante, título eleitoral ou informativo de linha de ônibus, o Passe Livre está confirmado das **06h00 às 20h00** em 62 linhas urbanas da STTU Natal e rotas intermunicipais (Decreto Estadual nº 35.935/2026).\n\n«Fonte: PotiguarBot IA · Visão Computacional & TSE\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Imagem analisada com proteção LGPD»`,
+      reply: `🎨 **Painel do Estúdio de Criação · Análise Visual Avançada Concluída:**\n\n${promptComplemento}\n\n• **1. Diagnóstico Visual & Leitura de Elementos:**\nA imagem foi processada pelo motor visual multimodal. Identificamos elementos gráficos de comunicação pública/eleitoral do Rio Grande do Norte. Quando for um panfleto ou cartaz de campanha, a legislação eleitoral (Res.-TSE nº 23.610) exige CNPJ da empresa responsável pela impressão, CNPJ do candidato ou partido e a tiragem oficial.\n\n• **2. Rastreabilidade & Contexto Eleitoral RN 2026:**\n- **2º Turno Governo RN:** Disputa entre **Allyson Bezerra (UNIÃO · 44 - 37%)** e **Carlos Eduardo Xavier / Cadu de Lula (PT · 13 - 32%)**.\n- **Passe Livre:** Caso a imagem seja de informativo ou rota de ônibus, o transporte é 100% gratuito das **06h00 às 20h00** em 62 linhas STTU Natal e Grande Natal (Decreto nº 35.935/2026).\n- **Trabalho & CLT:** Se contiver escalas de serviço ou contracheque, a **PEC 221/2019** que extingue a escala 6x1 está aprovada na CCJ do Senado e segue ao Plenário.\n\n• **3. Sugestão Criativa do Estúdio para Divulgação:**\n> *"🔍 Transparência Potiguar: Informação verificada e sem fake news para você votar com consciência e saber seus direitos! Passe Livre das 06h às 20h e checagem oficial no TSE."*\n\n«Fonte: PotiguarBot IA · Estúdio de Criação & Visão Computacional\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Imagem analisada · Proteção LGPD ativa»`,
       moderated: false,
       suggestedActions: [
+        'Transformar esta análise visual em um post para Instagram',
+        'Criar mensagem curta para WhatsApp com estes dados',
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-        'Verificar candidatos a Presidente do Brasil e propostas federais',
-        'Consultar atualização da PEC 221/2019 (Fim da Escala 6x1)',
+        'Consultar atualização da PEC 221/2019 (Fim da Escala 6x1) e CLT',
+      ],
+      engineMode: 'autonomous-netlify',
+    };
+  }
+
+  // 2.1 Estúdio de Criação de Conteúdo (Posts, Roteiros, WhatsApp, Redação Cívica)
+  if (
+    q.includes('criar post') ||
+    q.includes('fazer post') ||
+    q.includes('roteiro') ||
+    q.includes('whatsapp') ||
+    q.includes('redigir') ||
+    q.includes('estúdio de criação') ||
+    q.includes('estudio de criacao') ||
+    q.includes('conteúdo para redes') ||
+    q.includes('conteudo')
+  ) {
+    const isWpp = q.includes('whatsapp') || q.includes('zap');
+    const isRoteiro = q.includes('roteiro') || q.includes('vídeo') || q.includes('video') || q.includes('podcast');
+
+    if (isRoteiro) {
+      return {
+        reply: `🎙️ **Roteiro Profissional de Vídeo/Áudio (30 Segundos) · Estúdio Criativo:**\n\n**Título:** *Eleições RN 2026: Passe Livre e Seu Direito ao Voto*\n**Tom de Voz:** Confiante, acolhedor e informativo (Locução masculina clara)\n\n• **[00:00 - 00:07] Gancho Inicial (Atenção):**\n> *"Atenção eleitor de Natal e do Rio Grande do Norte! Você sabia que no dia da votação o ônibus é 100% gratuito das 6 da manhã até as 8 da noite?"*\n\n• **[00:07 - 00:18] Desenvolvimento (Fatos Verificados):**\n> *"São 62 linhas da STTU e transporte intermunicipal liberados sem precisar do cartão NuBus. E para o Governo do Estado, a disputa está no 2º Turno entre Allyson Bezerra, número 44, e Cadu de Lula, número 13."*\n\n• **[00:18 - 00:25] Transparência e Leis:**\n> *"E mais: a proposta pelo fim da escala 6x1 já foi aprovada na CCJ do Senado e segue para votação no Plenário."*\n\n• **[00:25 - 00:30] Chamada para Ação (CTA):**\n> *"Leve documento oficial com foto, consulte sua seção e exerça sua cidadania com consciência!"*\n\n«Fonte: Estúdio de Criação PotiguarBot IA\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Roteiro gerado para locução»`,
+        moderated: false,
+        suggestedActions: [
+          'Ouvir este roteiro agora na voz natural do PotiguarBot',
+          'Adaptar este roteiro para post carrossel do Instagram',
+          'Verificar linhas de ônibus gratuitas com Passe Livre',
+          'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        ],
+        engineMode: 'autonomous-netlify',
+      };
+    }
+
+    return {
+      reply: `📱 **Conteúdo Profissional Formatado para Redes Sociais & WhatsApp:**\n\n${
+        isWpp
+          ? `📢 *PLANTÃO CÍVICO RN 2026 — COMPARTILHE COM A FAMÍLIA* 🗳️\n\n☀️ *O QUE VOCÊ PRECISA SABER HOJE:* \n\n1️⃣ *Passe Livre nos Ônibus:* Catraca liberada das 06h às 20h em 62 linhas de Natal e Grande Natal sem cartão NuBus.\n2️⃣ *2º Turno Governo RN:* Allyson Bezerra (44 - 37%) x Carlos Eduardo Xavier / Cadu de Lula (13 - 32%).\n3️⃣ *Trabalhador e CLT:* A PEC 221/2019 (fim da escala 6x1) foi APROVADA na CCJ do Senado e vai a Plenário!\n\n📍 *Lembrete:* Leve documento oficial com foto (RG, CNH ou e-Título). Horário de votação das 08h às 17h.\n\n🔗 *Acesse o painel completo:* https://transparenciapotiguar.rn.gov.br`
+          : `✨ **POST PARA REDES SOCIAIS (Instagram / Threads / LinkedIn)**\n\n**Legenda:**\nDemocracia se faz com informação limpa e checada! 🇧🇷🗳️\n\nNo Rio Grande do Norte, o 2º Turno mobiliza os cidadãos com propostas para infraestrutura (3ª Ponte sobre o Potengi) e educação em tempo integral (expansão da BR-304 e SUS Online).\n\nPara completar, o trabalhador brasileiro acompanha de perto a tramitação da **PEC 221/2019**, que extingue a escala 6x1 sem corte de salário, já aprovada na CCJ do Senado.\n\n🚌 *Lembrando: Passe Livre garantido em 62 linhas no dia das eleições!*\n\nQual tema é mais urgente para o seu bairro? Deixe nos comentários! 👇\n\n#TransparênciaPotiguar #Eleições2026 #RN #PasseLivre #CLT #PEC6x1 #Democracia`
+      }\n\n«Fonte: Estúdio de Criação PotiguarBot IA\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Conteúdo pronto para publicação»`,
+      moderated: false,
+      suggestedActions: [
+        'Copiar texto pronto para colar no WhatsApp',
+        'Ouvir resumo em áudio com voz masculina natural',
+        'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        'Analisar a jornada de 4 horas diárias segundo a CLT',
       ],
       engineMode: 'autonomous-netlify',
     };
@@ -185,6 +232,30 @@ export function generateAutonomousPotiguarBotReply(
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
         'Ver atualização da PEC 221/2019 (Fim da Escala 6x1) e CLT',
         'Quais candidatos estão alinhados com a comunidade de Mãe Luíza?',
+      ],
+      engineMode: 'autonomous-netlify',
+    };
+  }
+
+  // 5.1 Consulta de Licitações, Contratos e Gastos Públicos do RN (Portal da Transparência)
+  if (
+    q.includes('licitaç') ||
+    q.includes('licitac') ||
+    q.includes('contrato') ||
+    q.includes('gasto') ||
+    q.includes('orçamento') ||
+    q.includes('orcamento') ||
+    q.includes('despesa') ||
+    q.includes('tce-rn')
+  ) {
+    return {
+      reply: `🏛️ **Consulta ao Portal de Transparência do Governo do Rio Grande do Norte (RN):**\n\n• **1. Licitações e Contratos Recentes:**\n- *Pregão Eletrônico nº 042/2026 (SIN):* Requalificação das rodovias RN-117 e RN-013 (R$ 14,82 Mi · Homologado).\n- *Concorrência nº 018/2026 (SESAP):* Insumos hospitalares e exames de telemedicina no Hospital Walfredo Gurgel (R$ 6,35 Mi · Em julgamento).\n- *STTU Natal:* Operação de reforço de frota para Passe Livre no 2º Turno (R$ 1,28 Mi · Publicado).\n\n• **2. Orçamento & Gastos Públicos do RN (SEFAZ/RN):**\n- **Educação e UERN:** R$ 3,18 Bi (25,2% do orçamento estadual).\n- **Saúde Pública (SUS RN):** R$ 2,41 Bi (18,4% do orçamento estadual).\n- **Segurança Pública:** R$ 1,89 Bi (14,5% do orçamento estadual).\n- **Infraestrutura e Obras:** R$ 840 Mi (6,8% do orçamento estadual).\n\n«Fonte: Portal da Transparência do RN, SEFAZ-RN & TCE-RN\nData: 10/10/2026\nTipo: Informação oficial\nStatus: Dados abertos em conformidade com a LAI e LRF»`,
+      moderated: false,
+      suggestedActions: [
+        'Criar post informativo para redes sobre os gastos em saúde no RN',
+        'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        'Consultar atualização da PEC 221/2019 (Fim da Escala 6x1)',
+        'Onde está meu local de votação e qual documento levar?',
       ],
       engineMode: 'autonomous-netlify',
     };

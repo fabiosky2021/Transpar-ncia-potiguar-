@@ -44,6 +44,7 @@ import { PrimeirasNoticiasSlides24h } from './components/PrimeirasNoticiasSlides
 import { PanoramaPoliticoRN2026Section } from './components/PanoramaPoliticoRN2026Section';
 import { RadarTransparenciaSection } from './components/RadarTransparenciaSection';
 import { AtualizacaoLegislativaSection } from './components/AtualizacaoLegislativaSection';
+import { PotiguarPortalHomeSection } from './components/PotiguarPortalHomeSection';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
@@ -346,12 +347,14 @@ export default function App() {
     {
       id: 'welcome-1',
       sender: 'bot',
-      text: 'Olá, eleitor potiguar! Sou o PotiguarBot IA com voz masculina natural em português do Brasil, conectado ao Radar de Transparência e ao Plantão 24h (Eleições RN 2026).\n\n📌 Disputa pelo Governo do RN (2º Turno):\n• Allyson Bezerra (UNIÃO · 44): 37% — 3ª Ponte sobre o Rio Potengi e Hospitais Regionais\n• Carlos Eduardo Xavier / Cadu de Lula (PT · 13): 32% — Educação em Tempo Integral, BR-304 e SUS com Diagnósticos Online (Alinhado a Mãe Luíza)\n• Álvaro Dias (PL · 22): 29% — Choque de eficiência e não aumento de impostos\n\n«Fonte: TSE / DivulgaCandContas\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Candidaturas e planos registrados»',
+      text: 'Olá! Sou o PotiguarBot IA, seu ESTÚDIO DE CRIAÇÃO MULTIMODAL & PAINEL PROFISSIONAL DE CONTEÚDO para o Rio Grande do Norte (Eleições 2026, Cidadania e Transparência Jurídica CLT).\n\n🎨 **Capacidades Disponíveis:**\n• **Entrada por Texto:** Crie posts para WhatsApp e redes sociais, roteiros de áudio/vídeo e consulte dados do TSE e da CLT.\n• **Entrada por Voz (Microfone):** Fale comigo no botão de microfone ativo com transcrição em tempo real e resposta em voz masculina natural.\n• **Upload de Imagem & Visão Avançada:** Envie ou arraste panfletos, cartazes e documentos para análise visual detalhada, extração de texto e checagem de CNPJ.\n• **Sugestão de Ações em Botões:** Utilize as sugestões rápidas abaixo do campo de texto ou os botões de ação após cada resposta.\n\n«Fonte: Estúdio de Criação PotiguarBot IA · TSE & Legislação Oficial\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Estúdio Multimodal Ativo»',
       timestamp: 'Agora',
       suggestedActions: [
-        'Resumo do Radar de Transparência (Fontes Oficiais TSE x Relatos)',
-        'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-        'Onde está meu local de votação e qual documento levar?',
+        '✍️ Criar post para WhatsApp sobre o 2º Turno RN (Allyson 44 x Cadu de Lula 13)',
+        '🎨 Roteiro de vídeo 30s: Passe Livre nos ônibus em Natal',
+        '⚖️ Transparência CLT: Análise da jornada de 4h e PEC 221/2019 (Escala 6x1)',
+        '🔍 Como funciona a análise visual de panfletos no Estúdio?',
+        '🗳️ Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
       ],
     },
   ]);
@@ -853,12 +856,27 @@ export default function App() {
       {/* Top Navigation Bar following strict Responsive Multi-Device Contract (Celular, App PWA, Notebook & PC) */}
       <header className="sticky top-0 z-40 bg-[var(--card-bg)]/95 backdrop-blur-md border-b border-[var(--border-color)] px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 w-full max-w-[100vw]">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-2 sm:gap-4 min-w-0">
-          {/* Zone 1: Wordmark */}
+          {/* Zone 1: Wordmark with Cultural Compass Logo */}
           <a
-            href="#topo"
-            className="text-base sm:text-xl font-semibold tracking-tight text-[var(--text-color)] font-editorial truncate min-w-0"
+            href="#portal-home"
+            className="flex items-center gap-2 text-base sm:text-xl font-semibold tracking-tight text-[var(--text-color)] no-underline truncate min-w-0"
           >
-            Transparência Potiguar
+            <div className="relative w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center">
+              <svg className="w-full h-full text-[#0a5c43]" fill="none" viewBox="0 0 48 48">
+                <rect fill="#00875a" height="32" rx="4" width="8" x="10" y="8" />
+                <path d="M14 8H26C31.5228 8 36 12.4772 36 18C36 23.5228 31.5228 28 26 28H14V8Z" fill="#fdb913" />
+                <path d="M18 14H25C27.2091 14 29 15.7909 29 18C29 20.2091 27.2091 22 25 22H18V14Z" fill="#0a5c43" />
+                <path d="M25 23L33 37H25L18 25H25Z" fill="#0070ba" opacity="0.95" />
+              </svg>
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-[9px] sm:text-[10px] font-bold text-[#0d3830] dark:text-emerald-400 uppercase tracking-wider">
+                Transparência
+              </span>
+              <span className="text-sm sm:text-base font-black text-[#0a5c43] dark:text-emerald-300 uppercase tracking-tight">
+                Potiguar
+              </span>
+            </div>
           </a>
 
           {/* Zone 2: Navigation links on wide screens */}
@@ -1001,6 +1019,18 @@ export default function App() {
 
       {/* Main Content Container (Responsive across Celular, App, Notebook & Desktop) */}
       <main id="topo" className="flex-1 max-w-[1200px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-12 overflow-x-hidden min-w-0">
+        {/* Portal Transparência Potiguar: Branding Cultural, Hero Search, KPI Cards e Áreas de Destaque */}
+        <PotiguarPortalHomeSection
+          onSearchSubmit={(query) => {
+            setIsFloatingChatOpen(true);
+            enviarPerguntaBot(`Pesquisa no Portal Transparência Potiguar: ${query}`);
+          }}
+          onOpenAgenteIA={(prompt) => {
+            setIsFloatingChatOpen(true);
+            if (prompt) enviarPerguntaBot(prompt);
+          }}
+        />
+
         {/* Section 0: Slides das Primeiras Notícias · Atualização em Tempo Real 24h */}
         <PrimeirasNoticiasSlides24h
           boletins={boletinsIA}
