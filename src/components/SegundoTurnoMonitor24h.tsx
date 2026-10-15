@@ -25,6 +25,8 @@ import {
   TTSStateSnapshot,
   voiceConfig,
 } from '../services/ttsService';
+import AffinitiesCalculator from './AffinitiesCalculator';
+import PrioritiesQuiz from './PrioritiesQuiz';
 import { generateAutonomousTSEFactCheck } from '../services/potiguarBotAutonomousEngine';
 import {
   ResponsiveContainer,
@@ -67,6 +69,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
   const [eixoFiltro, setEixoFiltro] = useState<'Todos' | EixoPlanoGoverno>('Todos');
   const [viabilidadeFiltro, setViabilidadeFiltro] = useState<'Todas' | StatusViabilidadeOrcamentaria>('Todas');
   const [esferaQuiz, setEsferaQuiz] = useState<'rn' | 'presidencia'>('presidencia');
+  const [quizPresidencialModo, setQuizPresidencialModo] = useState<'prioridades-animado' | 'afinidade-completa'>('prioridades-animado');
   const [respostasQuiz, setRespostasQuiz] = useState<Record<string, string>>({});
   const [perguntaAtivaIdx, setPerguntaAtivaIdx] = useState<number>(0);
   const [modoQuiz, setModoQuiz] = useState<'passo-a-passo' | 'todas'>('passo-a-passo');
@@ -727,66 +730,92 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
                 🏛️ Governo do RN (Estadual)
               </button>
             </div>
+          </div>
 
-            <h2 className="text-xl font-semibold text-[var(--text-color)]">
-              {esferaQuiz === 'presidencia'
-                ? 'Quiz: Candidatos a Presidente do Brasil e Propostas de Governo Federal'
-                : 'Calculadora de Afinidade Temática · 2º Turno Governo do RN'}
-            </h2>
-            <p className="text-xs text-[var(--text-muted)]">
-              {esferaQuiz === 'presidencia' ? (
-                <>
-                  Responda às 5 perguntas rápidas para comparar suas prioridades com as propostas de Governo Federal de{' '}
-                  <strong>Luiz Inácio Lula da Silva (PT · 13)</strong> e{' '}
-                  <strong>Flávio Bolsonaro (PL · 22)</strong> registradas no TSE.
-                </>
+          {esferaQuiz === 'presidencia' ? (
+            <div className="pt-2 space-y-4">
+              {/* Seletor entre Quiz Animado com Som e Calculadora Temática */}
+              <div className="flex items-center justify-center gap-1.5 p-1 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] max-w-md mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setQuizPresidencialModo('prioridades-animado')}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    quizPresidencialModo === 'prioridades-animado'
+                      ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-500/20'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'
+                  }`}
+                >
+                  🎉 Quiz Animado com Som (Brasil 2026)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuizPresidencialModo('afinidade-completa')}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    quizPresidencialModo === 'afinidade-completa'
+                      ? 'bg-[var(--accent-color)] text-white shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'
+                  }`}
+                >
+                  📊 Calculadora 4 Eixos
+                </button>
+              </div>
+
+              {quizPresidencialModo === 'prioridades-animado' ? (
+                <PrioritiesQuiz onAskAgentAnalysis={onAskAgentAnalysis} />
               ) : (
-                <>
+                <AffinitiesCalculator onAskAgentAnalysis={onAskAgentAnalysis} />
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3 border-b border-[var(--border-color)] pb-4">
+                <h2 className="text-xl font-semibold text-[var(--text-color)]">
+                  Calculadora de Afinidade Temática · 2º Turno Governo do RN
+                </h2>
+                <p className="text-xs text-[var(--text-muted)]">
                   Responda diretamente nas opções abaixo para comparar suas prioridades com as propostas registradas de{' '}
                   <strong>Allyson Bezerra (União · 44)</strong> e{' '}
                   <strong>Cadu de Lula (PT · 13)</strong> no 2º turno do RN.
-                </>
-              )}
-            </p>
+                </p>
 
-            {/* Barra de Progresso + Seletor Rápido das 5 Perguntas */}
-            <div className="space-y-2">
-              <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden border border-[var(--border-color)]">
-                <div
-                  className="h-full bg-[var(--accent-color)] transition-all duration-300"
-                  style={{
-                    width: `${(resultadoAfinidade.totalRespondidas / resultadoAfinidade.totalPerguntas) * 100}%`,
-                  }}
-                />
-              </div>
-
-              <div className="flex items-center justify-between gap-1.5 pt-1">
-                {listaPerguntasQuiz.map((qItem, idx) => {
-                  const respondida = Boolean(respostasQuiz[qItem.id]);
-                  const isAtiva = modoQuiz === 'passo-a-passo' && perguntaAtivaIdx === idx;
-                  return (
-                    <button
-                      key={qItem.id}
-                      type="button"
-                      onClick={() => {
-                        setModoQuiz('passo-a-passo');
-                        setPerguntaAtivaIdx(idx);
+                {/* Barra de Progresso + Seletor Rápido das 5 Perguntas */}
+                <div className="space-y-2">
+                  <div className="w-full h-2 rounded-full bg-[var(--surface-subtle)] overflow-hidden border border-[var(--border-color)]">
+                    <div
+                      className="h-full bg-[var(--accent-color)] transition-all duration-300"
+                      style={{
+                        width: `${(resultadoAfinidade.totalRespondidas / resultadoAfinidade.totalPerguntas) * 100}%`,
                       }}
-                      className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer truncate ${
-                        isAtiva
-                          ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] shadow-sm'
-                          : respondida
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
-                          : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-color)]'
-                      }`}
-                    >
-                      {idx + 1}. {qItem.temaCurto.split(' ')[0]} {respondida ? '✓' : ''}
-                    </button>
-                  );
-                })}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between gap-1.5 pt-1">
+                    {listaPerguntasQuiz.map((qItem, idx) => {
+                      const respondida = Boolean(respostasQuiz[qItem.id]);
+                      const isAtiva = modoQuiz === 'passo-a-passo' && perguntaAtivaIdx === idx;
+                      return (
+                        <button
+                          key={qItem.id}
+                          type="button"
+                          onClick={() => {
+                            setModoQuiz('passo-a-passo');
+                            setPerguntaAtivaIdx(idx);
+                          }}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer truncate ${
+                            isAtiva
+                              ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] shadow-sm'
+                              : respondida
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
+                              : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-color)]'
+                          }`}
+                        >
+                          {idx + 1}. {qItem.temaCurto.split(' ')[0]} {respondida ? '✓' : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
           {/* Área de Perguntas: Passo a Passo (sem pular para o chat) ou Lista Completa */}
           {modoQuiz === 'passo-a-passo' ? (
@@ -1018,7 +1047,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
                     />
                     <div className="space-y-1">
                       <div className="text-[11px] font-bold uppercase text-[var(--success-color)]">
-                        ★ Candidato com Maior Afinidade Temática ({esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do RN'})
+                        ★ Candidato com Maior Afinidade Temática (Governo do RN)
                       </div>
                       <div className="text-base font-bold text-[var(--text-color)]">
                         {resultadoAfinidade.candidatoMaiorAfinidade.nome} (Nº{' '}
@@ -1060,9 +1089,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
                         onClick={() =>
                           speakWithPotiguarTTS(
                             'quiz-resultado-tts',
-                            `Resultado do Quiz de Afinidade Temática para ${
-                              esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do Rio Grande do Norte'
-                            }. Você respondeu ${resultadoAfinidade.totalRespondidas} de ${resultadoAfinidade.totalPerguntas} perguntas. Candidato com maior afinidade: ${resultadoAfinidade.candidatoMaiorAfinidade?.nome}, número ${resultadoAfinidade.candidatoMaiorAfinidade?.numero}, com ${
+                            `Resultado do Quiz de Afinidade Temática para Governo do Rio Grande do Norte. Você respondeu ${resultadoAfinidade.totalRespondidas} de ${resultadoAfinidade.totalPerguntas} perguntas. Candidato com maior afinidade: ${resultadoAfinidade.candidatoMaiorAfinidade?.nome}, número ${resultadoAfinidade.candidatoMaiorAfinidade?.numero}, com ${
                               resultadoAfinidade.candidatoMaiorAfinidade?.id === candIdA
                                 ? resultadoAfinidade.pctA
                                 : resultadoAfinidade.pctB
@@ -1083,7 +1110,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
                   <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-[var(--subcard-shadow)] space-y-2.5 text-xs">
                     <div className="font-bold text-[var(--accent-color)] flex items-center justify-between">
                       <span>
-                        🤖 Parecer Técnico do PotiguarBot IA ({esferaQuiz === 'presidencia' ? 'Plano de Governo Federal' : 'Plano Estadual RN'})
+                        🤖 Parecer Técnico do PotiguarBot IA (Plano Estadual RN)
                       </span>
                       <span className="font-mono text-[10px] text-[var(--text-muted)]">
                         Fonte: DivulgaCandContas TSE
@@ -1116,7 +1143,7 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
               </div>
             ) : (
               <p className="text-xs text-[var(--text-muted)]">
-                Selecione suas respostas nas 5 perguntas acima para descobrir qual candidato ({esferaQuiz === 'presidencia' ? 'Presidente do Brasil' : 'Governo do RN'}) possui maior afinidade temática com você.
+                Selecione suas respostas nas 5 perguntas acima para descobrir qual candidato (Governo do RN) possui maior afinidade temática com você.
               </p>
             )}
 
@@ -1145,7 +1172,9 @@ export const SegundoTurnoMonitor24h: React.FC<SegundoTurnoMonitor24hProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </>
+      )}
+    </div>
       </section>
     </div>
   );

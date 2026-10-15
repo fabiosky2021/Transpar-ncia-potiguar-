@@ -411,3 +411,91 @@ export const DEFAULT_WHATSAPP_SHARE_TEXT = `☀️ COLINHA POLÍTICA & PANORAMA 
 • Deputado Estadual: Cinthia de Allyson, Neilton Diógenes, Ezequiel Ferreira e Daniel Valença (Mãe Luíza)
 
 🚌 Passe Livre confirmado nas 62 linhas de Natal (STTU) e transporte intermunicipal!`;
+
+export interface HistoricoVotoEnqueteItem {
+  id: string;
+  timestamp: number;
+  dataRotulo: string;
+  horario: string;
+  votosAllyson: number;
+  votosCadu: number;
+  totalVotos: number;
+  percentualAllyson: number;
+  percentualCadu: number;
+  origem?: string;
+}
+
+export const INITIAL_HISTORICO_ENQUETE: HistoricoVotoEnqueteItem[] = [
+  {
+    id: 'hist-1',
+    timestamp: 1728172800000,
+    dataRotulo: '06/Out (Início 2ºT)',
+    horario: '18:00',
+    votosAllyson: 420,
+    votosCadu: 350,
+    totalVotos: 770,
+    percentualAllyson: 54.5,
+    percentualCadu: 45.5,
+    origem: 'Abertura oficial do simulado TSE 2º turno',
+  },
+  {
+    id: 'hist-2',
+    timestamp: 1728345600000,
+    dataRotulo: '08/Out (Debate TV)',
+    horario: '22:30',
+    votosAllyson: 590,
+    votosCadu: 510,
+    totalVotos: 1100,
+    percentualAllyson: 53.6,
+    percentualCadu: 46.4,
+    origem: 'Pós-debate televisivo de propostas para o RN',
+  },
+  {
+    id: 'hist-3',
+    timestamp: 1728518400000,
+    dataRotulo: '10/Out (Passe Livre)',
+    horario: '14:00',
+    votosAllyson: 780,
+    votosCadu: 700,
+    totalVotos: 1480,
+    percentualAllyson: 52.7,
+    percentualCadu: 47.3,
+    origem: 'Confirmação do Passe Livre nas 62 linhas STTU',
+  },
+  {
+    id: 'hist-4',
+    timestamp: 1728691200000,
+    dataRotulo: '12/Out (Comício Mãe Luíza)',
+    horario: '20:15',
+    votosAllyson: 920,
+    votosCadu: 850,
+    totalVotos: 1770,
+    percentualAllyson: 52.0,
+    percentualCadu: 48.0,
+    origem: 'Ato comunitário em Mãe Luíza e Zona Leste',
+  },
+  {
+    id: 'hist-5',
+    timestamp: 1728864000000,
+    dataRotulo: '14/Out (Reta Final)',
+    horario: '17:45',
+    votosAllyson: 1040,
+    votosCadu: 940,
+    totalVotos: 1980,
+    percentualAllyson: 52.5,
+    percentualCadu: 47.5,
+    origem: 'Consolidação das pesquisas registradas',
+  },
+  {
+    id: 'hist-6',
+    timestamp: 1728950400000,
+    dataRotulo: '15/Out (Hoje · Ao Vivo)',
+    horario: '12:00',
+    votosAllyson: 1080,
+    votosCadu: 920,
+    totalVotos: 2000,
+    percentualAllyson: 54.0,
+    percentualCadu: 46.0,
+    origem: 'Sincronização em tempo real Firestore',
+  },
+];

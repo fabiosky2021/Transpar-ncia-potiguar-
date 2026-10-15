@@ -22,9 +22,17 @@ service cloud.firestore {
     match /enquete/{docId} {
       allow get, list: if true;
       allow create, update: if isValidId(docId)
-        && incoming().totalVotos is number
-        && incoming().votosNatalia is number
-        && incoming().votosPaulinho is number;
+        && incoming().totalVotos is number;
+    }
+
+    match /historicoEnquete/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id)
+        && incoming().timestamp is number
+        && incoming().dataRotulo is string && incoming().dataRotulo.size() <= 100
+        && incoming().votosAllyson is number
+        && incoming().votosCadu is number
+        && incoming().totalVotos is number;
     }
 
     match /locaisVotacao/{id} {

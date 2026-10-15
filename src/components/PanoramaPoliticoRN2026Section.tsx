@@ -14,7 +14,11 @@ import {
   SlidersHorizontal,
   Volume2,
   Bot,
+  Scale,
+  FileText,
 } from 'lucide-react';
+import senadoImg from '../assets/images/senado_votacao_pec_1792087922644.jpg';
+import camaraImg from '../assets/images/camara_federal_pec_1792087938378.jpg';
 import { speakWithPotiguarTTS } from '../services/ttsService';
 import {
   ResponsiveContainer,
@@ -578,6 +582,71 @@ export const PanoramaPoliticoRN2026Section: React.FC<PanoramaPoliticoRN2026Secti
           </div>
         </div>
 
+        {/* Banners com Imagens do Senado e Câmara Federal: Votação da PEC 221/2019 */}
+        {(cargoFiltro === 'Todos' || cargoFiltro === 'Senador' || cargoFiltro === 'Deputado Federal') && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Imagem e Atualização do Senado Federal */}
+            {(cargoFiltro === 'Todos' || cargoFiltro === 'Senador') && (
+              <div className="subcard-clean overflow-hidden flex flex-col justify-between border-2 border-blue-500/25">
+                <div className="relative h-44 sm:h-48 w-full bg-slate-900 overflow-hidden">
+                  <img
+                    src={senadoImg}
+                    alt="Plenário do Senado Federal durante votação da PEC"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 flex flex-col justify-end text-white">
+                    <span className="px-2 py-0.5 rounded bg-blue-600 text-[10px] font-bold w-fit uppercase tracking-wider mb-1">
+                      🏛️ Senado Federal · Votação PEC 221/2019
+                    </span>
+                    <h4 className="text-sm sm:text-base font-bold leading-tight drop-shadow-sm">
+                      CCJ do Senado aprova Fim da Escala 6x1
+                    </h4>
+                  </div>
+                </div>
+                <div className="p-4 space-y-2 text-xs">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-[var(--text-muted)]">Data: <strong>02/09/2026</strong></span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">● Aprovado na CCJ</span>
+                  </div>
+                  <p className="text-[var(--text-muted)] leading-relaxed m-0">
+                    A bancada do Senado no RN (Carlos Eduardo Alves e Rogério Marinho) acompanha o projeto que reduz a jornada máxima para 36h semanais.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Imagem e Atualização da Câmara Federal */}
+            {(cargoFiltro === 'Todos' || cargoFiltro === 'Deputado Federal') && (
+              <div className="subcard-clean overflow-hidden flex flex-col justify-between border-2 border-emerald-500/25">
+                <div className="relative h-44 sm:h-48 w-full bg-slate-900 overflow-hidden">
+                  <img
+                    src={camaraImg}
+                    alt="Plenário da Câmara dos Deputados em sessão deliberativa"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 flex flex-col justify-end text-white">
+                    <span className="px-2 py-0.5 rounded bg-emerald-600 text-[10px] font-bold w-fit uppercase tracking-wider mb-1">
+                      🏛️ Câmara dos Deputados · Bancada Federal
+                    </span>
+                    <h4 className="text-sm sm:text-base font-bold leading-tight drop-shadow-sm">
+                      8 Deputados Federais do RN em Pauta
+                    </h4>
+                  </div>
+                </div>
+                <div className="p-4 space-y-2 text-xs">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-[var(--text-muted)]">Quórum: <strong>308 votos (3/5)</strong></span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">● 2 Turnos de Voto</span>
+                  </div>
+                  <p className="text-[var(--text-muted)] leading-relaxed m-0">
+                    Na Câmara Federal, Natália Bonavides (PT), Nina Souza, Benes Leocádio e Dr. Bernardo analisam os impactos no setor produtivo potiguar.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {cargosFiltrados.map((item) => (
             <div
@@ -600,6 +669,29 @@ export const PanoramaPoliticoRN2026Section: React.FC<PanoramaPoliticoRN2026Secti
                 <div className="text-xs font-semibold text-amber-600 dark:text-amber-400">
                   ★ {item.destaque}
                 </div>
+
+                {/* Badge do Posicionamento na PEC 221/2019 (Fim da Escala 6x1) */}
+                {(item.cargo === 'Senador' || item.cargo === 'Deputado Federal') && (
+                  <div className="p-2 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] text-[11px] flex items-start gap-1.5">
+                    <Scale className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-[var(--text-color)]">Posição na PEC 221/2019: </strong>
+                      <span className="text-[var(--text-muted)]">
+                        {item.nome.includes('Carlos Eduardo')
+                          ? 'Favorável à transição gradual com garantia da renda e diálogo com o comércio potiguar.'
+                          : item.nome.includes('Rogério Marinho')
+                          ? 'Acompanha impacto fiscal, defendendo equilíbrio para pequenas empresas e setor privado.'
+                          : item.nome.includes('Natália Bonavides')
+                          ? 'Coautora e atuante pelo fim imediato da escala 6x1 e jornada de 36h sem redução salarial.'
+                          : item.nome.includes('Nina')
+                          ? 'Foco na proteção da saúde laboral e garantia de descanso semanal digno.'
+                          : item.nome.includes('Benes Leocádio')
+                          ? 'Atenção aos impactos nos municípios e serviços essenciais de saúde.'
+                          : 'Acompanhando deliberação das comissões temáticas no Congresso Nacional.'}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 <p className="text-xs text-[var(--text-muted)] leading-relaxed">
                   {item.resumoAtuacao}

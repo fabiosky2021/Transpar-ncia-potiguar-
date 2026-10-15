@@ -24,9 +24,28 @@
       "properties": {
         "totalVotos": { "type": "number" },
         "votosNatalia": { "type": "number" },
-        "votosPaulinho": { "type": "number" }
+        "votosPaulinho": { "type": "number" },
+        "votosAllyson": { "type": "number" },
+        "votosCadu": { "type": "number" }
       },
-      "required": ["totalVotos", "votosNatalia", "votosPaulinho"]
+      "required": ["totalVotos"]
+    },
+    "HistoricoVotoEnquete": {
+      "title": "HistoricoVotoEnquete",
+      "description": "Registro temporal histórico da evolução dos votos no simulado do 2º turno",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "number" },
+        "dataRotulo": { "type": "string" },
+        "horario": { "type": "string" },
+        "votosAllyson": { "type": "number" },
+        "votosCadu": { "type": "number" },
+        "totalVotos": { "type": "number" },
+        "percentualAllyson": { "type": "number" },
+        "percentualCadu": { "type": "number" },
+        "origem": { "type": "string" }
+      },
+      "required": ["timestamp", "dataRotulo", "votosAllyson", "votosCadu", "totalVotos"]
     },
     "LocalVotacao": {
       "title": "LocalVotacao",
@@ -124,6 +143,10 @@
     "enquete/resultado": {
       "schema": "Enquete",
       "description": "Documento de resultados da enquete"
+    },
+    "historicoEnquete/{id}": {
+      "schema": "HistoricoVotoEnquete",
+      "description": "Snapshots cronológicos da evolução de votos no simulado do 2º turno"
     },
     "locaisVotacao/{id}": {
       "schema": "LocalVotacao",

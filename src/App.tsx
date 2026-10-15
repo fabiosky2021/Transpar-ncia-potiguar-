@@ -27,6 +27,7 @@ import {
   Download,
   Clock,
   Flame,
+  BellRing,
 } from 'lucide-react';
 import {
   generateAutonomousPotiguarBotReply,
@@ -43,6 +44,8 @@ import { SegundoTurnoMonitor24h } from './components/SegundoTurnoMonitor24h';
 import { PrimeirasNoticiasSlides24h } from './components/PrimeirasNoticiasSlides24h';
 import { PanoramaPoliticoRN2026Section } from './components/PanoramaPoliticoRN2026Section';
 import { RadarTransparenciaSection } from './components/RadarTransparenciaSection';
+import { SoundNotificationCenter } from './components/SoundNotificationCenter';
+import { soundNotificationManager } from './services/soundNotificationService';
 import { AtualizacaoLegislativaSection } from './components/AtualizacaoLegislativaSection';
 import { PotiguarPortalHomeSection } from './components/PotiguarPortalHomeSection';
 import { BottomNavigationBar, BottomNavTab } from './components/BottomNavigationBar';
@@ -75,6 +78,8 @@ import {
   RelatoCidadao,
   BoletimDiarioIA,
   AvaliacaoCandidatoItem,
+  HistoricoVotoEnqueteItem,
+  INITIAL_HISTORICO_ENQUETE,
 } from './data/platformData';
 import natalHeroImg from './assets/images/natal_rn_civic_hero_1791178735552.jpg';
 import potiguarEmblemImg from './assets/images/potiguar_civic_emblem_1791178745626.jpg';
@@ -95,6 +100,9 @@ export default function App() {
   const [propostasTSE, setPropostasTSE] = useState<PropostaTSEItem[]>(INITIAL_PROPOSTAS_TSE);
   const [feedbacksComunidade, setFeedbacksComunidade] = useState<FeedbackComunidadeItem[]>(
     INITIAL_FEEDBACKS_COMUNIDADE
+  );
+  const [historicoEnquete, setHistoricoEnquete] = useState<HistoricoVotoEnqueteItem[]>(
+    INITIAL_HISTORICO_ENQUETE
   );
   const [isUpdatingBoletim, setIsUpdatingBoletim] = useState<boolean>(false);
 
@@ -204,6 +212,23 @@ export default function App() {
       setFeedbacksComunidade(docs.reverse());
     }, (error) => handleFirestoreError(error, OperationType.LIST, 'feedbacksComunidade'));
 
+    const unsubHistorico = onSnapshot(collection(db, 'historicoEnquete'), async (snapshot) => {
+      if (snapshot.empty) {
+        // Inicializa registros de teste no Firestore para garantir persistência histórica
+        try {
+          for (const item of INITIAL_HISTORICO_ENQUETE) {
+            await setDoc(doc(db, 'historicoEnquete', item.id), item);
+          }
+        } catch {
+          // ignore offline
+        }
+        return;
+      }
+      const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as HistoricoVotoEnqueteItem[];
+      docs.sort((a, b) => a.timestamp - b.timestamp);
+      setHistoricoEnquete(docs);
+    }, (error) => handleFirestoreError(error, OperationType.LIST, 'historicoEnquete'));
+
     return () => {
       unsubCandidatos();
       unsubEnquete();
@@ -212,6 +237,7 @@ export default function App() {
       unsubBoletins();
       unsubPropostas();
       unsubFeedbacks();
+      unsubHistorico();
     };
   }, []);
 
@@ -364,6 +390,7 @@ export default function App() {
   const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(false);
   const [activeBottomTab, setActiveBottomTab] = useState<BottomNavTab>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [isSoundCenterOpen, setIsSoundCenterOpen] = useState<boolean>(false);
 
   const handleSelectBottomTab = (tab: BottomNavTab) => {
     setActiveBottomTab(tab);
@@ -379,12 +406,8 @@ export default function App() {
       }
     } else if (tab === 'alertas') {
       setIsMobileMenuOpen(false);
-      const alertEl =
-        document.getElementById('slides-noticias-24h') ||
-        document.getElementById('utilidade-publica');
-      if (alertEl) {
-        alertEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      setIsSoundCenterOpen(true);
+      soundNotificationManager.playSound('chime');
     } else if (tab === 'favoritos') {
       setIsMobileMenuOpen(false);
       const favEl =
@@ -510,6 +533,7 @@ export default function App() {
       },
     }));
     setUserPollVote(opcaoId);
+    soundNotificationManager.playSound('success');
 
     try {
       await updateDoc(doc(db, 'enquete', 'resultado'), {
@@ -519,6 +543,25 @@ export default function App() {
         votosPaulinho: novosVotosAllyson,
         votosNatalia: novosVotosCadu,
       });
+
+      // Grava snapshot cronológico no Firestore na coleção /historicoEnquete
+      const snapshotId = `hist-voto-${Date.now()}`;
+      const pctAllyson = Number(((novosVotosAllyson / novoTotal) * 100).toFixed(1));
+      const pctCadu = Number(((novosVotosCadu / novoTotal) * 100).toFixed(1));
+      const agoraHora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const novoSnapshotDoc = {
+        timestamp: Date.now(),
+        dataRotulo: `Hoje às ${agoraHora}`,
+        horario: agoraHora,
+        votosAllyson: novosVotosAllyson,
+        votosCadu: novosVotosCadu,
+        totalVotos: novoTotal,
+        percentualAllyson: pctAllyson,
+        percentualCadu: pctCadu,
+        origem: `Voto registrado para ${opcaoId === 'allyson-bezerra' ? 'Allyson 44' : 'Cadu 13'} (+${bonusIncrement})`,
+      };
+      setHistoricoEnquete((prev) => [...prev, { id: snapshotId, ...novoSnapshotDoc }]);
+      await setDoc(doc(db, 'historicoEnquete', snapshotId), novoSnapshotDoc);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, 'enquete/resultado');
     }
@@ -707,6 +750,7 @@ export default function App() {
         suggestedActions: data.suggestedActions,
       };
       setChatMessages((prev) => [...prev, botMsg]);
+      soundNotificationManager.playSound('chime');
     } catch {
       // Motor Autônomo Multi-Ambiente (garante funcionamento 100% na Netlify, Vercel, GitHub Pages ou offline)
       const autonomousResult = generateAutonomousPotiguarBotReply({
@@ -730,6 +774,7 @@ export default function App() {
           suggestedActions: autonomousResult.suggestedActions,
         },
       ]);
+      soundNotificationManager.playSound('chime');
     } finally {
       setIsBotLoading(false);
     }
@@ -762,6 +807,7 @@ export default function App() {
         handleFirestoreError(err, OperationType.CREATE, 'relatos');
       }
       setNovaMensagem('');
+      soundNotificationManager.playSound('success');
       setModerationFeedback({
         type: 'success',
         text: `Publicação registrada no banco de dados! ${reasonMsg}`,
@@ -965,6 +1011,21 @@ export default function App() {
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               <span className="hidden sm:inline">Estúdio IA</span>
               <span className="sm:hidden">IA</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsSoundCenterOpen(true);
+                soundNotificationManager.playSound('chime');
+              }}
+              title="Notificações com Som (Alertas sonoros em tempo real)"
+              className="relative px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] hover:border-amber-500 text-[11px] sm:text-xs font-semibold text-[var(--text-color)] inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            >
+              <BellRing className="w-3.5 h-3.5 text-amber-500 shrink-0 animate-pulse" />
+              <span className="hidden sm:inline">Alertas &amp; Som</span>
+              <span className="sm:hidden">Som</span>
+              <span className="w-2 h-2 rounded-full bg-[#e8622c] absolute -top-0.5 -right-0.5" />
             </button>
 
             <PWAInstallButton />
@@ -1663,10 +1724,12 @@ export default function App() {
           feedbacks={feedbacksComunidade}
           propostas={propostasTSE}
           boletins={boletinsIA}
+          historicoEnquete={historicoEnquete}
           onAskPotiguarBot={(prompt) => {
             setIsFloatingChatOpen(true);
             enviarPerguntaBot(prompt);
           }}
+          onVotarSegundoTurno={votarSegundoTurno}
         />
 
         {/* Section 3: Busca de Local de Votação por Seção Integrada ao PotiguarBot IA + Enquete de Benefícios */}
@@ -2189,6 +2252,18 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Central de Notificações com Som e Toast Flutuante em Tempo Real */}
+      <SoundNotificationCenter
+        isOpen={isSoundCenterOpen}
+        onClose={() => setIsSoundCenterOpen(false)}
+        onNavigateToSection={(sectionId) => {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }}
+      />
 
       {/* Offline Connectivity Indicator for PWA */}
       <OfflineIndicator />

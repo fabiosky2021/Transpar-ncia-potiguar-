@@ -25,6 +25,8 @@ import {
   TRANSPARENCIA_CLT_JSON,
   ANALISE_JORNADA_TRABALHO_E_CLT,
 } from '../data/segundoTurnoData';
+import senadoPainelImg from '../assets/images/painel_votacao_senado_1792088636511.jpg';
+import camaraPainelImg from '../assets/images/camara_votacao_pec_1792088656691.jpg';
 import {
   speakWithPotiguarTTS,
   pauseTTSPlayback,

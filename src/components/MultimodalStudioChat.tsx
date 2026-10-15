@@ -529,6 +529,11 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           'Candidatos a Presidente do Brasil e propostas de governo federal',
       },
       {
+        label: '🎉 Quiz Animado com Som (Brasil 2026)',
+        prompt:
+          'Quero fazer o Quiz Animado de Prioridades do Brasil 2026 com som e descobrir minha afinidade eleitoral.',
+      },
+      {
         label: '📍 Onde votar e documento oficial',
         prompt:
           'Onde está meu local de votação e qual documento levar?',
