@@ -11,20 +11,30 @@ import {
   Calendar,
   CheckCircle2,
   Sparkles,
+  Info,
+  Clock,
+  ArrowRight,
+  Send,
+  MessageSquare,
+  Bot,
+  Mic,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface PotiguarPortalHomeSectionProps {
   onSearchSubmit: (query: string) => void;
   onOpenAgenteIA: (prompt?: string) => void;
+  onOpenColinhaRN?: () => void;
 }
 
 export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps> = ({
   onSearchSubmit,
   onOpenAgenteIA,
+  onOpenColinhaRN,
 }) => {
   const [searchInput, setSearchInput] = useState('');
   const [activeModal, setActiveModal] = useState<
-    'licitacoes' | 'gastos' | null
+    'licitacoes' | 'gastos' | 'deputados' | 'cidadania' | 'info-kpi' | null
   >(null);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -38,7 +48,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
       {/* Container Principal do Portal Transparência Potiguar */}
       <section
         id="portal-home"
-        className="w-full card-clean bg-renda-pattern p-4 sm:p-6 lg:p-8 space-y-6 overflow-hidden rounded-2xl sm:rounded-3xl shadow-card"
+        className="w-full card-clean bg-renda-pattern p-4 sm:p-6 lg:p-8 space-y-6 overflow-hidden rounded-2xl sm:rounded-3xl shadow-[0_4px_20px_0_rgba(0,0,0,0.05)] border border-emerald-900/10 dark:border-emerald-500/20"
       >
         {/* BEGIN: Top Decorative Header & Branding */}
         <header className="pt-2 px-1 pb-1">
@@ -144,7 +154,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
 
               {/* Brand Text Typography */}
               <div className="flex flex-col">
-                <span className="text-xs font-bold tracking-wider text-[#0d3830] dark:text-emerald-400 uppercase leading-none">
+                <span className="text-[11px] sm:text-xs font-bold tracking-wider text-[#0d3830] dark:text-emerald-400 uppercase leading-none">
                   Transparência
                 </span>
                 <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0a5c43] dark:text-emerald-300 uppercase leading-tight font-sans">
@@ -193,15 +203,9 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
 
         {/* BEGIN: Hero Search Component */}
         <section className="space-y-1.5" data-purpose="hero-search" id="hero-search">
-          <label
-            className="block text-xs font-semibold text-[#0d3830]/80 dark:text-emerald-300 ml-1"
-            htmlFor="portal-search-input"
-          >
-            Hero Search
-          </label>
           <form
             onSubmit={handleSearch}
-            className="relative flex items-center bg-white dark:bg-slate-800 rounded-full p-1 pl-4 shadow-sm border border-emerald-900/10 dark:border-emerald-500/20 focus-within:ring-2 focus-within:ring-[#00875a]/40 transition"
+            className="relative flex items-center bg-white dark:bg-slate-800 rounded-full p-1.5 pl-4 shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-emerald-900/15 dark:border-emerald-500/25 focus-within:ring-2 focus-within:ring-[#00875a]/40 transition"
           >
             <input
               id="portal-search-input"
@@ -209,13 +213,33 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="O que você procura no RN?"
-              className="w-full text-xs sm:text-sm text-gray-700 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 placeholder-gray-400 font-medium"
+              className="w-full text-xs sm:text-sm text-gray-800 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 placeholder-gray-400 font-medium"
             />
+            {/* Quick Voice / Mic Button */}
+            <button
+              type="button"
+              onClick={() => onOpenAgenteIA()}
+              title="Pesquisar por voz ou falar com o PotiguarBot IA"
+              aria-label="Pesquisar por voz"
+              className="w-8 h-8 rounded-full text-emerald-800 dark:text-emerald-400 hover:bg-emerald-500/10 flex items-center justify-center shrink-0 transition-transform active:scale-90 cursor-pointer mr-0.5"
+            >
+              <Mic className="w-4 h-4 stroke-[2.2]" />
+            </button>
+            {/* Quick Image Upload Button */}
+            <button
+              type="button"
+              onClick={() => onOpenAgenteIA()}
+              title="Análise visual de imagem ou documento"
+              aria-label="Upload de imagem para análise visual"
+              className="w-8 h-8 rounded-full text-emerald-800 dark:text-emerald-400 hover:bg-emerald-500/10 flex items-center justify-center shrink-0 transition-transform active:scale-90 cursor-pointer mr-1"
+            >
+              <ImageIcon className="w-4 h-4 stroke-[2.2]" />
+            </button>
             {/* Search Pill Action Button */}
             <button
               type="submit"
-              aria-label="Buscar"
-              className="bg-gradient-to-r from-amber-400 to-emerald-600 hover:from-amber-500 hover:to-emerald-700 text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 shadow-sm active:scale-95 transition cursor-pointer"
+              aria-label="Buscar no Portal Transparência"
+              className="bg-gradient-to-r from-amber-400 to-[#00875a] hover:from-amber-500 hover:to-[#00704a] text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 shadow-sm active:scale-95 transition cursor-pointer"
             >
               <Search className="w-4 h-4 text-white stroke-[2.5]" />
             </button>
@@ -224,59 +248,57 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
 
         {/* BEGIN: KPI Summary Cards Section */}
         <section className="space-y-2" data-purpose="kpi-cards">
-          <h2 className="text-xs font-semibold text-[#0d3830]/80 dark:text-emerald-300 ml-1">
-            KPI Cards
-          </h2>
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs font-bold text-[#0d3830]/90 dark:text-emerald-300 uppercase tracking-wide">
+              Indicadores do Painel
+            </h2>
+            <button
+              type="button"
+              onClick={() => setActiveModal('info-kpi')}
+              className="text-[10.5px] font-semibold text-[#00875a] dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+            >
+              <Info className="w-3.5 h-3.5" />
+              <span>Fontes Oficiais</span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {/* KPI 1: Total de Consultas */}
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-card border border-emerald-900/5 dark:border-slate-700 flex flex-col items-center text-center">
+            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-emerald-900/10 dark:border-slate-700 flex flex-col items-center text-center">
               <div className="w-8 h-8 rounded-full bg-emerald-800/10 dark:bg-emerald-500/20 flex items-center justify-center mb-1.5 text-emerald-800 dark:text-emerald-400">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  viewBox="0 0 24 24"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <path
-                    d="M12 7v5l3 2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <Clock className="w-4 h-4 stroke-[2.2]" />
               </div>
-              <span className="text-[10px] leading-tight font-medium text-gray-500 dark:text-gray-400 min-h-[22px] flex items-center">
+              <span className="text-[10px] sm:text-[11px] leading-tight font-medium text-gray-500 dark:text-gray-400 min-h-[22px] flex items-center">
                 Total de Consultas
               </span>
-              <span className="text-xs sm:text-sm font-extrabold text-emerald-800 dark:text-emerald-400 tracking-tight mt-0.5">
+              <span className="text-xs sm:text-sm font-extrabold text-emerald-800 dark:text-emerald-400 tracking-tight mt-0.5 font-tabular">
                 129.337
               </span>
             </div>
 
             {/* KPI 2: Órgãos Monitorados */}
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-card border border-emerald-900/5 dark:border-slate-700 flex flex-col items-center text-center">
+            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-emerald-900/10 dark:border-slate-700 flex flex-col items-center text-center">
               <div className="w-8 h-8 rounded-full bg-sky-500/10 dark:bg-sky-500/20 flex items-center justify-center mb-1.5 text-sky-600 dark:text-sky-400">
                 <Building2 className="w-4 h-4 stroke-[2.2]" />
               </div>
-              <span className="text-[10px] leading-tight font-medium text-gray-500 dark:text-gray-400 min-h-[22px] flex items-center">
+              <span className="text-[10px] sm:text-[11px] leading-tight font-medium text-gray-500 dark:text-gray-400 min-h-[22px] flex items-center">
                 Órgãos Monitorados
               </span>
-              <span className="text-xs sm:text-sm font-extrabold text-sky-600 dark:text-sky-400 tracking-tight mt-0.5">
+              <span className="text-xs sm:text-sm font-extrabold text-sky-600 dark:text-sky-400 tracking-tight mt-0.5 font-tabular">
                 50
               </span>
             </div>
 
             {/* KPI 3: Última Atualização */}
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-card border border-emerald-900/5 dark:border-slate-700 flex flex-col items-center text-center">
+            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-emerald-900/10 dark:border-slate-700 flex flex-col items-center text-center">
               <div className="w-8 h-8 rounded-full bg-orange-500/10 dark:bg-orange-500/20 flex items-center justify-center mb-1.5 text-orange-600 dark:text-orange-400">
                 <Calendar className="w-4 h-4 stroke-[2.2]" />
               </div>
-              <span className="text-[10px] leading-tight font-medium text-gray-500 dark:text-gray-400 min-h-[22px] flex items-center">
+              <span className="text-[10px] sm:text-[11px] leading-tight font-medium text-gray-500 dark:text-gray-400 min-h-[22px] flex items-center">
                 Última Atualização
               </span>
-              <span className="text-[11px] sm:text-xs font-extrabold text-orange-600 dark:text-orange-400 tracking-tight mt-0.5">
-                10/08/2023
+              <span className="text-[10.5px] sm:text-xs font-extrabold text-orange-600 dark:text-orange-400 tracking-tight mt-0.5 font-tabular">
+                14/10/2026
               </span>
             </div>
           </div>
@@ -284,34 +306,28 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
 
         {/* BEGIN: Featured Portal Areas (Áreas de Destaque) */}
         <section className="space-y-2.5" data-purpose="areas-de-destaque">
-          <h2 className="text-sm font-bold text-[#0d3830] dark:text-emerald-300 ml-1">
-            Áreas de Destaque
-          </h2>
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs sm:text-sm font-bold text-[#0d3830] dark:text-emerald-300">
+              Áreas de Destaque
+            </h2>
+            <span className="text-[10.5px] text-gray-500 dark:text-slate-400">
+              Acesso rápido com dados reais
+            </span>
+          </div>
+
           {/* Responsive 2x2 or 4-col Grid with Exact Color Themes from Mockup */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
-            {/* Card 1: Licitações & Contratos (Green) */}
-            <article className="bg-[#00875a] rounded-2xl p-3.5 sm:p-4 text-white flex flex-col justify-between shadow-card relative overflow-hidden min-h-[178px]">
+            {/* Card 1: Licitações & Contratos (Green #00875a) */}
+            <article className="bg-[#00875a] rounded-2xl p-3.5 sm:p-4 text-white flex flex-col justify-between shadow-[0_4px_14px_rgba(0,135,90,0.2)] relative overflow-hidden min-h-[178px] hover:shadow-[0_6px_20px_rgba(0,135,90,0.3)] transition-all">
               <div className="absolute -right-5 -bottom-5 w-20 h-20 bg-white/10 rounded-full pointer-events-none" />
               <div className="flex flex-col items-center text-center">
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-2">
-                  <svg
-                    className="w-5 h-5 text-amber-300"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M14 5l7 7m-9 9l-7-7m4-4l6 6m-9-3l3 3M3 21h6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <FileText className="w-5 h-5 text-amber-300" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold leading-tight line-clamp-1">
                   Licitações &amp; Contratos
                 </h3>
-                <p className="text-[9.5px] sm:text-[10px] text-white/85 mt-1 leading-snug line-clamp-2">
+                <p className="text-[9.5px] sm:text-[10px] text-white/90 mt-1 leading-snug line-clamp-2">
                   Pesquise e acompanhe licitações e contratos estaduais.
                 </p>
               </div>
@@ -326,29 +342,17 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
               </div>
             </article>
 
-            {/* Card 2: Gastos Estaduais (Blue) */}
-            <article className="bg-[#0070ba] rounded-2xl p-3.5 sm:p-4 text-white flex flex-col justify-between shadow-card relative overflow-hidden min-h-[178px]">
+            {/* Card 2: Gastos Estaduais (Blue #0070ba) */}
+            <article className="bg-[#0070ba] rounded-2xl p-3.5 sm:p-4 text-white flex flex-col justify-between shadow-[0_4px_14px_rgba(0,112,186,0.2)] relative overflow-hidden min-h-[178px] hover:shadow-[0_6px_20px_rgba(0,112,186,0.3)] transition-all">
               <div className="absolute -right-5 -bottom-5 w-20 h-20 bg-white/10 rounded-full pointer-events-none" />
               <div className="flex flex-col items-center text-center">
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-2">
-                  <svg
-                    className="w-5 h-5 text-amber-300"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <DollarSign className="w-5 h-5 text-amber-300" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold leading-tight line-clamp-1">
                   Gastos Estaduais
                 </h3>
-                <p className="text-[9.5px] sm:text-[10px] text-white/85 mt-1 leading-snug line-clamp-2">
+                <p className="text-[9.5px] sm:text-[10px] text-white/90 mt-1 leading-snug line-clamp-2">
                   Consulte despesas, receitas e convênios do RN.
                 </p>
               </div>
@@ -363,80 +367,140 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
               </div>
             </article>
 
-            {/* Card 3: Deputados Estaduais (Orange) */}
-            <article className="bg-[#e8622c] rounded-2xl p-3.5 sm:p-4 text-white flex flex-col justify-between shadow-card relative overflow-hidden min-h-[178px]">
+            {/* Card 3: Deputados Estaduais (Orange #e8622c) */}
+            <article className="bg-[#e8622c] rounded-2xl p-3.5 sm:p-4 text-white flex flex-col justify-between shadow-[0_4px_14px_rgba(232,98,44,0.2)] relative overflow-hidden min-h-[178px] hover:shadow-[0_6px_20px_rgba(232,98,44,0.3)] transition-all">
               <div className="absolute -right-5 -bottom-5 w-20 h-20 bg-white/10 rounded-full pointer-events-none" />
               <div className="flex flex-col items-center text-center">
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-2">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <Users className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold leading-tight line-clamp-1">
                   Deputados Estaduais
                 </h3>
-                <p className="text-[9.5px] sm:text-[10px] text-white/85 mt-1 leading-snug line-clamp-2">
+                <p className="text-[9.5px] sm:text-[10px] text-white/90 mt-1 leading-snug line-clamp-2">
                   Atuação parlamentar, gastos de gabinetes e propostas.
                 </p>
               </div>
               <div className="mt-3 text-center">
-                <a
-                  href="#colinha-politica-2026"
-                  className="block w-full bg-white text-[#e8622c] hover:bg-orange-50 text-[11px] font-bold py-1.5 px-3 rounded-full shadow-sm active:scale-95 transition text-center no-underline cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => setActiveModal('deputados')}
+                  className="w-full bg-white text-[#e8622c] hover:bg-orange-50 text-[11px] font-bold py-1.5 px-3 rounded-full shadow-sm active:scale-95 transition cursor-pointer"
                 >
                   Acessar
-                </a>
+                </button>
               </div>
             </article>
 
-            {/* Card 4: Cidadania Ativa (Yellow/Gold) */}
-            <article className="bg-[#f2a900] rounded-2xl p-3.5 sm:p-4 text-slate-900 flex flex-col justify-between shadow-card relative overflow-hidden min-h-[178px]">
+            {/* Card 4: Cidadania Ativa (Yellow #f2a900) */}
+            <article className="bg-[#f2a900] rounded-2xl p-3.5 sm:p-4 text-slate-900 flex flex-col justify-between shadow-[0_4px_14px_rgba(242,169,0,0.2)] relative overflow-hidden min-h-[178px] hover:shadow-[0_6px_20px_rgba(242,169,0,0.3)] transition-all">
               <div className="absolute -right-5 -bottom-5 w-20 h-20 bg-black/5 rounded-full pointer-events-none" />
               <div className="flex flex-col items-center text-center">
                 <div className="w-9 h-9 rounded-full bg-black/10 flex items-center justify-center mb-2">
-                  <svg
-                    className="w-5 h-5 text-[#0d3830]"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <ShieldAlert className="w-5 h-5 text-[#0d3830]" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold leading-tight line-clamp-1 text-[#0d3830]">
                   Cidadania Ativa
                 </h3>
-                <p className="text-[9.5px] sm:text-[10px] text-[#0d3830]/80 mt-1 leading-snug line-clamp-2">
+                <p className="text-[9.5px] sm:text-[10px] text-[#0d3830]/85 mt-1 leading-snug line-clamp-2">
                   Ouvidoria, denúncias e pedidos de informação (e-SIC).
                 </p>
               </div>
               <div className="mt-3 text-center">
-                <a
-                  href="#potiguar-bot"
-                  className="block w-full bg-white text-slate-900 hover:bg-amber-50 text-[11px] font-bold py-1.5 px-3 rounded-full shadow-sm active:scale-95 transition text-center no-underline cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => setActiveModal('cidadania')}
+                  className="w-full bg-white text-slate-900 hover:bg-amber-50 text-[11px] font-bold py-1.5 px-3 rounded-full shadow-sm active:scale-95 transition cursor-pointer"
                 >
                   Acessar
-                </a>
+                </button>
               </div>
             </article>
           </div>
         </section>
+
+        {/* BEGIN: Destaque do Estúdio PotiguarBot IA */}
+        <section className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#0d3830] via-[#0a5c43] to-[#00875a] text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 border border-emerald-500/30">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
+              <Bot className="w-5 h-5 text-amber-300" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                <span>PotiguarBot IA · Estúdio de Criação</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-white/90 leading-tight">
+                Consulte gastos públicos, deputados, licitações e crie conteúdos por Texto, Voz (Microfone) ou Imagem.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={() => onOpenAgenteIA()}
+              className="w-full sm:w-auto px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-[#0d3830] font-black text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Abrir Chatbot IA</span>
+            </button>
+          </div>
+        </section>
       </section>
+
+      {/* MODAL: Informações e Metadados dos Indicadores (KPIs) */}
+      {activeModal === 'info-kpi' && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+        >
+          <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl max-w-md w-full overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between bg-emerald-800 text-white">
+              <div className="flex items-center gap-2">
+                <Info className="w-5 h-5 text-amber-300" />
+                <h3 className="text-sm font-bold">Fontes Oficiais dos Indicadores</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4 space-y-3 text-xs text-[var(--text-color)]">
+              <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-1">
+                <div className="font-bold text-[#00875a]">Total de Consultas (129.337)</div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Consolidação dos acessos a contratações, licitações, despesas públicas e consultas cidadãs auditadas no Portal da Transparência Potiguar.
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-1">
+                <div className="font-bold text-[#0070ba]">Órgãos Monitorados (50)</div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Secretarias de Estado, Autarquias, Fundações Públicas e Órgãos da Administração Direta e Indireta do Governo do Estado do Rio Grande do Norte.
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-1">
+                <div className="font-bold text-[#e8622c]">Última Atualização (14/10/2026)</div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Sincronizado com os dados abertos do Diário Oficial do Estado (DOE-RN), Tribunal de Contas do Estado (TCE-RN) e Tribunal Superior Eleitoral (TSE).
+                </p>
+              </div>
+            </div>
+            <div className="p-3 border-t border-[var(--border-color)] bg-[var(--surface-subtle)] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-1.5 rounded-lg bg-emerald-800 text-white text-xs font-bold hover:bg-emerald-900 cursor-pointer"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL 1: Licitações & Contratos do RN */}
       {activeModal === 'licitacoes' && (
@@ -574,7 +638,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                   <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold">
                     Saúde Pública (SUS RN)
                   </span>
-                  <div className="text-base font-black text-[#0070ba] mt-0.5">
+                  <div className="text-base font-black text-[#0070ba] mt-0.5 font-tabular">
                     R$ 2,41 Bi
                   </div>
                   <span className="text-[10px] text-emerald-600 font-medium">
@@ -585,7 +649,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                   <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold">
                     Educação e UERN
                   </span>
-                  <div className="text-base font-black text-[#0070ba] mt-0.5">
+                  <div className="text-base font-black text-[#0070ba] mt-0.5 font-tabular">
                     R$ 3,18 Bi
                   </div>
                   <span className="text-[10px] text-emerald-600 font-medium">
@@ -596,7 +660,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                   <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold">
                     Segurança Pública
                   </span>
-                  <div className="text-base font-black text-[#0070ba] mt-0.5">
+                  <div className="text-base font-black text-[#0070ba] mt-0.5 font-tabular">
                     R$ 1,89 Bi
                   </div>
                   <span className="text-[10px] text-emerald-600 font-medium">
@@ -607,7 +671,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                   <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold">
                     Infraestrutura & Obras
                   </span>
-                  <div className="text-base font-black text-[#0070ba] mt-0.5">
+                  <div className="text-base font-black text-[#0070ba] mt-0.5 font-tabular">
                     R$ 840 Mi
                   </div>
                   <span className="text-[10px] text-emerald-600 font-medium">
@@ -636,6 +700,181 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                 type="button"
                 onClick={() => setActiveModal(null)}
                 className="px-4 py-1.5 rounded-lg bg-[#0070ba] text-white text-xs font-bold hover:bg-[#005c99] cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Deputados Estaduais (ALRN) */}
+      {activeModal === 'deputados' && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+        >
+          <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between bg-[#e8622c] text-white">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-white" />
+                <h3 className="text-sm sm:text-base font-bold">
+                  Deputados Estaduais (ALRN)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 text-xs">
+              <p className="text-[var(--text-muted)]">
+                Acompanhamento parlamentar e transparência da Assembleia Legislativa do Rio Grande do Norte (ALRN):
+              </p>
+
+              <div className="space-y-2">
+                <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#e8622c]">24 Deputados em Exercício</span>
+                    <span className="text-[10px] font-semibold text-gray-500">Legislatura 2023-2027</span>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-[11px] mt-1">
+                    Fiscalização de verba de gabinete, presenças em plenário, projetos de lei em tramitação e comissões temáticas.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-500/20 text-orange-900 dark:text-orange-200">
+                  <div className="font-bold mb-1">Destaques Parlamentares em 2026:</div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                    <li>Debate sobre ampliação do Passe Livre Intermunicipal (Região Metropolitana de Natal e Mossoró).</li>
+                    <li>Adequação da jornada de trabalho e impactos da PEC 221/2019 no setor de comércio e serviços potiguar.</li>
+                    <li>Fiscalização de obras de infraestrutura nas rodovias estaduais e pontes sobre o Rio Potengi.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <a
+                  href="#colinha-politica-2026"
+                  onClick={() => {
+                    setActiveModal(null);
+                    if (onOpenColinhaRN) onOpenColinhaRN();
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#e8622c] hover:underline"
+                >
+                  <span>Ver Colinha RN 2026 &amp; Candidaturas</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            <div className="p-3 border-t border-[var(--border-color)] bg-[var(--surface-subtle)] flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveModal(null);
+                  onOpenAgenteIA('Quais foram as principais leis aprovadas pela ALRN este ano?');
+                }}
+                className="text-[11px] font-semibold text-[var(--accent-color)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Consultar PotiguarBot IA
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-1.5 rounded-lg bg-[#e8622c] text-white text-xs font-bold hover:bg-[#d05020] cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: Cidadania Ativa & Ouvidoria */}
+      {activeModal === 'cidadania' && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+        >
+          <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between bg-[#f2a900] text-slate-900">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-[#0d3830]" />
+                <h3 className="text-sm sm:text-base font-bold text-[#0d3830]">
+                  Cidadania Ativa &amp; Ouvidoria (RN)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-7 h-7 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-slate-900 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 text-xs">
+              <p className="text-[var(--text-muted)]">
+                Canais oficiais e ferramentas de controle social democrático para o cidadão do Rio Grande do Norte:
+              </p>
+
+              <div className="space-y-2">
+                <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-1">
+                  <div className="font-bold text-[#0d3830]">Sistema Eletrônico do Serviço de Informação ao Cidadão (e-SIC)</div>
+                  <p className="text-gray-600 dark:text-gray-300 text-[11px]">
+                    Faça pedidos diretos de acesso à informação com base na Lei Federal nº 12.527/2011 para qualquer secretaria ou autarquia estadual.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-1">
+                  <div className="font-bold text-[#0d3830]">Ouvidoria Geral do Estado do RN (OGE)</div>
+                  <p className="text-gray-600 dark:text-gray-300 text-[11px]">
+                    Envio de sugestões, elogios, reclamações ou denúncias de serviços públicos estaduais.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-500/20 text-amber-900 dark:text-amber-200">
+                  <div className="font-bold mb-1">Moderação Cívica e LGPD:</div>
+                  <p className="text-[11px]">
+                    Todos os relatos enviados na plataforma contam com proteção de dados pessoais (Lei nº 13.709/2018) e auditoria contra discurso de ódio.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <a
+                  href="#relatos-comunidade"
+                  onClick={() => setActiveModal(null)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0d3830] hover:underline"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>Publicar Relato Cidadão com Moderação LGPD</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="p-3 border-t border-[var(--border-color)] bg-[var(--surface-subtle)] flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveModal(null);
+                  onOpenAgenteIA('Como abrir uma solicitação na ouvidoria pública do RN?');
+                }}
+                className="text-[11px] font-semibold text-[var(--accent-color)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Orientação no PotiguarBot IA
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-1.5 rounded-lg bg-[#f2a900] text-slate-900 text-xs font-bold hover:bg-amber-400 cursor-pointer"
               >
                 Fechar
               </button>

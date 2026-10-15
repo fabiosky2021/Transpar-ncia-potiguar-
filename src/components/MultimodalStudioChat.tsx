@@ -1517,150 +1517,53 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
         </div>
       </section>
 
-      {/* BEGIN: Bottom Navigation Bar (Navegação Inferior Estilo App Potiguar) */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-[420px] lg:max-w-md mx-auto z-40 px-3 pb-3 pointer-events-auto">
-        <nav
-          aria-label="Navegação Inferior"
-          data-purpose="navegacao-inferior"
-          className="bg-[#0d3830] text-white rounded-3xl py-2 px-3 shadow-[0_-4px_20px_rgba(11,46,38,0.35)] flex items-center justify-around border border-emerald-500/20 backdrop-blur-md"
-        >
-          {/* Tab 1: Home (Active State) */}
-          <a
-            href="#portal-home"
-            onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center space-y-0.5 text-[#fdb913] hover:text-[#fdb913] transition-colors group no-underline"
-          >
-            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-            </svg>
-            <span className="text-[10px] font-bold tracking-tight">Home</span>
-          </a>
-
-          {/* Tab 2: Busca */}
-          <a
-            href="#hero-search"
-            onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center space-y-0.5 text-white/75 hover:text-white transition-colors group no-underline"
-          >
-            <svg
-              className="w-5 h-5 stroke-current fill-none stroke-[2.2]"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span className="text-[10px] font-medium tracking-tight">Busca</span>
-          </a>
-
-          {/* Tab 3: Alertas (Com pip indicador de notificação) */}
-          <a
-            href="#utilidade-publica"
-            onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center space-y-0.5 text-white/75 hover:text-white transition-colors group relative no-underline"
-          >
-            <svg
-              className="w-5 h-5 stroke-current fill-none stroke-[2.2]"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span className="absolute top-0 right-1 w-2 h-2 bg-amber-400 rounded-full animate-ping" />
-            <span className="absolute top-0 right-1 w-2 h-2 bg-amber-400 rounded-full" />
-            <span className="text-[10px] font-medium tracking-tight">Alertas</span>
-          </a>
-
-          {/* Tab 4: Favoritos (Colinha RN) */}
-          <a
-            href="#colinha-politica-2026"
-            onClick={() => setIsFloatingOpen(false)}
-            className="flex flex-col items-center space-y-0.5 text-white/75 hover:text-white transition-colors group no-underline"
-          >
-            <svg
-              className="w-5 h-5 stroke-current fill-none stroke-[2.2]"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span className="text-[10px] font-medium tracking-tight">Favoritos</span>
-          </a>
-
-          {/* Tab 5: Agente IA / Menu */}
-          <button
-            type="button"
-            onClick={() => setIsFloatingOpen(!isFloatingOpen)}
-            aria-label="Abrir ou fechar Painel PotiguarBot IA"
-            className={`flex flex-col items-center space-y-0.5 transition-colors cursor-pointer ${
-              isFloatingOpen ? 'text-[#fdb913] font-bold' : 'text-white/75 hover:text-white'
-            }`}
-          >
-            <div className="relative">
-              <Bot className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            </div>
-            <span className="text-[10px] font-medium tracking-tight">Estúdio IA</span>
-          </button>
-        </nav>
-      </footer>
-
-      {/* PAINEL DO AGENTE DE IA ACOPLADO (ESTILO PREVIEW LATERAL NO NOTEBOOK/COMPUTADOR & GAVETA ENCAIXADA NO CELULAR) */}
-      {isFloatingOpen ? (
+      {/* PAINEL FLUTUANTE DO AGENTE DE IA (QUANDO ABERTO VIA MENU OU AÇÃO RÁPIDA) */}
+      {isFloatingOpen && (
         <div
           role="dialog"
           aria-label="Painel Estúdio PotiguarBot IA"
-          className={`fixed z-50 bg-[var(--card-bg)] border-2 border-[var(--accent-color)] shadow-2xl overflow-hidden flex flex-col transition-all ${
-            /* No celular: encaixado 100% dentro da tela acima da barra de app | No notebook/PC: Painel lateral estilo Preview */
+          className={`fixed z-50 bg-[var(--card-bg)] border-2 border-[var(--accent-color)] shadow-2xl overflow-hidden flex flex-col transition-all inset-x-2 bottom-20 max-h-[80dvh] rounded-2xl lg:inset-x-auto ${
             studioDockSide === 'left'
-              ? 'inset-x-2 bottom-16 max-h-[82dvh] rounded-2xl lg:inset-x-auto lg:left-4 lg:top-20 lg:bottom-4 lg:max-h-none lg:w-[400px] xl:w-[430px] lg:rounded-3xl'
-              : 'inset-x-2 bottom-16 max-h-[82dvh] rounded-2xl lg:inset-x-auto lg:right-4 lg:top-20 lg:bottom-14 lg:max-h-none lg:w-[400px] xl:w-[430px] lg:rounded-3xl'
+              ? 'lg:left-4 lg:top-20 lg:bottom-20 lg:max-h-none lg:w-[420px] xl:w-[450px] lg:rounded-3xl'
+              : 'lg:right-4 lg:top-20 lg:bottom-20 lg:max-h-none lg:w-[420px] xl:w-[450px] lg:rounded-3xl'
           }`}
         >
-          {/* Header do Painel Estúdio com controles de lado (Estilo Preview) e Fechar (X) */}
-          <div className="px-3.5 sm:px-4 py-3 bg-[#0f172a] text-white flex items-center justify-between gap-2">
+          {/* Header do Painel Estúdio com controles de lado e Fechar (X) */}
+          <div className="px-3.5 sm:px-4 py-3 bg-[#0d3830] text-white flex items-center justify-between gap-2 border-b border-emerald-500/20">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#00875a] flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="min-w-0">
                 <div className="text-xs sm:text-sm font-bold truncate flex items-center gap-1.5">
-                  <span className="truncate">{agentName} · Estúdio IA</span>
+                  <span className="truncate">{agentName} · Estúdio Criativo</span>
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                 </div>
-                <div className="text-[10px] text-slate-300 truncate">
+                <div className="text-[10px] text-emerald-100/80 truncate">
                   Voz pt-BR ({ttsState.speed}x) · Texto, Voz e Imagem
                 </div>
               </div>
             </div>
 
-            {/* Botões do cabeçalho: Alternar Lado (Esquerda Preview / Direita), Quiz + Fechar (X) */}
+            {/* Botões do cabeçalho: Alternar Lado (Desktop), Quiz + Fechar (X) */}
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() =>
                   setStudioDockSide((prev) => (prev === 'left' ? 'right' : 'left'))
                 }
-                title="Alternar posição do painel entre Esquerda (Estilo Preview) e Direita no Notebook/PC"
-                className="hidden lg:inline-flex px-2.5 py-1 rounded-full bg-white/10 hover:bg-blue-600 text-white text-[10px] font-semibold transition-colors cursor-pointer items-center gap-1"
+                title="Alternar posição do painel entre Esquerda e Direita"
+                className="hidden lg:inline-flex px-2.5 py-1 rounded-full bg-white/10 hover:bg-[#00875a] text-white text-[10px] font-semibold transition-colors cursor-pointer items-center gap-1"
               >
                 <Maximize2 className="w-3 h-3" />
-                <span>{studioDockSide === 'left' ? 'Lado: Esq (Preview)' : 'Lado: Dir'}</span>
+                <span>{studioDockSide === 'left' ? 'Esq' : 'Dir'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowBotQuiz((prev) => !prev)}
-                title="Abrir Quiz Interativo de 5 Perguntas aqui no Bot"
-                className="px-2.5 sm:px-3 py-1 rounded-full bg-white/10 hover:bg-blue-600 text-white text-[10px] font-semibold transition-colors cursor-pointer inline-flex items-center gap-1"
+                title="Abrir Quiz Interativo no Bot"
+                className="px-2.5 sm:px-3 py-1 rounded-full bg-white/10 hover:bg-[#00875a] text-white text-[10px] font-semibold transition-colors cursor-pointer inline-flex items-center gap-1"
               >
                 <Calculator className="w-3 h-3" />
                 <span>Quiz</span>
@@ -1669,9 +1572,9 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
               <button
                 type="button"
                 onClick={() => setIsFloatingOpen(false)}
-                title="Minimizar Painel IA (X)"
-                aria-label="Minimizar Painel IA"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-red-600 text-white transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
+                title="Fechar Painel (X)"
+                aria-label="Fechar Painel IA"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-600 text-white transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1685,28 +1588,6 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
             {renderChatMessagesList(true)}
           </div>
           {renderMultimodalInputForm(floatingFileInputRef, true)}
-        </div>
-      ) : (
-        /* Botão Acoplado no Notebook/Computador na Lateral Esquerda (Estilo Preview, longe do selo Powered by Netlify da direita) */
-        <div
-          className={`hidden lg:flex fixed bottom-5 z-50 ${
-            studioDockSide === 'left' ? 'left-5' : 'right-5 bottom-14'
-          }`}
-        >
-          <button
-            type="button"
-            onClick={() => setIsFloatingOpen(true)}
-            title="Abrir Painel Estúdio PotiguarBot IA (🔼)"
-            aria-label="Abrir Painel Estúdio PotiguarBot IA"
-            className="botao px-4 py-2.5 rounded-full bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white shadow-xl flex items-center gap-2.5 cursor-pointer border-2 border-white/25 transition-transform hover:scale-105"
-          >
-            <span className="w-7 h-7 rounded-full bg-white/20 inline-flex items-center justify-center">
-              <ChevronUp className="w-4 h-4 stroke-[2.5]" />
-            </span>
-            <Bot className="w-4 h-4" />
-            <span className="text-xs sm:text-sm font-bold">Estúdio PotiguarBot IA 🔼</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-          </button>
         </div>
       )}
     </>

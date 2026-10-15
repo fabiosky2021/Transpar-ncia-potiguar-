@@ -45,6 +45,7 @@ import { PanoramaPoliticoRN2026Section } from './components/PanoramaPoliticoRN20
 import { RadarTransparenciaSection } from './components/RadarTransparenciaSection';
 import { AtualizacaoLegislativaSection } from './components/AtualizacaoLegislativaSection';
 import { PotiguarPortalHomeSection } from './components/PotiguarPortalHomeSection';
+import { BottomNavigationBar, BottomNavTab } from './components/BottomNavigationBar';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
@@ -361,6 +362,42 @@ export default function App() {
   const [chatInput, setChatInput] = useState<string>('');
   const [isBotLoading, setIsBotLoading] = useState<boolean>(false);
   const [isFloatingChatOpen, setIsFloatingChatOpen] = useState<boolean>(false);
+  const [activeBottomTab, setActiveBottomTab] = useState<BottomNavTab>('home');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  const handleSelectBottomTab = (tab: BottomNavTab) => {
+    setActiveBottomTab(tab);
+    if (tab === 'home') {
+      setIsMobileMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'busca') {
+      setIsMobileMenuOpen(false);
+      const searchEl = document.getElementById('portal-search-input');
+      if (searchEl) {
+        searchEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        searchEl.focus();
+      }
+    } else if (tab === 'alertas') {
+      setIsMobileMenuOpen(false);
+      const alertEl =
+        document.getElementById('slides-noticias-24h') ||
+        document.getElementById('utilidade-publica');
+      if (alertEl) {
+        alertEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else if (tab === 'favoritos') {
+      setIsMobileMenuOpen(false);
+      const favEl =
+        document.getElementById('colinha-politica-2026') ||
+        document.getElementById('enquete-2-turno');
+      if (favEl) {
+        favEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else if (tab === 'menu') {
+      setIsMobileMenuOpen(false);
+      setIsFloatingChatOpen((prev) => !prev);
+    }
+  };
 
   // Moderated Citizen Reports (Mural de Utilidade Pública)
   const [relatos, setRelatos] = useState<RelatoCidadao[]>(INITIAL_RELATOS_CIDADAOS);
@@ -852,7 +889,7 @@ export default function App() {
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-color)] text-[var(--text-color)] overflow-x-hidden w-full max-w-[100vw] pb-16 lg:pb-0">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-color)] text-[var(--text-color)] overflow-x-hidden w-full max-w-[100vw] pb-28 sm:pb-24 lg:pb-16">
       {/* Top Navigation Bar following strict Responsive Multi-Device Contract (Celular, App PWA, Notebook & PC) */}
       <header className="sticky top-0 z-40 bg-[var(--card-bg)]/95 backdrop-blur-md border-b border-[var(--border-color)] px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 w-full max-w-[100vw]">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-2 sm:gap-4 min-w-0">
@@ -2027,6 +2064,132 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Menu Inferior Fixo Estilo App Nativo (Mobile-first, 5 abas reais) */}
+      <BottomNavigationBar
+        activeTab={activeBottomTab}
+        onSelectTab={handleSelectBottomTab}
+        unreadAlertsCount={boletinsIA.length}
+        favoritesCount={2}
+      />
+
+      {/* Modal / Menu Lateral para a aba "Menu" da navegação inferior */}
+      {isMobileMenuOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
+        >
+          <div className="bg-[var(--card-bg)] border-t sm:border border-[var(--border-color)] rounded-t-3xl sm:rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5 sm:p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-[#00875a] flex items-center justify-center font-black">
+                  P
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[var(--text-color)] m-0">
+                    Menu Transparência Potiguar
+                  </h3>
+                  <span className="text-[10px] text-[var(--text-muted)]">
+                    Navegação Rápida &amp; Recursos Cívicos
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-8 h-8 rounded-full bg-[var(--surface-subtle)] hover:bg-gray-200 dark:hover:bg-slate-700 flex items-center justify-center text-[var(--text-color)] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 text-xs">
+              <a
+                href="#portal-home"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-[var(--surface-subtle)] hover:bg-emerald-500/10 border border-[var(--border-color)] flex items-center justify-between text-[var(--text-color)] font-semibold no-underline"
+              >
+                <span>🏛️ Início do Portal &amp; Indicadores</span>
+                <span className="text-[10px] text-gray-500">Acessar</span>
+              </a>
+
+              <a
+                href="#colinha-politica-2026"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-[var(--surface-subtle)] hover:bg-emerald-500/10 border border-[var(--border-color)] flex items-center justify-between text-[var(--text-color)] font-semibold no-underline"
+              >
+                <span>🗳️ Colinha Política RN 2026 (Candidatos)</span>
+                <span className="text-[10px] text-gray-500">Acessar</span>
+              </a>
+
+              <a
+                href="#atualizacao-legislativa"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-[var(--surface-subtle)] hover:bg-emerald-500/10 border border-[var(--border-color)] flex items-center justify-between text-[var(--text-color)] font-semibold no-underline"
+              >
+                <span>⚖️ PEC 221/2019 (Fim da Escala 6x1)</span>
+                <span className="text-[10px] text-emerald-600 font-bold">Novo</span>
+              </a>
+
+              <a
+                href="#enquete-2-turno"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-[var(--surface-subtle)] hover:bg-emerald-500/10 border border-[var(--border-color)] flex items-center justify-between text-[var(--text-color)] font-semibold no-underline"
+              >
+                <span>📊 Simulado 2º Turno Governo RN</span>
+                <span className="text-[10px] text-gray-500">Votar</span>
+              </a>
+
+              <a
+                href="#utilidade-publica"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-[var(--surface-subtle)] hover:bg-emerald-500/10 border border-[var(--border-color)] flex items-center justify-between text-[var(--text-color)] font-semibold no-underline"
+              >
+                <span>🚌 Passe Livre &amp; Rotas nos Bairros</span>
+                <span className="text-[10px] text-gray-500">Ver Linhas</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsFloatingChatOpen(true);
+                }}
+                className="p-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold flex items-center justify-between cursor-pointer border-none shadow-sm"
+              >
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  Estúdio Criativo PotiguarBot IA
+                </span>
+                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">Abrir</span>
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={cycleTheme}
+                className="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[11px] font-semibold text-[var(--text-color)] flex items-center gap-1.5 cursor-pointer"
+              >
+                {theme === 'light' ? '🌙 Modo Noturno' : theme === 'dark-mode' ? '🔲 Alto Contraste' : '☀️ Modo Claro'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setJsonModalOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-[11px] font-semibold text-[var(--text-color)] cursor-pointer"
+              >
+                📄 Dados Abertos
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Offline Connectivity Indicator for PWA */}
       <OfflineIndicator />
     </div>
