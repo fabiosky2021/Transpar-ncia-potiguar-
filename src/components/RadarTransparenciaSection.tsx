@@ -295,6 +295,22 @@ export const VOTOS_BANCADA_RN_PEC: VotoParlamentarPEC[] = [
   },
 ];
 
+export interface PontoGraficoLinha {
+  rotulo: string;
+  timestamp: number;
+  candidatoA: string;
+  candidatoB: string;
+  votosA: number;
+  votosB: number;
+  pctA: number;
+  pctB: number;
+  corA: string;
+  corB: string;
+  total: number;
+  origem: string;
+  [key: string]: any;
+}
+
 interface RadarTransparenciaSectionProps {
   candidatos: CandidatoItem[];
   avaliacoes: AvaliacaoCandidatoItem[];
@@ -351,7 +367,7 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
     return subscribeTTSState(setTtsState);
   }, []);
 
-  const dadosGraficoLinhas = useMemo(() => {
+  const dadosGraficoLinhas = useMemo<PontoGraficoLinha[]>(() => {
     const listaOriginal =
       historicoEnquete && historicoEnquete.length > 0
         ? historicoEnquete
@@ -361,7 +377,6 @@ export const RadarTransparenciaSection: React.FC<RadarTransparenciaSectionProps>
     if (disputaGrafico === 'presidencial') {
       // Simulação auditada da Disputa Presidencial 2º Turno (Flávio 22 x Lula 13)
       return lista.map((item, idx) => {
-        const fatorPresidencial = 10000;
         // Curva presidencial realista baseada nas amostras do 2º Turno 2026
         const baseFlavio = 5120 + idx * 85;
         const baseLula = 4880 - idx * 25;

@@ -378,6 +378,87 @@ export const AtualizacaoLegislativaSection: React.FC<AtualizacaoLegislativaSecti
             </div>
           </div>
 
+          {/* Painel Fotográfico do Congresso Nacional: Senado Federal & Câmara dos Deputados (Votação da PEC 221/2019) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Landmark className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <h4 className="text-sm font-bold text-[var(--text-color)]">
+                  Registros em Imagens: Senado Federal & Câmara dos Deputados (Votação da PEC 221/2019)
+                </h4>
+              </div>
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium">
+                Congresso Nacional em Brasília
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Card 1: Senado Federal */}
+              <div className="subcard-clean p-4 space-y-3 border-2 border-emerald-500/30 overflow-hidden group">
+                <div className="relative rounded-xl overflow-hidden aspect-video bg-slate-900 border border-[var(--border-color)]">
+                  <img
+                    src={senadoPainelImg}
+                    alt="Plenário do Senado Federal com painel eletrônico de votação da PEC 221/2019"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-md text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
+                    🏛️ Senado Federal · Plenário & Painel
+                  </div>
+                  <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/80 text-[10px] text-white font-mono">
+                    Placar CCJ: SIM 54 x 12 NÃO
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[var(--text-color)]">
+                      Painel Eletrônico de Votação da PEC no Senado
+                    </span>
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                      Aprovado na CCJ
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+                    Painel do Plenário do Senado em Brasília registrando a votação da PEC 221/2019. Próxima deliberação ocorrerá em 2 turnos com quórum qualificado de 49 senadores (3/5).
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Câmara dos Deputados */}
+              <div className="subcard-clean p-4 space-y-3 border-2 border-blue-500/30 overflow-hidden group">
+                <div className="relative rounded-xl overflow-hidden aspect-video bg-slate-900 border border-[var(--border-color)]">
+                  <img
+                    src={camaraPainelImg}
+                    alt="Plenário Ulysses Guimarães da Câmara dos Deputados em deliberação da PEC"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-md text-[11px] font-bold text-blue-400 border border-blue-500/30">
+                    🏛️ Câmara dos Deputados · Plenário
+                  </div>
+                  <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/80 text-[10px] text-white font-mono">
+                    Quórum Requerido: 308 Deputados
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[var(--text-color)]">
+                      Plenário Ulysses Guimarães da Câmara Federal
+                    </span>
+                    <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
+                      Fase de Articulação
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+                    Bancada dos 8 deputados federais potiguares dialoga com setores de serviços e comércio do RN para votar o texto após a conclusão no Senado.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Card de Impacto Regional no RN + Atalhos para as Abas Validadas */}
           <div className="subcard-clean p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="space-y-1.5">
