@@ -49,6 +49,8 @@ import { soundNotificationManager } from './services/soundNotificationService';
 import { AtualizacaoLegislativaSection } from './components/AtualizacaoLegislativaSection';
 import { PotiguarPortalHomeSection } from './components/PotiguarPortalHomeSection';
 import { BottomNavigationBar, BottomNavTab } from './components/BottomNavigationBar';
+import { AffiliateStorefrontShowcase } from './components/AffiliateStorefrontShowcase';
+import { ShopStorefrontPopup } from './components/ShopStorefrontPopup';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
@@ -569,8 +571,8 @@ export default function App() {
 
   // Save custom affiliate link for any item
   const salvarLinkAfiliado = (targetId: string) => {
-    const cleanUrl = tempAffiliateUrl.trim() || 'AGUARDANDO_SEU_LINK';
-    const cleanProd = tempAffiliateProduct.trim() || 'Oferta Especial de Leitura / Curso';
+    const cleanUrl = tempAffiliateUrl.trim() || 'https://collshp.com/fabiokaua692287?view=storefront';
+    const cleanProd = tempAffiliateProduct.trim() || 'Vitrine Oficial Fábio Kauã (collshp.com)';
 
     if (targetId === 'mobilidade') {
       setPlatformData((prev) => ({
@@ -595,8 +597,12 @@ export default function App() {
 
   const abrirEditorAfiliado = (targetId: string, currentLink: string, currentProduct: string) => {
     setEditingAffiliateId(targetId);
-    setTempAffiliateUrl(currentLink === 'AGUARDANDO_SEU_LINK' ? '' : currentLink);
-    setTempAffiliateProduct(currentProduct);
+    setTempAffiliateUrl(
+      !currentLink || currentLink === 'AGUARDANDO_SEU_LINK'
+        ? 'https://collshp.com/fabiokaua692287?view=storefront'
+        : currentLink
+    );
+    setTempAffiliateProduct(currentProduct || 'Vitrine Oficial Fábio Kauã (collshp.com)');
   };
 
   // Sync live stats into WhatsApp Share Text
@@ -1232,60 +1238,22 @@ export default function App() {
 
                   {/* Ofertador de Afiliado Bloqueado / Liberado */}
                   {unlockedAffiliates['mobilidade'] && (
-                    <div
-                      id="affiliate-mobilidade"
-                      className="pt-4 border-t border-dashed border-[var(--success-color)] bg-[var(--success-bg)] p-4 rounded-lg space-y-3"
-                    >
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-[var(--success-color)] m-0">
-                          Like registrado! Oferta Especial de Afiliado Liberada:
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            abrirEditorAfiliado(
-                              'mobilidade',
-                              noticiaMobilidade.linkAfiliado,
-                              noticiaMobilidade.produtoRecomendado
-                            )
-                          }
-                          className="text-xs underline text-[var(--text-muted)] hover:text-[var(--text-color)] inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                        >
-                          <SlidersHorizontal className="w-3 h-3" />
-                          <span>Configurar Link</span>
-                        </button>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3">
-                        {noticiaMobilidade.linkAfiliado !== 'AGUARDANDO_SEU_LINK' ? (
-                          <a
-                            id="link-afiliado-mobilidade"
-                            href={noticiaMobilidade.linkAfiliado}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 no-underline"
-                          >
-                            <ExternalLink className="w-4 h-4 shrink-0" />
-                            <span>Ver Produto Recomendado: {noticiaMobilidade.produtoRecomendado}</span>
-                          </a>
-                        ) : (
-                          <button
-                            id="link-afiliado-mobilidade"
-                            type="button"
-                            onClick={() =>
-                              abrirEditorAfiliado(
-                                'mobilidade',
-                                noticiaMobilidade.linkAfiliado,
-                                noticiaMobilidade.produtoRecomendado
-                              )
-                            }
-                            className="px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer text-left sm:text-center"
-                          >
-                            <SlidersHorizontal className="w-4 h-4 shrink-0" />
-                            <span>Ver Produto Recomendado (Aguardando seu link · Clique para definir)</span>
-                          </button>
-                        )}
-                      </div>
+                    <div id="affiliate-mobilidade" className="pt-2">
+                      <AffiliateStorefrontShowcase
+                        affiliateUrl={
+                          noticiaMobilidade.linkAfiliado && noticiaMobilidade.linkAfiliado !== 'AGUARDANDO_SEU_LINK'
+                            ? noticiaMobilidade.linkAfiliado
+                            : 'https://collshp.com/fabiokaua692287?view=storefront'
+                        }
+                        onOpenEditor={() =>
+                          abrirEditorAfiliado(
+                            'mobilidade',
+                            noticiaMobilidade.linkAfiliado,
+                            noticiaMobilidade.produtoRecomendado
+                          )
+                        }
+                        variant="compact"
+                      />
                     </div>
                   )}
                 </div>
@@ -1386,6 +1354,21 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* Section 1.5: Vitrine & Loja de Afiliado Parceira Oficial (Fábio Kauã · CollabShop Storefront) */}
+        <AffiliateStorefrontShowcase
+          affiliateUrl={
+            platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
+            'https://collshp.com/fabiokaua692287?view=storefront'
+          }
+          onOpenEditor={() =>
+            abrirEditorAfiliado(
+              'mobilidade',
+              noticiaMobilidade.linkAfiliado,
+              noticiaMobilidade.produtoRecomendado
+            )
+          }
+        />
 
         {/* Section 2: Simulado de Preferência - 2º Turno (RN) & Conformidade Democrática LGPD (Sem Duplicação de Propostas) */}
         <section id="monitoramento" className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start min-w-0">
@@ -2048,18 +2031,30 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">
-                  URL de Afiliado (https://...)
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)]">
+                    URL de Afiliado (https://...)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempAffiliateUrl('https://collshp.com/fabiokaua692287?view=storefront');
+                      setTempAffiliateProduct('Vitrine Oficial Fábio Kauã (collshp.com)');
+                    }}
+                    className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
+                  >
+                    Usar CollabShop Fábio Kauã
+                  </button>
+                </div>
                 <input
                   type="url"
                   value={tempAffiliateUrl}
                   onChange={(e) => setTempAffiliateUrl(e.target.value)}
-                  placeholder="https://seu-link-de-afiliado.com.br"
+                  placeholder="https://collshp.com/fabiokaua692287?view=storefront"
                   className="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-sm text-[var(--text-color)] font-mono"
                 />
                 <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                  Deixe em branco para manter o status padrão <code>AGUARDANDO_SEU_LINK</code>.
+                  Link padrão configurado: <code>collshp.com/fabiokaua692287</code>.
                 </p>
               </div>
             </div>
@@ -2213,6 +2208,21 @@ export default function App() {
                 <span className="text-[10px] text-gray-500">Ver Linhas</span>
               </a>
 
+              <a
+                href="https://collshp.com/fabiokaua692287?view=storefront"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-amber-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-between text-[var(--text-color)] font-bold no-underline"
+              >
+                <span className="flex items-center gap-2">
+                  <span>🛍️</span> Vitrine &amp; Loja Fábio Kauã
+                </span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                  CollabShop ↗
+                </span>
+              </a>
+
               <button
                 type="button"
                 onClick={() => {
@@ -2267,6 +2277,13 @@ export default function App() {
 
       {/* Offline Connectivity Indicator for PWA */}
       <OfflineIndicator />
+
+      {/* Pop-up Especial da Loja de Afiliado (CollabShop Fábio Kauã) com contagem de 10 segundos e botão de fechar */}
+      <ShopStorefrontPopup
+        storefrontUrl="https://collshp.com/fabiokaua692287?view=storefront"
+        initialDelaySeconds={1}
+        lockCloseSeconds={10}
+      />
     </div>
   );
 }

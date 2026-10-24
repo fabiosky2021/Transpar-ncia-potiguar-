@@ -16,6 +16,7 @@ import {
   Bot,
   Scale,
   FileText,
+  ShoppingBag,
 } from 'lucide-react';
 import senadoImg from '../assets/images/senado_votacao_pec_1792087922644.jpg';
 import camaraImg from '../assets/images/camara_federal_pec_1792087938378.jpg';
@@ -363,15 +364,27 @@ export const PanoramaPoliticoRN2026Section: React.FC<PanoramaPoliticoRN2026Secti
                           </button>
                         )}
                       </div>
-                      {candLive.linkAfiliado !== 'AGUARDANDO_SEU_LINK' && (
+                      {candLive.linkAfiliado && candLive.linkAfiliado !== 'AGUARDANDO_SEU_LINK' ? (
                         <a
                           href={candLive.linkAfiliado}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-semibold text-[var(--accent-color)] underline"
+                          className="inline-flex items-center gap-1.5 font-bold text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/25 transition-colors no-underline"
                         >
-                          <ExternalLink className="w-3 h-3" />
-                          <span>Acessar recomendação parceira</span>
+                          <ShoppingBag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span>Vitrine Fábio Kauã (collshp.com)</span>
+                          <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                        </a>
+                      ) : (
+                        <a
+                          href="https://collshp.com/fabiokaua692287?view=storefront"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-bold text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/25 transition-colors no-underline"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span>Vitrine Oficial na CollabShop</span>
+                          <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
                         </a>
                       )}
                     </div>

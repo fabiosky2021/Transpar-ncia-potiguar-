@@ -135,9 +135,9 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
         descricao:
           'Confirmado pela STTU Natal e Governo do RN (Resolução-TSE nº 23.751/2026): todas as 62 linhas urbanas de Natal (1.836 viagens, sem precisar de cartão NuBus) e o transporte intermunicipal rodoviário têm passe livre garantido nos turnos de votação (04/10 e 25/10/2026).',
         curtidas: 1240,
-        afiliadoLiberado: false,
-        linkAfiliado: 'AGUARDANDO_SEU_LINK',
-        produtoRecomendado: 'Guia Cidadão & Mobilidade Urbana RN (Oferta Recomendada)',
+        afiliadoLiberado: true,
+        linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
+        produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
       },
     ],
   },
@@ -152,8 +152,8 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
       curtidas: 5420,
       aprovacoes: 485,
       reprovacoes: 64,
-      linkAfiliado: 'AGUARDANDO_SEU_LINK',
-      produtoRecomendado: 'Guia de Infraestrutura & Gestão Pública RN',
+      linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
+      produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
       resumoMonitoramento:
         'Destaque absoluto nas intenções de voto (37% dos votos válidos) e classificado para o 2º Turno no RN. Foca em investimentos de infraestrutura, incluindo a construção de uma 3ª ponte sobre o Rio Potengi em Natal e requalificação de hospitais regionais em Mossoró e no estado.',
       eixosPrioritarios: [
@@ -176,8 +176,8 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
       curtidas: 4980,
       aprovacoes: 452,
       reprovacoes: 58,
-      linkAfiliado: 'AGUARDANDO_SEU_LINK',
-      produtoRecomendado: 'Guia Educação Integral & SUS Digital RN',
+      linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
+      produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
       resumoMonitoramento:
         'Destaque absoluto nas intenções de voto (32% dos votos válidos) e classificado para o 2º Turno no RN com apoio do Presidente Lula. Defende a expansão da educação em tempo integral, obras em rodovias federais (BR-304) e fortalecimento/regionalização do SUS via diagnósticos online (alinhado com Mãe Luíza).',
       eixosPrioritarios: [
@@ -200,8 +200,8 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
       curtidas: 4310,
       aprovacoes: 390,
       reprovacoes: 61,
-      linkAfiliado: 'AGUARDANDO_SEU_LINK',
-      produtoRecomendado: 'Guia de Eficiência Fiscal & Gestão',
+      linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
+      produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
       resumoMonitoramento:
         'Destaque absoluto nas intenções de voto (29% dos votos válidos). Foca em choque de eficiência, ajuste fiscal, não aumento de impostos e desburocratização do licenciamento ambiental para atrair investimentos privados para o RN.',
       eixosPrioritarios: [
@@ -225,8 +225,8 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
       curtidas: 4820,
       aprovacoes: 412,
       reprovacoes: 49,
-      linkAfiliado: 'AGUARDANDO_SEU_LINK',
-      produtoRecomendado: 'Oferta Especial de Leitura / Curso',
+      linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
+      produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
       resumoMonitoramento:
         'Destaque absoluto nas intenções de voto para o Senado Federal no Rio Grande do Norte, com foco em infraestrutura metropolitana, saúde e defesa de recursos federais para os municípios potiguares.',
       eixosPrioritarios: ['Destaque Absoluto Senado RN', 'Infraestrutura Urbana', 'Municipalismo'],
@@ -246,8 +246,8 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
       curtidas: 4190,
       aprovacoes: 378,
       reprovacoes: 55,
-      linkAfiliado: 'AGUARDANDO_SEU_LINK',
-      produtoRecomendado: 'Guia de Economia & Reformas Fiscais',
+      linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
+      produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
       resumoMonitoramento:
         'Destaque absoluto nas intenções de voto (555), bem posicionado na disputa com atuação voltada para reformas fiscais, responsabilidade orçamentária e incentivo ao setor privado no RN.',
       eixosPrioritarios: ['Reformas Fiscais', 'Incentivo ao Setor Privado', 'Infraestrutura Regional'],
