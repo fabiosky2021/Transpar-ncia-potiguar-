@@ -613,18 +613,18 @@ export default function App() {
     const cadu = platformData.candidatos.find((c) => c.id === 'cadu-xavier');
     const enquete = platformData.enqueteSegundoTurno;
 
-    const updated = `☀️ COLINHA POLÍTICA & PANORAMA RN 2026 (PLANTÃO 24H) 🗳️
+    const updated = `☀️ APURAÇÃO AO VIVO & PANORAMA POLÍTICO RN 2026 (TSE LIVE) 🗳️
 
-🏆 2º TURNO GOVERNO DO RN:
-• Allyson Bezerra (UNIÃO · 44 - 37%): ${(allyson?.curtidas ?? 5420).toLocaleString('pt-BR')} likes — 3ª Ponte sobre o Rio Potengi e Hospitais Regionais
-• Carlos Eduardo Xavier / Cadu de Lula (PT · 13 - 32%): ${(cadu?.curtidas ?? 4980).toLocaleString('pt-BR')} likes — Educação Integral, BR-304 e SUS Online (Mãe Luíza)
+🔴 APURAÇÃO OFICIAL TSE EM TEMPO REAL:
+• Presidente do Brasil: Lula (13) vs Flávio Bolsonaro (22)
+• Governo do RN & Natal: Allyson Bezerra (44) vs Cadu de Lula (13)
 
-🗳️ Simulado 2º Turno RN (${enquete.totalVotos.toLocaleString('pt-BR')} votos):
-• ${enquete.opcoes[0].nome}: ${enquete.opcoes[0].votos} votos
-• ${enquete.opcoes[1].nome}: ${enquete.opcoes[1].votos} votos
+🏆 VOTOS & TENDÊNCIA 2º TURNO:
+• Allyson Bezerra (UNIÃO · 44): ${(allyson?.curtidas ?? 5420).toLocaleString('pt-BR')} apoios — 3ª Ponte sobre o Rio Potengi e Hospitais Regionais
+• Carlos Eduardo Xavier / Cadu (PT · 13): ${(cadu?.curtidas ?? 4980).toLocaleString('pt-BR')} apoios — Educação Integral, BR-304 e SUS Online
 
-🚌 Passe Livre nos Bairros de Natal e RN (${mobLikes.toLocaleString('pt-BR')} agradecimentos)!
-🔏 Plataforma 100% segura dentro da LGPD.`;
+📊 Acompanhe os votos das Zonas Eleitorais de Natal e do Brasil atualizados minuto a minuto!
+🔏 Plataforma 100% segura e transparente dentro da LGPD.`;
     setShareText(updated);
   };
 
@@ -1124,6 +1124,14 @@ export default function App() {
 
       {/* Main Content Container (Responsive across Celular, App, Notebook & Desktop) */}
       <main id="topo" className="flex-1 max-w-[1200px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-12 overflow-x-hidden min-w-0">
+        {/* DESTAQUE PRINCIPAL INICIAL: Apuração de Votos em Tempo Real — Presidente do Brasil & Natal RN (Totalização Oficial TSE Live) */}
+        <ApuracaoRealtimeSection
+          onAskAgent={(prompt) => {
+            setIsFloatingChatOpen(true);
+            enviarPerguntaBot(prompt);
+          }}
+        />
+
         {/* Portal Transparência Potiguar: Branding Cultural, Hero Search, KPI Cards e Áreas de Destaque */}
         <PotiguarPortalHomeSection
           onSearchSubmit={(query) => {
@@ -1136,7 +1144,22 @@ export default function App() {
           }}
         />
 
-        {/* Section 0: Slides das Primeiras Notícias · Atualização em Tempo Real 24h */}
+        {/* Vitrine & Loja de Afiliado Parceira Oficial (Fábio Kauã · CollabShop Storefront) */}
+        <AffiliateStorefrontShowcase
+          affiliateUrl={
+            platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
+            'https://collshp.com/fabiokaua692287?view=storefront'
+          }
+          onOpenEditor={() =>
+            abrirEditorAfiliado(
+              'mobilidade',
+              noticiaMobilidade?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront',
+              noticiaMobilidade?.produtoRecomendado || 'Vitrine Oficial Fábio Kauã (collshp.com)'
+            )
+          }
+        />
+
+        {/* Slides das Primeiras Notícias · Atualização em Tempo Real 24h */}
         <PrimeirasNoticiasSlides24h
           boletins={boletinsIA}
           candidatos={platformData.candidatos}
@@ -1149,7 +1172,7 @@ export default function App() {
           }}
         />
 
-        {/* Section 0.5: Colinha Política RN 2026 · Panorama Político do Rio Grande do Norte (Governadores, Deputados, Senadores, Presidente e Mãe Luíza) */}
+        {/* Colinha Política RN 2026 · Panorama Político do Rio Grande do Norte (Governadores, Deputados, Senadores, Presidente e Mãe Luíza) */}
         <PanoramaPoliticoRN2026Section
           candidatos={platformData.candidatos}
           unlockedAffiliates={unlockedAffiliates}
@@ -1161,222 +1184,13 @@ export default function App() {
           }}
         />
 
-        {/* Section 0.8: Componente Dedicado de Atualização Legislativa — PEC 221/2019 (Fim da Escala 6x1 · JSON Integrado) */}
+        {/* Componente Dedicado de Atualização Legislativa — PEC 221/2019 (Fim da Escala 6x1 · JSON Integrado) */}
         <AtualizacaoLegislativaSection
           dadosJson={PEC_221_2019_JSON}
           onAskPotiguarBot={(prompt) => {
             setIsFloatingChatOpen(true);
             enviarPerguntaBot(prompt);
           }}
-        />
-
-        {/* Section 0.9: Apuração de Votos em Tempo Real — Presidente do Brasil & Natal RN (Totalização Oficial TSE Live) */}
-        <ApuracaoRealtimeSection
-          onAskAgent={(prompt) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(prompt);
-          }}
-        />
-
-        {/* Section 1: Hero & Alerta de Utilidade Pública (Passe Livre nos Bairros de Natal) */}
-        <section id="utilidade-publica" className="space-y-6">
-          {/* Editorial Context Kicker (Unboxed metadata with separator) */}
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)] border-b border-[var(--border-color)] pb-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-semibold text-[var(--text-color)]">Eleições Rio Grande do Norte</span>
-              <span aria-hidden="true">·</span>
-              <span>Painel de Utilidade Pública e Monitoramento Cívico</span>
-              <span aria-hidden="true">·</span>
-              <span className="font-tabular">Versão {platformData.meta.versao}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>{platformData.politicaPrivacidade.mensagem}</span>
-              <span aria-hidden="true">·</span>
-              <button
-                type="button"
-                onClick={() => setJsonModalOpen(true)}
-                className="underline hover:text-[var(--text-color)] cursor-pointer whitespace-nowrap"
-              >
-                Ver Especificação JSON & LGPD
-              </button>
-            </div>
-          </div>
-
-          {/* Focal Anchor: Passe Livre Alert Card + Visual Hero */}
-          <div className="card-clean overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12">
-              {/* Left 7 columns: Core Public Utility Alert & Like-to-Unlock */}
-              <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold text-[var(--accent-color)] flex items-center gap-2">
-                    <span>Utilidade Pública · Mobilidade Urbana em Natal e Grande Natal</span>
-                  </div>
-
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[var(--text-color)] leading-tight">
-                    Passe Livre nos Bairros de Natal!
-                  </h1>
-
-                  <p className="text-base text-[var(--text-muted)] leading-relaxed max-w-[65ch]">
-                    {noticiaMobilidade.descricao} Todas as zonas de Natal (Norte, Sul, Leste e Oeste) e linhas
-                    metropolitanas operam com isenção tarifária integral para garantir o direito constitucional ao voto.
-                  </p>
-                </div>
-
-                {/* Primary Interactive Action: Curtir e Desbloquear Oferta de Afiliado */}
-                <div className="space-y-4 pt-2">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => curtirEUnlock('mobilidade')}
-                      className="px-5 py-2.5 rounded-lg bg-[#ef4444] hover:bg-[#dc2626] text-white font-semibold text-sm inline-flex items-center gap-2 transition-transform hover:scale-[1.02] active:scale-95 cursor-pointer whitespace-nowrap"
-                    >
-                      <Heart className="w-4 h-4 fill-current" />
-                      <span>
-                        Agradecer Mobilidade (
-                        <span id="like-mobilidade" className="font-tabular">
-                          {noticiaMobilidade.curtidas.toLocaleString('pt-BR')}
-                        </span>
-                        )
-                      </span>
-                    </button>
-
-                    <span className="text-xs text-[var(--text-muted)]">
-                      Clique para registrar seu apoio ao Passe Livre e liberar a recomendação parceira.
-                    </span>
-                  </div>
-
-                  {/* Ofertador de Afiliado Bloqueado / Liberado */}
-                  {unlockedAffiliates['mobilidade'] && (
-                    <div id="affiliate-mobilidade" className="pt-2">
-                      <AffiliateStorefrontShowcase
-                        affiliateUrl={
-                          noticiaMobilidade.linkAfiliado && noticiaMobilidade.linkAfiliado !== 'AGUARDANDO_SEU_LINK'
-                            ? noticiaMobilidade.linkAfiliado
-                            : 'https://collshp.com/fabiokaua692287?view=storefront'
-                        }
-                        onOpenEditor={() =>
-                          abrirEditorAfiliado(
-                            'mobilidade',
-                            noticiaMobilidade.linkAfiliado,
-                            noticiaMobilidade.produtoRecomendado
-                          )
-                        }
-                        variant="compact"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right 5 columns: Natal/RN Editorial Photography with Measured Scrim & Fallback */}
-              <div className="lg:col-span-5 relative min-h-[240px] lg:min-h-full bg-slate-900 overflow-hidden flex items-end">
-                {!heroImgError ? (
-                  <img
-                    src={natalHeroImg}
-                    alt="Vista urbana de Natal, Rio Grande do Norte, com transporte público e Ponte Newton Navarro"
-                    referrerPolicy="no-referrer"
-                    onError={() => setHeroImgError(true)}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-6">
-                    <Bus className="w-16 h-16 text-blue-400/40" />
-                  </div>
-                )}
-                <div className="relative z-10 w-full p-6 bg-gradient-to-t from-black/85 via-black/50 to-transparent text-white space-y-1.5">
-                  <div className="text-xs font-mono text-amber-300">
-                    Operação Eleições RN · 06h00 às 20h00
-                  </div>
-                  <p className="text-sm font-semibold leading-snug">
-                    Catracas Liberadas em Natal e Região Metropolitana
-                  </p>
-                  <p className="text-xs text-slate-200">
-                    Zonas Norte, Sul, Leste, Oeste e linhas intermunicipais com frota reforçada.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Neighborhood & Bus Lines Table inside the Public Utility Section */}
-            <div className="border-t border-[var(--border-color)] p-6 sm:p-8 space-y-4 bg-[var(--surface-subtle)]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-[var(--text-color)]">
-                    Consulta de Linhas e Bairros com Catraca Liberada
-                  </h2>
-                  <p className="text-xs text-[var(--text-muted)]">
-                    Selecione sua região de Natal ou Grande Natal para verificar as principais linhas gratuitas
-                  </p>
-                </div>
-
-                {/* Interactive Segmented Filter Controls */}
-                <div className="flex flex-wrap items-center gap-1 p-1 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)]">
-                  {['Todas', 'Zona Norte', 'Zona Sul', 'Zona Leste', 'Zona Oeste', 'Intermunicipal (Grande Natal)'].map(
-                    (zona) => (
-                      <button
-                        key={zona}
-                        type="button"
-                        onClick={() => setSelectedZona(zona)}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
-                          selectedZona === zona
-                            ? 'bg-[var(--accent-color)] text-white'
-                            : 'text-[var(--text-muted)] hover:text-[var(--text-color)]'
-                        }`}
-                      >
-                        {zona === 'Intermunicipal (Grande Natal)' ? 'Intermunicipal' : zona}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-
-              <div className="overflow-x-auto border border-[var(--border-color)] rounded-lg bg-[var(--card-bg)]">
-                <table className="w-full text-left border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-[var(--border-color)] text-xs text-[var(--text-muted)]">
-                      <th className="py-3 px-4 font-semibold">Região / Zona</th>
-                      <th className="py-3 px-4 font-semibold">Bairros e Corredores Atendidos</th>
-                      <th className="py-3 px-4 font-semibold">Linhas Principais</th>
-                      <th className="py-3 px-4 font-semibold text-right">Horário & Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--border-color)]">
-                    {rotasFiltradas.map((rota) => (
-                      <tr key={rota.id} className="hover:bg-[var(--surface-subtle)] transition-colors">
-                        <td className="py-3 px-4 font-semibold text-[var(--text-color)] whitespace-nowrap">
-                          {rota.zona}
-                        </td>
-                        <td className="py-3 px-4 text-[var(--text-muted)]">{rota.bairrosAtendidos}</td>
-                        <td className="py-3 px-4 font-tabular text-xs text-[var(--text-color)]">
-                          {rota.linhasPrincipais}
-                        </td>
-                        <td className="py-3 px-4 text-right whitespace-nowrap">
-                          <span className="font-tabular text-xs font-semibold text-[var(--success-color)]">
-                            {rota.horarioOperacao} · Gratuito
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 1.5: Vitrine & Loja de Afiliado Parceira Oficial (Fábio Kauã · CollabShop Storefront) */}
-        <AffiliateStorefrontShowcase
-          affiliateUrl={
-            platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
-            'https://collshp.com/fabiokaua692287?view=storefront'
-          }
-          onOpenEditor={() =>
-            abrirEditorAfiliado(
-              'mobilidade',
-              noticiaMobilidade.linkAfiliado,
-              noticiaMobilidade.produtoRecomendado
-            )
-          }
         />
 
         {/* Section 2: Simulado de Preferência - 2º Turno (RN) & Conformidade Democrática LGPD (Sem Duplicação de Propostas) */}
@@ -2219,15 +2033,6 @@ export default function App() {
               >
                 <span>📊 Simulado 2º Turno Governo RN</span>
                 <span className="text-[10px] text-gray-500">Votar</span>
-              </a>
-
-              <a
-                href="#utilidade-publica"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-3 rounded-xl bg-[var(--surface-subtle)] hover:bg-emerald-500/10 border border-[var(--border-color)] flex items-center justify-between text-[var(--text-color)] font-semibold no-underline"
-              >
-                <span>🚌 Passe Livre &amp; Rotas nos Bairros</span>
-                <span className="text-[10px] text-gray-500">Ver Linhas</span>
               </a>
 
               <a

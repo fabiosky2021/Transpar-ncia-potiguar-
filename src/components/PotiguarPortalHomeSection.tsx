@@ -298,7 +298,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                 Última Atualização
               </span>
               <span className="text-[10.5px] sm:text-xs font-extrabold text-orange-600 dark:text-orange-400 tracking-tight mt-0.5 font-tabular">
-                14/10/2026
+                25/10/2026
               </span>
             </div>
           </div>
