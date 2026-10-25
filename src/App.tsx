@@ -51,6 +51,7 @@ import { PotiguarPortalHomeSection } from './components/PotiguarPortalHomeSectio
 import { BottomNavigationBar, BottomNavTab } from './components/BottomNavigationBar';
 import { AffiliateStorefrontShowcase } from './components/AffiliateStorefrontShowcase';
 import { ShopStorefrontPopup } from './components/ShopStorefrontPopup';
+import { ApuracaoRealtimeSection } from './components/ApuracaoRealtimeSection';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
@@ -1169,6 +1170,14 @@ export default function App() {
           }}
         />
 
+        {/* Section 0.9: Apuração de Votos em Tempo Real — Presidente do Brasil & Natal RN (Totalização Oficial TSE Live) */}
+        <ApuracaoRealtimeSection
+          onAskAgent={(prompt) => {
+            setIsFloatingChatOpen(true);
+            enviarPerguntaBot(prompt);
+          }}
+        />
+
         {/* Section 1: Hero & Alerta de Utilidade Pública (Passe Livre nos Bairros de Natal) */}
         <section id="utilidade-publica" className="space-y-6">
           {/* Editorial Context Kicker (Unboxed metadata with separator) */}
@@ -2188,6 +2197,19 @@ export default function App() {
               >
                 <span>⚖️ PEC 221/2019 (Fim da Escala 6x1)</span>
                 <span className="text-[10px] text-emerald-600 font-bold">Novo</span>
+              </a>
+
+              <a
+                href="#apuracao-ao-vivo"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 flex items-center justify-between text-[var(--text-color)] font-bold no-underline animate-pulse"
+              >
+                <span className="flex items-center gap-2">
+                  <span>🔴</span> Apuração ao Vivo (Presidente &amp; Natal RN)
+                </span>
+                <span className="text-[10px] bg-rose-600 text-white font-bold px-2 py-0.5 rounded-full">
+                  TSE Live
+                </span>
               </a>
 
               <a

@@ -75,5 +75,10 @@ service cloud.firestore {
         && incoming().necessidade is string && incoming().necessidade.size() <= 1000
         && incoming().apoios is number && incoming().apoios >= 0;
     }
+
+    match /apuracao/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id);
+    }
   }
 }
