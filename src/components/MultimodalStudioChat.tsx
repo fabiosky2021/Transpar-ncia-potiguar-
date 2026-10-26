@@ -194,7 +194,11 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   const shareMessageOnWhatsApp = (text: string) => {
     const cleanText = text.replace(/«[\s\S]*?»/g, '').trim();
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(cleanText)}`;
-    window.open(url, '_blank');
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
   };
 
   const downloadMessageAsText = (text: string, title = 'conteudo-estudio-potiguar') => {
@@ -499,14 +503,24 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   > = {
     geral: [
       {
-        label: '✍️ Criar post WhatsApp 2º Turno',
+        label: '🇧🇷 Leitura de Votos Presidente (Brasil)',
         prompt:
-          'Crie uma postagem informativa e checada para WhatsApp sobre o 2º Turno no RN (Allyson 44 x Cadu de Lula 13)',
+          'Faça a leitura detalhada em tempo real dos votos para Presidente do Brasil (Lula 13 x Flávio Bolsonaro 22) com porcentagens e vantagem.',
       },
       {
-        label: '🎨 Roteiro de vídeo 30s: Passe Livre',
+        label: '🗳️ Apuração ao Vivo Natal & RN',
         prompt:
-          'Crie um roteiro de vídeo curto de 30 segundos sobre o Passe Livre nos ônibus em Natal',
+          'Faça a leitura oficial da apuração dos votos para o Governo do RN e Natal (Allyson Bezerra 44 x Cadu de Lula 13).',
+      },
+      {
+        label: '✍️ Criar Post WhatsApp da Apuração',
+        prompt:
+          'Crie uma postagem informativa, imparcial e checada para WhatsApp com o placar ao vivo da apuração de votos para Presidente e RN.',
+      },
+      {
+        label: '🎙️ Roteiro 30s da Apuração ao Vivo',
+        prompt:
+          'Crie um roteiro de áudio de 30 segundos narrando os números mais recentes da apuração dos votos para Presidente do Brasil e Natal.',
       },
       {
         label: '⚖️ CLT: Jornada 4h & Escala 6x1',
@@ -514,19 +528,14 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           'Transparência Jurídica CLT e análise da jornada de 4h (casal e família de 6) e PEC 221/2019',
       },
       {
-        label: '🔍 Análise Visual de Panfleto',
+        label: '🔍 Análise Visual de Imagem / Urna',
         prompt:
-          'Como funciona a análise visual de panfletos eleitorais e checagem de CNPJ no TSE?',
+          'Como funciona a análise visual de fotos de boletins de urna, panfletos eleitorais e checagem no TSE?',
       },
       {
         label: '🗳️ Comparar Allyson 44 x Cadu 13',
         prompt:
           'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-      },
-      {
-        label: '🇧🇷 Presidência: Lula x Flávio',
-        prompt:
-          'Candidatos a Presidente do Brasil e propostas de governo federal',
       },
       {
         label: '🎉 Quiz Animado com Som (Brasil 2026)',
@@ -538,22 +547,22 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
         prompt:
           'Onde está meu local de votação e qual documento levar?',
       },
-      {
-        label: '🚌 Linhas com Passe Livre',
-        prompt:
-          'Quais linhas de ônibus têm Passe Livre gratuito no dia da eleição?',
-      },
     ],
     redacao: [
       {
+        label: '🇧🇷 Boletim de Apuração Presidencial',
+        prompt:
+          'Redija um boletim urgente com o placar de votos para Presidente do Brasil (Lula 13 x Flávio 22) para redes sociais',
+      },
+      {
         label: '📱 Post curto para WhatsApp',
         prompt:
-          'Crie uma mensagem curta com bullets e fontes oficiais para compartilhar no WhatsApp',
+          'Crie uma mensagem curta com bullets e fontes oficiais da apuração para compartilhar no WhatsApp',
       },
       {
         label: '📸 Post Instagram / Carrossel',
         prompt:
-          'Crie um post completo para Instagram com gancho, corpo explicativo e hashtags sobre o 2º Turno RN',
+          'Crie um post completo para Instagram com gancho, corpo explicativo e hashtags sobre o 2º Turno Nacional e Potiguar',
       },
       {
         label: '🧵 Thread explicativa PEC 6x1',
@@ -563,7 +572,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
       {
         label: '📰 Resumo para Boletim Comunitário',
         prompt:
-          'Crie um boletim resumido de utilidade pública para moradores de Mãe Luíza e Alecrim',
+          'Crie um boletim resumido de utilidade pública para moradores de Mãe Luíza, Alecrim e Ponta Negra',
       },
     ],
     visao: [
@@ -571,6 +580,11 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
         label: '🔍 Análise Visual Completa',
         prompt:
           'Realize uma análise visual minuciosa dos elementos, textos e símbolos presentes na imagem',
+      },
+      {
+        label: '📊 Checar Boletim de Urna (BU)',
+        prompt:
+          'Analise esta foto de Boletim de Urna: verifique zona, seção, votos nominais e autenticidade conforme normas do TSE',
       },
       {
         label: '⚖️ Checar CNPJ & Fatos no TSE',
@@ -590,9 +604,9 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
     ],
     roteiro: [
       {
-        label: '🎙️ Roteiro de 30s Passe Livre',
+        label: '🎙️ Roteiro de 30s Apuração ao Vivo',
         prompt:
-          'Crie um roteiro de locução de 30 segundos sobre as linhas de ônibus com Passe Livre',
+          'Crie um roteiro de locução dinâmico de 30 segundos sobre a apuração dos votos para Presidente do Brasil',
       },
       {
         label: '📻 Script de Podcast Cívico',
@@ -602,7 +616,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
       {
         label: '⏱️ Roteiro Reels / TikTok 15s',
         prompt:
-          'Crie um roteiro ultra-rápido de 15 segundos para vídeo curto com gancho forte',
+          'Crie um roteiro ultra-rápido de 15 segundos para vídeo curto com gancho forte sobre a votação',
       },
       {
         label: '📢 Chamada de Rádio para Eleitor',

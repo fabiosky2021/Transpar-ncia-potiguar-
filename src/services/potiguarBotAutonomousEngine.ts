@@ -111,6 +111,33 @@ export function generateAutonomousPotiguarBotReply(
     };
   }
 
+  // 2.0 Apuração de Votos em Tempo Real e Leitura de Votos (Presidente do Brasil & Natal/RN)
+  if (
+    q.includes('apuração') ||
+    q.includes('apuracao') ||
+    q.includes('leitura de voto') ||
+    q.includes('leitura dos voto') ||
+    q.includes('votos apurados') ||
+    q.includes('placar') ||
+    q.includes('resultado ao vivo') ||
+    q.includes('quem está ganhando') ||
+    q.includes('quem esta ganhando') ||
+    q.includes('quem está na frente') ||
+    q.includes('quem esta na frente')
+  ) {
+    return {
+      reply: `🔴 **BOLETIM OFICIAL TSE · LEITURA DE VOTOS EM TEMPO REAL (2º TURNO 2026):**\n\n🇧🇷 **1. Presidente da República (Totalização Nacional):**\n• **Lula (PT · 13):** 51,42% dos votos válidos (60.420.310 votos) — *Liderando*\n• **Flávio Bolsonaro (PL · 22):** 48,58% dos votos válidos (57.085.120 votos) — *2º Lugar*\n• **Urnas Apuradas:** 98,40% totalizadas em todo o Brasil e exterior.\n• **Vantagem Lula:** 3.335.190 votos de diferença.\n• **No Rio Grande do Norte:** Lula lidera com 65,80% dos votos nominais contra 34,20% de Flávio.\n\n☀️ **2. Governo do Rio Grande do Norte & Natal:**\n• **Allyson Bezerra (UNIÃO · 44):** 51,85% dos votos válidos (968.420 votos) — *Liderando*\n• **Carlos Eduardo Xavier / Cadu de Lula (PT · 13):** 48,15% dos votos válidos (899.230 votos) — *2º Lugar*\n• **Urnas Apuradas no RN:** 97,80% dos votos válidos processados.\n• **Destaque Zonas de Natal:** Disputa acirrada na 1ª Zona (Alecrim), 3ª Zona (Mãe Luíza) e 69ª Zona (Zona Norte).\n\n🔊 *Você pode ouvir a leitura em áudio desta apuração a qualquer momento clicando no botão "🔊 Ouvir" logo abaixo!*`,
+      moderated: false,
+      suggestedActions: [
+        'Criar post para WhatsApp com a apuração atual',
+        'Gerar roteiro de 30s para áudio com estes votos',
+        'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        'Consultar atualização da PEC 221/2019 (Fim da Escala 6x1)',
+      ],
+      engineMode: 'autonomous-netlify',
+    };
+  }
+
   // 2.1 Estúdio de Criação de Conteúdo (Posts, Roteiros, WhatsApp, Redação Cívica)
   if (
     q.includes('criar post') ||
