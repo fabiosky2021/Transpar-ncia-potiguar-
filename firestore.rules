@@ -80,5 +80,15 @@ service cloud.firestore {
       allow get, list: if true;
       allow create, update: if isValidId(id);
     }
+
+    match /presenca/{id} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(id);
+    }
+
+    match /estatisticas/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id);
+    }
   }
 }

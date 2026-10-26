@@ -52,6 +52,7 @@ import { BottomNavigationBar, BottomNavTab } from './components/BottomNavigation
 import { AffiliateStorefrontShowcase } from './components/AffiliateStorefrontShowcase';
 import { ShopStorefrontPopup } from './components/ShopStorefrontPopup';
 import { ApuracaoRealtimeSection } from './components/ApuracaoRealtimeSection';
+import { OnlineVisitorsBadge } from './components/OnlineVisitorsBadge';
 import {
   INITIAL_PROPOSTAS_TSE,
   INITIAL_FEEDBACKS_COMUNIDADE,
@@ -1005,6 +1006,9 @@ export default function App() {
 
           {/* Zone 3: Responsive actions for Mobile, App, Notebook & Desktop */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Monitor de Pessoas Acessando Agora (Tempo Real) */}
+            <OnlineVisitorsBadge variant="header" />
+
             <button
               type="button"
               onClick={() => setIsFloatingChatOpen((prev) => !prev)}

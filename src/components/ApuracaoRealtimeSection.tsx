@@ -35,6 +35,7 @@ import {
   TTSStateSnapshot,
   voiceConfig,
 } from '../services/ttsService';
+import { OnlineVisitorsBadge } from './OnlineVisitorsBadge';
 
 interface ApuracaoRealtimeSectionProps {
   onAskAgent?: (prompt: string) => void;
@@ -311,6 +312,7 @@ export const ApuracaoRealtimeSection: React.FC<ApuracaoRealtimeSectionProps> = (
               <Clock className="w-3 h-3 text-amber-500" />
               Próximo lote em {segundosProximaAtualizacao}s
             </span>
+            <OnlineVisitorsBadge variant="compact" />
           </div>
 
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[var(--text-color)] tracking-tight flex items-center gap-2.5">

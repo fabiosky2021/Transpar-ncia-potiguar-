@@ -528,6 +528,11 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           'Transparência Jurídica CLT e análise da jornada de 4h (casal e família de 6) e PEC 221/2019',
       },
       {
+        label: '👥 Pessoas Acessando Agora',
+        prompt:
+          'Quantas pessoas estão acessando a plataforma agora e qual a audiência ao vivo?',
+      },
+      {
         label: '🔍 Análise Visual de Imagem / Urna',
         prompt:
           'Como funciona a análise visual de fotos de boletins de urna, panfletos eleitorais e checagem no TSE?',
