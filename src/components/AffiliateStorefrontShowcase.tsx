@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShoppingBag,
   ExternalLink,
@@ -11,7 +11,14 @@ import {
   ArrowUpRight,
   Store,
   SlidersHorizontal,
+  Clock,
+  Flame,
+  Truck,
+  CreditCard,
+  Download,
+  Bike,
 } from 'lucide-react';
+import bannerBlackFridayImg from '../assets/images/banner_black_friday_promo_1793436552103.jpg';
 
 interface AffiliateStorefrontShowcaseProps {
   affiliateUrl?: string;
@@ -27,6 +34,29 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
   variant = 'card',
 }) => {
   const [copied, setCopied] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<{ hours: string; minutes: string; seconds: string }>({
+    hours: '09',
+    minutes: '59',
+    seconds: '59',
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      const diff = Math.max(0, end.getTime() - now.getTime());
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      setTimeLeft({
+        hours: String(hrs).padStart(2, '0'),
+        minutes: String(mins).padStart(2, '0'),
+        seconds: String(secs).padStart(2, '0'),
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(affiliateUrl);
@@ -132,6 +162,87 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
             <span>Configurar</span>
           </button>
         )}
+      </div>
+
+      {/* BANNER PROMOCIONAL HORIZONTAL 11.11 & BLACK FRIDAY (ALTA RESOLUÇÃO) */}
+      <div className="relative rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl bg-gradient-to-br from-red-950 via-slate-950 to-orange-950 group">
+        <div className="relative aspect-[16/9] w-full max-h-[460px] overflow-hidden">
+          <img
+            src={bannerBlackFridayImg}
+            alt="Banner Promocional 11.11 e Black Friday com Mountain Bike, Máquina de Cortar Cabelo, Escova Elétrica e Suporte de Cabeça"
+            className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-[1.02]"
+          />
+          {/* Subtle gradient vignette at bottom for mobile legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 pointer-events-none" />
+
+          {/* Quick Floating Action Overlay */}
+          <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+            <a
+              href={bannerBlackFridayImg}
+              download="banner-11-11-black-friday-alta-resolucao.jpg"
+              title="Baixar imagem do banner em alta resolução"
+              className="px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold backdrop-blur-md border border-white/20 inline-flex items-center gap-1.5 shadow-lg no-underline cursor-pointer transition-all active:scale-95"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Baixar Banner HD</span>
+            </a>
+          </div>
+
+          <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-3 z-10">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 animate-pulse">
+                <Flame className="w-3.5 h-3.5 fill-current" />
+                11.11 + Black Friday
+              </span>
+              <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md text-yellow-300 font-mono text-xs font-black border border-yellow-500/40 flex items-center gap-1.5 shadow">
+                <Clock className="w-3.5 h-3.5 text-yellow-400" />
+                <span>EXPIRA EM: {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</span>
+              </div>
+            </div>
+
+            <a
+              href={affiliateUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 hover:from-orange-600 hover:to-amber-600 text-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-xl shadow-orange-950/50 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 no-underline cursor-pointer border border-yellow-300"
+            >
+              <span>Compre Agora na Vitrine</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
+        {/* Barra de Vantagens Competitivas & Produtos em Destaque no Banner */}
+        <div className="p-3.5 sm:p-4 bg-slate-900/95 border-t border-orange-500/30 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs text-gray-200">
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+            <Bike className="w-5 h-5 text-orange-400 shrink-0" />
+            <div className="min-w-0">
+              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Mountain Bike MTB</div>
+              <div className="text-[10px] text-orange-300 truncate">Destaque Central</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+            <Sparkles className="w-5 h-5 text-yellow-400 shrink-0" />
+            <div className="min-w-0">
+              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Máquina &amp; Escova</div>
+              <div className="text-[10px] text-yellow-300 truncate">Cards Flutuantes 3D</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+            <Truck className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="min-w-0">
+              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Frete Grátis Brasil</div>
+              <div className="text-[10px] text-emerald-300 truncate">Itens Selecionados</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+            <CreditCard className="w-5 h-5 text-cyan-400 shrink-0" />
+            <div className="min-w-0">
+              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Até 12x Sem Juros</div>
+              <div className="text-[10px] text-cyan-300 truncate">Facilidade de Pagamento</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Barra de Acesso Rápido à Vitrine de Afiliado */}
