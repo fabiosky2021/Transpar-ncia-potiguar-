@@ -17,35 +17,50 @@ interface ShopStorefrontPopupProps {
   storefrontUrl?: string;
   initialDelaySeconds?: number;
   lockCloseSeconds?: number;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const ShopStorefrontPopup: React.FC<ShopStorefrontPopupProps> = ({
   storefrontUrl = 'https://collshp.com/fabiokaua692287?view=storefront',
   initialDelaySeconds = 2, // Abre rapidamente após 2s no site
   lockCloseSeconds = 10,   // Fica 10 segundos em contagem regressiva antes de liberar o botão de fechar
+  isOpen: controlledIsOpen,
+  onClose: controlledOnClose,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(lockCloseSeconds);
   const [canClose, setCanClose] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Efeito 1: Dispara a abertura do pop-up após delay inicial
+  const isActuallyOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
+
+  // Efeito 1: Dispara a abertura automática do pop-up após delay inicial (se não for controlado externamente)
   useEffect(() => {
-    // Verifica se já foi fechado nesta sessão para não ser intrusivo repetidamente
+    if (controlledIsOpen !== undefined) return;
     const jaFechado = sessionStorage.getItem('popup_shop_fechado');
     if (jaFechado) return;
 
     const timerAbertura = setTimeout(() => {
-      setIsOpen(true);
+      setInternalOpen(true);
       setSecondsRemaining(lockCloseSeconds);
+      setCanClose(false);
     }, initialDelaySeconds * 1000);
 
     return () => clearTimeout(timerAbertura);
-  }, [initialDelaySeconds, lockCloseSeconds]);
+  }, [controlledIsOpen, initialDelaySeconds, lockCloseSeconds]);
+
+  // Se aberto externamente, reinicia contagem se ainda não concluída
+  useEffect(() => {
+    if (controlledIsOpen) {
+      setSecondsRemaining(lockCloseSeconds);
+      setCanClose(false);
+    }
+  }, [controlledIsOpen, lockCloseSeconds]);
 
   // Efeito 2: Contagem regressiva de 10 segundos quando o pop-up está aberto
   useEffect(() => {
-    if (!isOpen || canClose) return;
+    if (!isActuallyOpen || canClose) return;
 
     if (secondsRemaining <= 1) {
       setSecondsRemaining(0);
@@ -65,10 +80,14 @@ export const ShopStorefrontPopup: React.FC<ShopStorefrontPopupProps> = ({
     }, 1000);
 
     return () => clearInterval(timerSegundo);
-  }, [isOpen, secondsRemaining, canClose]);
+  }, [isActuallyOpen, secondsRemaining, canClose]);
 
   const handleClose = () => {
-    setIsOpen(false);
+    if (controlledOnClose) {
+      controlledOnClose();
+    } else {
+      setInternalOpen(false);
+    }
     sessionStorage.setItem('popup_shop_fechado', 'true');
   };
 
@@ -78,7 +97,7 @@ export const ShopStorefrontPopup: React.FC<ShopStorefrontPopupProps> = ({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  if (!isOpen) return null;
+  if (!isActuallyOpen) return null;
 
   const progressoPct = Math.round(((lockCloseSeconds - secondsRemaining) / lockCloseSeconds) * 100);
 

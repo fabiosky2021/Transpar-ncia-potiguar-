@@ -154,7 +154,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [selectedImageMime, setSelectedImageMime] = useState<string>('image/jpeg');
   const [selectedImageName, setSelectedImageName] = useState<string>('');
-  const [studioMode, setStudioMode] = useState<'geral' | 'redacao' | 'visao' | 'roteiro' | 'clt'>('geral');
+  const [studioMode, setStudioMode] = useState<'geral' | 'redacao' | 'visao' | 'roteiro' | 'afiliados' | 'clt'>('geral');
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const [showBotQuiz, setShowBotQuiz] = useState<boolean>(false);
@@ -245,6 +245,18 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   useEffect(() => {
     return subscribeTTSState(setTtsState);
   }, []);
+
+  // Fecha o painel flutuante com a tecla ESC
+  useEffect(() => {
+    if (!isFloatingOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFloatingOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFloatingOpen, setIsFloatingOpen]);
 
   useEffect(() => {
     if (mainChatListRef.current) {
@@ -485,47 +497,49 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   const getPlaceholderForMode = () => {
     switch (studioMode) {
       case 'redacao':
-        return 'Escreva o tema ou pauta para gerar post, thread ou mensagem para WhatsApp...';
+        return 'Escreva o tema ou pauta para gerar post, thread ou notícia sobre a política dos EUA...';
       case 'visao':
-        return 'Envie uma foto, cartaz ou panfleto e descreva o que deseja analisar ou checar...';
+        return 'Envie uma foto, print de notícia ou post para o Estúdio IA checar se é fato ou fake...';
       case 'roteiro':
-        return 'Solicite um roteiro de áudio ou vídeo de 15s, 30s ou 1min com marcações de voz...';
+        return 'Solicite um roteiro de áudio ou vídeo de 15s, 30s ou 1min sobre os EUA e impacto no Brasil...';
+      case 'afiliados':
+        return 'Peça títulos chamativos, legendas persuasivas ou banners com efeito pop-up para Black Friday...';
       case 'clt':
-        return 'Pergunte sobre a PEC 221/2019 (escala 6x1), jornada de 4h diárias ou direitos trabalhistas...';
+        return 'Pergunte sobre tarifas comerciais dos EUA, cotação do Dólar, inflação e impactos no Brasil...';
       default:
         return 'Digite, fale no microfone (voz) ou envie imagem para o Estúdio de Criação...';
     }
   };
 
   const studioQuickSuggestionsMap: Record<
-    'geral' | 'redacao' | 'visao' | 'roteiro' | 'clt',
+    'geral' | 'redacao' | 'visao' | 'roteiro' | 'afiliados' | 'clt',
     Array<{ label: string; prompt: string }>
   > = {
     geral: [
       {
-        label: '🇧🇷 Leitura de Votos Presidente (Brasil)',
+        label: '🇺🇸 Placar Trump vs Harris (Colégio Eleitoral)',
         prompt:
-          'Faça a leitura detalhada em tempo real dos votos para Presidente do Brasil (Lula 13 x Flávio Bolsonaro 22) com porcentagens e vantagem.',
+          'Faça a leitura detalhada em tempo real do placar de delegados Trump (312) vs Harris (226) no Colégio Eleitoral e a meta de 270.',
       },
       {
-        label: '🗳️ Apuração ao Vivo Natal & RN',
+        label: '🗺️ Os 7 Swing States Decisivos',
         prompt:
-          'Faça a leitura oficial da apuração dos votos para o Governo do RN e Natal (Allyson Bezerra 44 x Cadu de Lula 13).',
+          'Explique o resultado e os delegados dos 7 estados decisivos (Pensilvânia, Geórgia, Carolina do Norte, Michigan, Arizona, Wisconsin e Nevada).',
       },
       {
-        label: '✍️ Criar Post WhatsApp da Apuração',
+        label: '🔍 Fato ou Fake 24h & Checagem',
         prompt:
-          'Crie uma postagem informativa, imparcial e checada para WhatsApp com o placar ao vivo da apuração de votos para Presidente e RN.',
+          'Quais são os principais boatos e fakes desmentidos nas últimas 24 horas sobre os EUA e como não cair em golpes na internet?',
       },
       {
-        label: '🎙️ Roteiro 30s da Apuração ao Vivo',
+        label: '💵 Dólar, Tarifas & Impacto no Brasil',
         prompt:
-          'Crie um roteiro de áudio de 30 segundos narrando os números mais recentes da apuração dos votos para Presidente do Brasil e Natal.',
+          'Analise o impacto econômico das tarifas e da política dos EUA sobre a cotação do Dólar, inflação e exportações brasileiras.',
       },
       {
-        label: '⚖️ CLT: Jornada 4h & Escala 6x1',
+        label: '🛍️ Vitrine & Shop Fábio Kauã',
         prompt:
-          'Transparência Jurídica CLT e análise da jornada de 4h (casal e família de 6) e PEC 221/2019',
+          'Como funciona a vitrine verificada do CollabShop de Fábio Kauã e quais ofertas e cupons seguros estão disponíveis?',
       },
       {
         label: '👥 Pessoas Acessando Agora',
@@ -533,122 +547,139 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           'Quantas pessoas estão acessando a plataforma agora e qual a audiência ao vivo?',
       },
       {
-        label: '🔍 Análise Visual de Imagem / Urna',
+        label: '🎙️ Roteiro 30s Plantão Washington',
         prompt:
-          'Como funciona a análise visual de fotos de boletins de urna, panfletos eleitorais e checagem no TSE?',
+          'Crie um roteiro de áudio de 30 segundos narrando os números do Colégio Eleitoral e o impacto no Dólar.',
       },
       {
-        label: '🗳️ Comparar Allyson 44 x Cadu 13',
+        label: '✍️ Post Informativo para WhatsApp',
         prompt:
-          'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-      },
-      {
-        label: '🎉 Quiz Animado com Som (Brasil 2026)',
-        prompt:
-          'Quero fazer o Quiz Animado de Prioridades do Brasil 2026 com som e descobrir minha afinidade eleitoral.',
-      },
-      {
-        label: '📍 Onde votar e documento oficial',
-        prompt:
-          'Onde está meu local de votação e qual documento levar?',
+          'Crie uma mensagem informativa e checada para WhatsApp com o resumo da política dos EUA e cotação da moeda.',
       },
     ],
     redacao: [
       {
-        label: '🇧🇷 Boletim de Apuração Presidencial',
+        label: '🇺🇸 Boletim Urgente Casa Branca',
         prompt:
-          'Redija um boletim urgente com o placar de votos para Presidente do Brasil (Lula 13 x Flávio 22) para redes sociais',
+          'Redija um boletim urgente com o placar de delegados no Colégio Eleitoral (Trump 312 x Harris 226) para redes sociais',
       },
       {
-        label: '📱 Post curto para WhatsApp',
+        label: '📱 Post curto para WhatsApp (EUA & Dólar)',
         prompt:
-          'Crie uma mensagem curta com bullets e fontes oficiais da apuração para compartilhar no WhatsApp',
+          'Crie uma mensagem curta com bullets e fontes oficiais sobre a política dos EUA para compartilhar no WhatsApp',
       },
       {
-        label: '📸 Post Instagram / Carrossel',
+        label: '📸 Post Carrossel Instagram (Swing States)',
         prompt:
-          'Crie um post completo para Instagram com gancho, corpo explicativo e hashtags sobre o 2º Turno Nacional e Potiguar',
+          'Crie um post completo para Instagram com gancho, corpo explicativo e hashtags sobre os 7 swing states da eleição americana',
       },
       {
-        label: '🧵 Thread explicativa PEC 6x1',
+        label: '🧵 Thread Explicativa Tarifas & Dólar',
         prompt:
-          'Redija uma thread informativa em tópicos claros explicando a PEC 221/2019 do fim da escala 6x1',
+          'Redija uma thread informativa em tópicos claros explicando como tarifas de 10% a 20% afetam o bolso e os preços no Brasil',
       },
       {
-        label: '📰 Resumo para Boletim Comunitário',
+        label: '🛍️ Post Vitrine de Produtos Verificados',
         prompt:
-          'Crie um boletim resumido de utilidade pública para moradores de Mãe Luíza, Alecrim e Ponta Negra',
+          'Crie uma postagem recomendando produtos verificados e seguros da vitrine do CollabShop de Fábio Kauã',
       },
     ],
     visao: [
       {
-        label: '🔍 Análise Visual Completa',
+        label: '🔍 Análise Visual Completa de Print/Imagem',
         prompt:
-          'Realize uma análise visual minuciosa dos elementos, textos e símbolos presentes na imagem',
+          'Realize uma análise visual minuciosa dos elementos, textos e símbolos presentes na imagem para verificar se é autêntica',
       },
       {
-        label: '📊 Checar Boletim de Urna (BU)',
+        label: '🚨 Checar Deepfake ou Montagem IA',
         prompt:
-          'Analise esta foto de Boletim de Urna: verifique zona, seção, votos nominais e autenticidade conforme normas do TSE',
+          'Analise se a imagem enviada possui indícios de geração por inteligência artificial, manipulação ou fora de contexto',
       },
       {
-        label: '⚖️ Checar CNPJ & Fatos no TSE',
+        label: '🛡️ Checar Golpe ou Link Falso de Compra',
         prompt:
-          'Verifique se a imagem possui CNPJ de campanha ou elementos oficiais conforme regras do TSE',
+          'Verifique se este anúncio ou print parece golpe de internet ou clone, e compare com a loja oficial verificada do CollabShop',
       },
       {
-        label: '📝 Extrair Dados & Tabela',
+        label: '📝 Extrair Dados, Tabela e Números',
         prompt:
-          'Extraia os números, datas e informações textuais contidos na imagem de forma estruturada',
+          'Extraia os números, datas e informações textuais contidos na imagem de forma estruturada e em tabela',
       },
       {
         label: '🎨 Criar Post a partir da Imagem',
         prompt:
-          'Transforme as informações visuais desta imagem em uma publicação cívica para redes sociais',
+          'Transforme as informações visuais desta imagem em uma publicação explicativa e checada para redes sociais',
       },
     ],
     roteiro: [
       {
-        label: '🎙️ Roteiro de 30s Apuração ao Vivo',
+        label: '🎙️ Roteiro 30s Plantão Eleições EUA',
         prompt:
-          'Crie um roteiro de locução dinâmico de 30 segundos sobre a apuração dos votos para Presidente do Brasil',
+          'Crie um roteiro de locução dinâmico de 30 segundos sobre o Colégio Eleitoral e a posse na Casa Branca',
       },
       {
-        label: '📻 Script de Podcast Cívico',
+        label: '📻 Script de Podcast: 7 Swing States',
         prompt:
-          'Escreva um roteiro dinâmico de 1 minuto para podcast debatendo as propostas para o RN',
+          'Escreva um roteiro dinâmico de 1 minuto para podcast explicando como Pensilvânia e Geórgia definiram a eleição',
       },
       {
-        label: '⏱️ Roteiro Reels / TikTok 15s',
+        label: '⏱️ Roteiro Reels / TikTok 15s (Dólar Hoje)',
         prompt:
-          'Crie um roteiro ultra-rápido de 15 segundos para vídeo curto com gancho forte sobre a votação',
+          'Crie um roteiro ultra-rápido de 15 segundos para vídeo curto com gancho forte sobre a disparada do Dólar e tarifas',
       },
       {
-        label: '📢 Chamada de Rádio para Eleitor',
+        label: '🛍️ Roteiro Review de Produto do Shop',
         prompt:
-          'Crie um spot de utilidade pública alertando sobre documentos obrigatórios e local de votação',
+          'Crie um roteiro de áudio de 20 segundos apresentando um produto verificado da vitrine do CollabShop',
+      },
+    ],
+    afiliados: [
+      {
+        label: '🏷️ Gerar JSON Black Friday Completo',
+        prompt:
+          'Atue como especialista em marketing de afiliados: analise a lista de produtos da vitrine oficial do CollabShop e gere em formato estruturado JSON títulos chamativos, legendas persuasivas e estratégia de banner promocional para a Black Friday.',
+      },
+      {
+        label: '🚀 Banners com Efeito Pop-up (Alto CTR)',
+        prompt:
+          'Crie o conceito visual e layout de banners promocionais para replicar o efeito de atração imediata de um pop-up de 10s direcionando os seguidores para a vitrine oficial do CollabShop.',
+      },
+      {
+        label: '📱 Legendas WhatsApp & Instagram',
+        prompt:
+          'Gere legendas persuasivas com gatilhos de urgência, escassez e compras seguras para a Black Friday direcionando para https://collshp.com/fabiokaua692287?view=storefront',
+      },
+      {
+        label: '📊 Análise de Vendas & Produtos Virais',
+        prompt:
+          'Analise os produtos com maior conversão e recomende o melhor posicionamento de ticket médio para a Black Friday.',
+      },
+      {
+        label: '🛡️ Copy Anti-Golpe & Confiança',
+        prompt:
+          'Redija uma postagem reforçando que a vitrine oficial é 100% verificada e livre dos golpes frequentes da Black Friday.',
       },
     ],
     clt: [
       {
-        label: '⚖️ Jornada 4h: Casal e Família 6',
+        label: '💵 Tarifas de Importação & Cotação do Dólar',
         prompt:
-          'Explique a análise socioeconômica da jornada de 4 horas diárias para casal e família de 6 pessoas',
+          'Explique o impacto da política tarifária dos EUA na cotação do Dólar frente ao Real e nas compras internacionais',
       },
       {
-        label: '📜 Status PEC 221/2019 (Escala 6x1)',
+        label: '🌾 Exportações Brasileiras: Soja, Carne & Petróleo',
         prompt:
-          'Qual é o status oficial da PEC 221/2019 aprovada na CCJ do Senado e seus próximos passos?',
+          'Como o novo governo dos EUA afeta as exportações do agronegócio e commodities brasileiras?',
       },
       {
-        label: '🏛️ Papel de Contrapeso da CLT',
+        label: '📈 Taxa Selic & Inflação no Brasil',
         prompt:
-          'Explique como a legislação trabalhista atua como contrapeso na assimetria de poder',
+          'Qual a relação entre os juros do Federal Reserve (Fed) e as taxas de juros e inflação no Brasil?',
       },
       {
-        label: '💰 Alerta BPC e Previdência 2027',
+        label: '🛡️ Proteção do Consumidor e Compras Seguras',
         prompt:
-          'Qual é o alerta dos economistas sobre a desvinculação do BPC e aposentadorias do salário mínimo?',
+          'Quais são os direitos do consumidor e como comprar com segurança em lojas oficiais como o CollabShop?',
       },
     ],
   };
@@ -1091,6 +1122,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
           { id: 'redacao', label: '✍️ Redação & Posts' },
           { id: 'visao', label: '🔍 Visão Avançada' },
           { id: 'roteiro', label: '🎙️ Roteiro de Voz' },
+          { id: 'afiliados', label: '🛍️ Afiliados & Black Friday' },
           { id: 'clt', label: '⚖️ Transparência CLT' },
         ].map((m) => (
           <button
@@ -1596,11 +1628,12 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
               <button
                 type="button"
                 onClick={() => setIsFloatingOpen(false)}
-                title="Fechar Painel (X)"
+                title="Fechar Painel (ESC ou clique aqui)"
                 aria-label="Fechar Painel IA"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-600 text-white transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
+                className="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
+                <span>Fechar</span>
               </button>
             </div>
           </div>

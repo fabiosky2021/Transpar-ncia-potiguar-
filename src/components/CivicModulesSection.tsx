@@ -13,6 +13,7 @@ import {
   Bot,
   Building2,
   MessageSquare,
+  X,
 } from 'lucide-react';
 import {
   CandidatoItem,
@@ -334,8 +335,22 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
                   value={numeroSecaoInput}
                   onChange={(e) => setNumeroSecaoInput(e.target.value)}
                   placeholder="Ex: 032, 015, 058, 124, 210 ou Mãe Luíza..."
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-sm text-[var(--text-color)] font-mono"
+                  className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-sm text-[var(--text-color)] font-mono"
                 />
+                {numeroSecaoInput && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNumeroSecaoInput('');
+                      setResultadoSecao(null);
+                    }}
+                    title="Limpar e fechar pesquisa"
+                    aria-label="Limpar e fechar pesquisa"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[var(--border-color)]/70 hover:bg-rose-500 hover:text-white text-[var(--text-muted)] flex items-center justify-center cursor-pointer transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
               <button
                 type="submit"
@@ -372,9 +387,9 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
             </div>
           </form>
 
-          {/* Card de Retorno Estruturado do PotiguarBot IA (Colégio Eleitoral, Horário Sugerido e Data) */}
+          {/* Card de Retorno Estruturado do PotiguarBot IA (Colégio Eleitoral, Horário Sugerido e Data) com Botão Fechar Explícito */}
           {resultadoSecao && (
-            <div className="subcard-clean p-5 space-y-3.5">
+            <div className="subcard-clean p-5 space-y-3.5 relative border-2 border-emerald-500/30">
               <div className="flex items-center justify-between gap-2 flex-wrap border-b border-[var(--border-color)] pb-2.5">
                 <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-color)]">
                   <Bot className="w-4 h-4" />
@@ -382,9 +397,25 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
                     Retorno do PotiguarBot IA · Seção Nº {resultadoSecao.numeroSecao}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono font-semibold text-[var(--success-color)]">
-                  {resultadoSecao.zonaEleitoral}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono font-semibold text-[var(--success-color)]">
+                    {resultadoSecao.zonaEleitoral}
+                  </span>
+                  {/* Botão de Fechar o Resultado da Pesquisa */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResultadoSecao(null);
+                      setNumeroSecaoInput('');
+                    }}
+                    title="Fechar este resultado de pesquisa"
+                    aria-label="Fechar resultado de pesquisa"
+                    className="px-2.5 py-1 rounded-full bg-rose-500/15 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-400 text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Fechar</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-2.5 text-xs">

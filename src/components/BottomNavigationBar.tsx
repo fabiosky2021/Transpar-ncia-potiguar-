@@ -96,16 +96,16 @@ export const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
           <span className="text-[10px] tracking-tight">Alertas</span>
         </button>
 
-        {/* Tab 4: Favoritos (Colinha RN) */}
+        {/* Tab 4: Vitrine & Shop Oficial Fábio Kauã */}
         <button
           type="button"
           onClick={() => onSelectTab('favoritos')}
           className={`flex flex-col items-center space-y-0.5 transition-colors group relative cursor-pointer ${
             activeTab === 'favoritos'
-              ? 'text-[#fdb913] font-bold'
+              ? 'text-amber-400 font-bold'
               : 'text-white/75 hover:text-white font-medium'
           }`}
-          aria-label="Favoritos e Colinha"
+          aria-label="Loja e Vitrine Oficial"
           aria-current={activeTab === 'favoritos' ? 'page' : undefined}
         >
           <svg
@@ -113,17 +113,12 @@ export const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
             viewBox="0 0 24 24"
           >
             <path
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
-          {favoritesCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-[#e8622c] text-white text-[9px] font-extrabold w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none">
-              {favoritesCount}
-            </span>
-          )}
-          <span className="text-[10px] tracking-tight">Favoritos</span>
+          <span className="text-[10px] tracking-tight">Shop</span>
         </button>
 
         {/* Tab 5: Estúdio PotiguarBot IA */}

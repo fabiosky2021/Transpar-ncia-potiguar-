@@ -133,12 +133,40 @@
         "status": { "type": "string" }
       },
       "required": ["autor", "bairro", "eixo", "necessidade", "apoios"]
+    },
+    "EleicoesUSA": {
+      "title": "EleicoesUSA",
+      "description": "Dados da apuração das eleições presidenciais dos EUA e enquete da comunidade",
+      "type": "object",
+      "properties": {
+        "updatedAt": { "type": "string" },
+        "totalElectoralVotes": { "type": "number" },
+        "candidates": { "type": "array" }
+      }
+    },
+    "FatoOuFake": {
+      "title": "FatoOuFake",
+      "description": "Artigo ou checagem de fatos com votos da comunidade",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "believedFato": { "type": "number" },
+        "believedFake": { "type": "number" }
+      }
     }
   },
   "firestore": {
     "candidatos/{id}": {
       "schema": "Candidato",
       "description": "Coleção de candidatos"
+    },
+    "eleicoes_usa/{id}": {
+      "schema": "EleicoesUSA",
+      "description": "Coleção de apuração e enquete das eleições dos EUA"
+    },
+    "fato_ou_fake/{id}": {
+      "schema": "FatoOuFake",
+      "description": "Coleção de checagens de fatos e votos comunitários"
     },
     "enquete/resultado": {
       "schema": "Enquete",

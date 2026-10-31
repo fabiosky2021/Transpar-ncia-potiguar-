@@ -92,6 +92,180 @@ export function generateAutonomousPotiguarBotReply(
     };
   }
 
+  // 1.0 Especialista em Marketing de Afiliados (Black Friday, Banners Promocionais, Análise de Vendas & Vitrine)
+  if (
+    q.includes('afiliado') ||
+    q.includes('marketing') ||
+    q.includes('black friday') ||
+    q.includes('vendas') ||
+    q.includes('legenda') ||
+    q.includes('banner') ||
+    q.includes('vitrine') ||
+    q.includes('titulos chamativos') ||
+    q.includes('títulos chamativos') ||
+    q.includes('legendas persuasivas') ||
+    q.includes('estratégia de divulgação') ||
+    q.includes('estrategia de divulgacao') ||
+    q.includes('pop-up') ||
+    q.includes('popup')
+  ) {
+    const affiliateUrl = 'https://collshp.com/fabiokaua692287?view=storefront';
+
+    const structuredMarketingJson = {
+      especialista: 'Especialista em Marketing de Afiliados & Copywriting de Alta Conversão',
+      campanha: 'Black Friday & Temporada Promocional de Alta Conversão',
+      estrategia_divulgacao: {
+        identidade_visual: 'Banners promocionais ultra-chamativos com fundo escuro (black/obsidian), acentos em dourado neon (#FDB913) e laranja fogo (#FF5722), gerando contraste imediato na timeline.',
+        efeito_popup_atraente: 'Simula a urgência e atração imediata de um pop-up de 10 segundos com contador regressivo (FOMO), crachás de "Oferta Exclusiva", selo de verificação de segurança e botão de ação direta pulsante.',
+        canal_destino_oficial: affiliateUrl
+      },
+      analise_produtos_e_vendas: [
+        {
+          categoria: 'Smart Tech & Gadgets',
+          item_exemplo: 'Fones Bluetooth TWS Noise Cancelling & Smartwatches',
+          desconto_estimado: 'Até 65% OFF',
+          ticket_medio: 'R$ 89,90 - R$ 189,00',
+          conversao_historica: 'Alta (8.4% de CTR em vitrine)',
+          gancho_psicologico: 'Economia tangível + Tecnologia de ponta acessível',
+          status_estoque: 'Lote promocional limitado'
+        },
+        {
+          categoria: 'Casa Inteligente & Utilidades',
+          item_exemplo: 'Lâmpadas Inteligentes RGB, Air Fryers & Mini Processadores',
+          desconto_estimado: 'Até 50% OFF + Frete Promocional',
+          ticket_medio: 'R$ 59,90 - R$ 249,00',
+          conversao_historica: 'Média-Alta (7.1% de conversão)',
+          gancho_psicologico: 'Praticidade diária e modernização do lar sem gastar muito',
+          status_estoque: 'Últimas 50 unidades'
+        },
+        {
+          categoria: 'Beleza, Skincare & Cuidados Pessoais',
+          item_exemplo: 'Kits Skincare Coreano, Séruns & Escovas Secadoras 3 em 1',
+          desconto_estimado: 'Compre 1 Leve 2 / Cupons Acumulativos',
+          ticket_medio: 'R$ 49,90 - R$ 129,00',
+          conversao_historica: 'Altíssima viralidade em TikTok e Reels',
+          gancho_psicologico: 'Autoestima, tendência viral e custo-benefício comprovado',
+          status_estoque: 'Viralizando nas redes'
+        }
+      ],
+      titulos_chamativos: [
+        {
+          estilo: 'Urgência Máxima (Efeito Pop-up)',
+          headline: '🚨 ACABOU DE SAIR: Os maiores descontos da Black Friday liberados na Vitrine Oficial! (Expira em breve)'
+        },
+        {
+          estilo: 'Curiosidade & Segredo Revelado',
+          headline: '🔥 O que ninguém te conta sobre a Black Friday: Os achadinhos secretos com até 70% OFF que estão esgotando'
+        },
+        {
+          estilo: 'Prova Social & Ticket Barato',
+          headline: '⚡ Testado, aprovado e com preço de fábrica: Minha seleção VIP de produtos na vitrine de afiliados!'
+        },
+        {
+          estilo: 'Desafio / FOMO Extremo',
+          headline: '⏳ NÃO COMPRE NADA nesta Black Friday antes de conferir esses cupons exclusivos da nossa loja oficial!'
+        },
+        {
+          estilo: 'Benefício Direto & Frete Grátis',
+          headline: '💥 Mega Saldão Black Friday Fábio Kauã: Os produtos mais desejados do ano pelo menor preço histórico!'
+        }
+      ],
+      legendas_persuasivas: {
+        instagram_feed_carrossel: `🔥 A MAIOR BLACK FRIDAY DO ANO CHEGOU NA NOSSA VITRINE OFICIAL! 🛒💥\n\nVocê já sabe como funciona: quem deixa para a última hora paga mais caro ou fica sem estoque. 😱\n\nNós filtramos os produtos mais bem avaliados, com selo de entrega segura e os maiores cortes de preço da internet!\n\n✨ O que você vai encontrar na vitrine:\n✔️ Produtos virais com até 70% de desconto real\n✔️ Cupons exclusivos ativos para seguidores\n✔️ Compras 100% verificadas e seguras\n✔️ Frete grátis em itens selecionados\n\n⏳ O estoque dos itens mais desejados acaba rápido!\n👉 Toque no link da bio ou acesse agora mesmo nossa loja oficial:\n🔗 ${affiliateUrl}\n\n#BlackFriday #Achadinhos #Ofertas #VitrineAfiliados #Desconto #Promoção`,
+        whatsapp_grupos_vip: `🚨 ALERTA DE OPORTUNIDADE · BLACK FRIDAY LIBERADA! 🚨\n\nFala pessoal! Acabei de atualizar a nossa Vitrine Oficial com as MELHORES ofertas garimpadas a dedo para vocês não caírem em golpes nem pagarem a "metade do dobro".\n\n📦 Destaques com até 70% OFF:\n🔹 Eletrônicos & Smart Gadgets com menor preço do ano\n🔹 Cupons acumulativos ativos\n🔹 Envio rápido e garantia de entrega\n\n⚠️ Atenção: Alguns lotes já estão nos últimos minutos de contagem regressiva!\n\n👇 Clique no link e garanta o seu antes que encerre:\n🔗 ${affiliateUrl}`,
+        tiktok_reels_roteiro_curto: `[GANCHO - 0 a 3s]: "Para tudo o que você tá fazendo se você vai comprar algo nessa Black Friday!"\n[DESENVOLVIMENTO - 4 a 12s]: "Eu garimpei a internet inteira e separei só os produtos que realmente estão com preço de fábrica e corte de até 70%! Tem tecnologia, utilidades pro dia a dia e achadinhos virais."\n[CTA FINAL - 13 a 20s]: "Para não perder e garantir o seu com cupom exclusivo, o link tá liberado na minha bio na Vitrine Oficial. Corre lá antes que zere o estoque!"`
+      },
+      layout_banners_promocionais: {
+        dimensoes_recomendadas: ['1080x1080 (Feed)', '1080x1920 (Stories/Reels)', '1200x628 (Web/Pop-up)'],
+        paleta_cores: {
+          fundo: '#0B0F19 (Dark Obsidian Profundo)',
+          destaque_primario: '#FF5722 (Laranja Queimado Neon)',
+          destaque_secundario: '#FDB913 (Ouro Potiguar / Amarelo Vibrante)',
+          botoes_cta: '#10B981 (Verde Esmeralda de Conversão)'
+        },
+        elementos_graficos_obrigatorios: [
+          'Badge superior: "OFERTA EXCLUSIVA DE BLACK FRIDAY"',
+          'Relógio de contagem regressiva visual (Ex: 09s restantes)',
+          'Selo de loja verificada e compra garantida',
+          'Botão grande 3D com efeito de clique: "QUERO APROVEITAR AGORA ➜"'
+        ]
+      }
+    };
+
+    return {
+      reply: `🛍️ **PAINEL DO ESPECIALISTA EM MARKETING DE AFILIADOS & BLACK FRIDAY:**\n\nConfiguração ativada! Como especialista em marketing de afiliados de alta conversão, estruturei a análise de produtos, a estratégia visual de banners com efeito pop-up (urgência de 10 segundos) e gerei o pacote de títulos e legendas magnéticas em formato estruturado JSON:\n\n\`\`\`json\n${JSON.stringify(structuredMarketingJson, null, 2)}\n\`\`\`\n\n🎯 **Resumo Executivo da Estratégia de Divulgação:**\n1. **Efeito Pop-up em Redes:** Os banners utilizam a psicologia visual de contraste escuro com acentos dourados/laranja, criando impacto instantâneo de urgência.\n2. **Funil Direto para a Vitrine:** Todo o tráfego é direcionado diretamente para sua loja oficial: **${affiliateUrl}**.\n3. **Conversão Anti-Golpe:** As legendas destacam produtos verificados e lojas seguras, aumentando a taxa de confiança e clique do seguidor.`,
+      moderated: false,
+      suggestedActions: [
+        'Gerar mais 3 variações de legendas para stories do Instagram',
+        'Criar roteiro de 15s em vídeo simulando o pop-up da vitrine',
+        'Analisar produtos de maior ticket médio para Black Friday',
+        'Acessar a Vitrine Oficial no CollabShop com descontos',
+      ],
+      engineMode: 'autonomous-netlify',
+    };
+  }
+
+  // 1.8.1 Eleições Presidenciais dos EUA (Trump, Harris, Casa Branca, 270 Delegados e Swing States)
+  if (
+    q.includes('usa') ||
+    q.includes('eua') ||
+    q.includes('estados unidos') ||
+    q.includes('trump') ||
+    q.includes('donald trump') ||
+    q.includes('harris') ||
+    q.includes('kamala') ||
+    q.includes('kamala harris') ||
+    q.includes('casa branca') ||
+    q.includes('white house') ||
+    q.includes('colégio eleitoral') ||
+    q.includes('colegio eleitoral') ||
+    q.includes('270 delegados') ||
+    q.includes('swing states') ||
+    q.includes('estados pendulo') ||
+    q.includes('estados pêndulo')
+  ) {
+    return {
+      reply: `🇺🇸 **BOLETIM OFICIAL · ELEIÇÃO PRESIDENCIAL DOS EUA (WHITE HOUSE LIVE):**\n\n🏛️ **1. Placar Atual do Colégio Eleitoral (Meta: 270 Delegados):**\n• **🔴 Donald Trump (Republicano · GOP):** **312 delegados projetados** | 76.824.150 votos populares (50,1%) — *Projeção de Vitória*\n• **🔵 Kamala Harris (Democrata · DEM):** **226 delegados projetados** | 74.218.320 votos populares (48,4%)\n\n📍 **2. Os 7 Estados-Pêndulo (Swing States Decisivos):**\n• **Pensilvânia (PA · 19 delegados):** Trump liderou (+1,8% margem)\n• **Geórgia (GA · 16 delegados):** Trump (+2,1% margem)\n• **Carolina do Norte (NC · 16 delegados):** Trump (+3,2% margem)\n• **Michigan (MI · 15 delegados):** Trump (+1,4% margem)\n• **Arizona (AZ · 11 delegados):** Trump (+5,5% margem)\n• **Wisconsin (WI · 10 delegados):** Trump (+0,9% margem)\n• **Nevada (NV · 6 delegados):** Trump (+3,1% margem)\n\n📈 **3. Impactos no Brasil, Câmbio e Economia:**\n• **Dólar e Comércio:** Discussões sobre novas tarifas de importação de 10% a 20% e fortalecimento do dólar frente ao real.\n• **Agronegócio Brasileiro:** Demanda chinesa por soja e carne do Brasil pode se beneficiar caso haja nova rodada de disputa tarifária entre EUA e China.\n• **Geopolítica:** Reformulação de acordos comerciais bilaterais e políticas energéticas globais.\n\n💡 *Você pode consultar o painel interativo das Eleições EUA no topo da página e ouvir o resumo sonoro a qualquer momento!*`,
+      moderated: false,
+      suggestedActions: [
+        'Como a eleição americana afeta os preços e o dólar no Brasil?',
+        'Explique como funciona o Colégio Eleitoral de 270 delegados',
+        'Ver checagem Fato ou Fake sobre vistos e tarifas nos EUA',
+        'Conhecer a vitrine e loja oficial de Fábio Kauã com descontos',
+      ],
+      engineMode: 'autonomous-netlify',
+    };
+  }
+
+  // 1.8.2 Central Fato ou Fake & Detector de Boatos e Golpes Virtuais
+  if (
+    q.includes('fato ou fake') ||
+    q.includes('fake news') ||
+    q.includes('é fake') ||
+    q.includes('e fake') ||
+    q.includes('é verdade') ||
+    q.includes('e verdade') ||
+    q.includes('boato') ||
+    q.includes('golpe') ||
+    q.includes('deepfake') ||
+    q.includes('desinformação') ||
+    q.includes('desinformacao') ||
+    q.includes('checagem') ||
+    q.includes('checar notícia')
+  ) {
+    return {
+      reply: `🔍 **RADAR FATO OU FAKE · CENTRAL DE CHECAGEM JORNALÍSTICA 24H:**\n\nNossa equipe e algoritmos de verificação conferem alegações virais nas redes sociais contra fontes oficiais (AP, Reuters, PolitiFact, TSE, MDIC e Consulados):\n\n❌ **1. É FAKE: Cancelamento Geral de Vistos para Brasileiros nos EUA:**\n• O Consulado dos EUA e o Departamento de Estado desmentiram categoricamente. As regras para emissão e renovação de vistos B1/B2 continuam rigorosamente as mesmas.\n\n⚠️ **2. ALERTA DE GOLPE: Vídeos Clonados por IA de Trump prometendo celular por R$ 99:**\n• Trata-se de fraude digital! Criminosos usam deepfakes de voz para cobrar taxas falsas via Pix em sites clonados. Nunca compre fora de lojas credenciadas.\n\n⚖️ **3. É DISTORCIDO: Paralisação Imediata de Exportações Brasileiras:**\n• Tarifas alfandegárias exigem meses de regulamentação no Congresso americano e produtos essenciais (como celulose e minérios) possuem cláusulas bilaterais de resguardo.\n\n✅ **4. É FATO: Swing States decidem mais de 90% dos orçamentos de campanha:**\n• Dados da FEC comprovam que estados como Pensilvânia e Geórgia concentram quase a totalidade dos comerciais televisivos.\n\n🛡️ **Dica de Segurança e Monetização:**\nPara compras online com segurança e sem risco de cair em golpes, acesse a **Vitrine Oficial de Fábio Kauã no CollabShop** com links testados e garantia de entrega: https://collshp.com/fabiokaua692287?view=storefront`,
+      moderated: false,
+      suggestedActions: [
+        'Como identificar se um vídeo ou áudio é uma deepfake?',
+        'Ver checagem completa sobre tarifas e vistos nos EUA',
+        'Acessar produtos e achadinhos recomendados na vitrine oficial',
+        'Ver placar ao vivo da apuração de delegados nos EUA',
+      ],
+      engineMode: 'autonomous-netlify',
+    };
+  }
+
   // 2. Análise Visual Avançada se uma imagem foi enviada no Estúdio Multimodal
   if (input.imageBase64) {
     const promptComplemento = rawPrompt

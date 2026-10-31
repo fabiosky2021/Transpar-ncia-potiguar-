@@ -12,6 +12,16 @@ service cloud.firestore {
       allow read: if true;
     }
 
+    match /eleicoes_usa/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id);
+    }
+
+    match /fato_ou_fake/{id} {
+      allow get, list: if true;
+      allow create, update: if isValidId(id);
+    }
+
     match /candidatos/{id} {
       allow get, list: if true;
       allow create, update: if isValidId(id)

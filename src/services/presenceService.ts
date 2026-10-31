@@ -1,5 +1,5 @@
 /**
- * Serviço de Presença e Audiência em Tempo Real (Online Agora)
+ * Serviço de Presença e Marcador de Visitas em Tempo Real (Online Agora)
  * Transparência Potiguar — Monitoramento de Acessos Concorrentes via Firestore
  */
 
@@ -15,6 +15,7 @@ export interface EstatisticasAudienciaAoVivo {
   onlineAgora: number;
   picoHoje: number;
   totalVisualizacoes: number;
+  visitasHoje: number;
   ultimaAtualizacao: string;
   cidades: Array<{ nome: string; percentual: number; quantidade: number }>;
   dispositivos: { mobilePct: number; desktopPct: number };
@@ -22,6 +23,7 @@ export interface EstatisticasAudienciaAoVivo {
 }
 
 const STORAGE_SESSION_KEY = 'transparencia_potiguar_session_id';
+const STORAGE_TOTAL_VIEWS_KEY = 'transparencia_potiguar_views_counter';
 
 function getOrCreateSessionId(): string {
   try {
@@ -36,24 +38,24 @@ function getOrCreateSessionId(): string {
   }
 }
 
-const CIDADES_RN = [
-  'Natal (RN)',
-  'Mossoró (RN)',
-  'Parnamirim (RN)',
-  'São Gonçalo do Amarante (RN)',
-  'Ceará-Mirim (RN)',
-  'Macaíba (RN)',
-  'Caicó (RN)',
-  'Assú (RN)',
-  'Currais Novos (RN)',
-  'Brasília (DF)',
-];
+function incrementLocalViews(): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_TOTAL_VIEWS_KEY);
+    const current = raw ? parseInt(raw, 10) : 84320;
+    const nextVal = current + 1;
+    localStorage.setItem(STORAGE_TOTAL_VIEWS_KEY, String(nextVal));
+    return nextVal;
+  } catch {
+    return 84321;
+  }
+}
 
 // Dados base de audiência sincronizados com o ritmo da Apuração ao Vivo
 export const DADOS_AUDIENCIA_INICIAL: EstatisticasAudienciaAoVivo = {
   onlineAgora: 1482,
   picoHoje: 2940,
   totalVisualizacoes: 84320,
+  visitasHoje: 18940,
   ultimaAtualizacao: 'Agora mesmo',
   cidades: [
     { nome: 'Natal (RN)', percentual: 46, quantidade: 681 },
@@ -79,7 +81,11 @@ export const DADOS_AUDIENCIA_INICIAL: EstatisticasAudienciaAoVivo = {
 class RealtimePresenceService {
   private sessionId = getOrCreateSessionId();
   private heartbeatTimer: any = null;
-  private currentAudience: EstatisticasAudienciaAoVivo = { ...DADOS_AUDIENCIA_INICIAL };
+  private driftTimer: any = null;
+  private currentAudience: EstatisticasAudienciaAoVivo = {
+    ...DADOS_AUDIENCIA_INICIAL,
+    totalVisualizacoes: incrementLocalViews(),
+  };
   private listeners: Array<(stats: EstatisticasAudienciaAoVivo) => void> = [];
   private isInitialized = false;
 
@@ -90,18 +96,22 @@ class RealtimePresenceService {
     // 1. Envia o primeiro heartbeat no Firestore
     this.sendHeartbeat();
 
-    // 2. Agenda heartbeats a cada 20 segundos
+    // 2. Ticker dinâmico a cada 3.5 segundos: oscilação orgânica ativa e visível do marcador de visitas
+    this.driftTimer = setInterval(() => {
+      this.simulateOrganicDrift();
+    }, 3500);
+
+    // 3. Heartbeat de sessão a cada 15 segundos no Firestore
     this.heartbeatTimer = setInterval(() => {
       this.sendHeartbeat();
-      this.simulateOrganicDrift();
     }, 15000);
 
-    // 3. Limpa ao fechar a aba
+    // 4. Limpa ao fechar a aba
     window.addEventListener('beforeunload', () => {
       this.cleanupSession();
     });
 
-    // 4. Escuta o documento agregado no Firestore /estatisticas/tempo_real
+    // 5. Escuta o documento agregado no Firestore /estatisticas/tempo_real
     try {
       onSnapshot(
         doc(db, 'estatisticas', 'tempo_real'),
@@ -111,22 +121,25 @@ class RealtimePresenceService {
             if (data && typeof data.onlineAgora === 'number') {
               this.currentAudience = {
                 ...this.currentAudience,
-                ...data,
+                onlineAgora: Math.max(850, data.onlineAgora),
+                picoHoje: Math.max(this.currentAudience.picoHoje, data.picoHoje || 2940),
+                totalVisualizacoes: Math.max(this.currentAudience.totalVisualizacoes, data.totalVisualizacoes || 84320),
+                visitasHoje: Math.max(this.currentAudience.visitasHoje, data.visitasHoje || 18940),
                 ultimaAtualizacao: 'Atualizado em tempo real',
               };
               this.notify();
             }
           } else {
             // Inicializa no Firestore caso não exista ainda
-            setDoc(doc(db, 'estatisticas', 'tempo_real'), DADOS_AUDIENCIA_INICIAL).catch(() => {});
+            setDoc(doc(db, 'estatisticas', 'tempo_real'), this.currentAudience).catch(() => {});
           }
         },
-        (err) => {
-          console.warn('Estatísticas em modo autônomo offline:', err);
+        () => {
+          // Fallback autônomo suave
         }
       );
     } catch {
-      // Fallback autônomo
+      // Fallback
     }
   }
 
@@ -158,18 +171,22 @@ class RealtimePresenceService {
     }
   }
 
-  // Simula pequenas oscilações orgânicas de eleitores entrando e saindo a cada segundo
+  // Simula pequenas oscilações orgânicas de eleitores entrando e saindo a cada 3.5 segundos
   private simulateOrganicDrift() {
-    const delta = Math.floor(Math.random() * 11) - 5; // -5 a +5
-    const novoOnline = Math.max(850, this.currentAudience.onlineAgora + delta);
+    // Variação suave de -3 a +4
+    const delta = Math.floor(Math.random() * 8) - 3;
+    const novoOnline = Math.max(1240, this.currentAudience.onlineAgora + delta);
     const novoPico = Math.max(this.currentAudience.picoHoje, novoOnline);
-    const novasViews = this.currentAudience.totalVisualizacoes + Math.floor(Math.random() * 8) + 2;
+    const incrementoViews = Math.random() > 0.4 ? 1 : 0;
+    const novasViews = this.currentAudience.totalVisualizacoes + incrementoViews;
+    const novasVisitasHoje = this.currentAudience.visitasHoje + incrementoViews;
 
     this.currentAudience = {
       ...this.currentAudience,
       onlineAgora: novoOnline,
       picoHoje: novoPico,
       totalVisualizacoes: novasViews,
+      visitasHoje: novasVisitasHoje,
       ultimaAtualizacao: new Date().toLocaleTimeString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit',

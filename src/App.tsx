@@ -37,21 +37,15 @@ import {
 import { PWAInstallButton, OfflineIndicator } from './components/PWAInstallButton';
 import { db, handleFirestoreError, OperationType } from './lib/firebase';
 import { doc, collection, onSnapshot, updateDoc, getDoc, addDoc, setDoc } from 'firebase/firestore';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import { CivicModulesSection } from './components/CivicModulesSection';
 import { MultimodalStudioChat, StudioChatMessage } from './components/MultimodalStudioChat';
-import { SegundoTurnoMonitor24h } from './components/SegundoTurnoMonitor24h';
-import { PrimeirasNoticiasSlides24h } from './components/PrimeirasNoticiasSlides24h';
-import { PanoramaPoliticoRN2026Section } from './components/PanoramaPoliticoRN2026Section';
-import { RadarTransparenciaSection } from './components/RadarTransparenciaSection';
 import { SoundNotificationCenter } from './components/SoundNotificationCenter';
 import { soundNotificationManager } from './services/soundNotificationService';
-import { AtualizacaoLegislativaSection } from './components/AtualizacaoLegislativaSection';
-import { PotiguarPortalHomeSection } from './components/PotiguarPortalHomeSection';
 import { BottomNavigationBar, BottomNavTab } from './components/BottomNavigationBar';
 import { AffiliateStorefrontShowcase } from './components/AffiliateStorefrontShowcase';
 import { ShopStorefrontPopup } from './components/ShopStorefrontPopup';
-import { ApuracaoRealtimeSection } from './components/ApuracaoRealtimeSection';
+import { USAElectionsSection } from './components/USAElectionsSection';
+import { FatoOuFakeSection } from './components/FatoOuFakeSection';
+import { MonetizationStickyBanner } from './components/MonetizationStickyBanner';
 import { OnlineVisitorsBadge } from './components/OnlineVisitorsBadge';
 import {
   INITIAL_PROPOSTAS_TSE,
@@ -378,14 +372,14 @@ export default function App() {
     {
       id: 'welcome-1',
       sender: 'bot',
-      text: 'Olá! Sou o PotiguarBot IA, seu ESTÚDIO DE CRIAÇÃO MULTIMODAL & PAINEL PROFISSIONAL DE CONTEÚDO para o Rio Grande do Norte (Eleições 2026, Cidadania e Transparência Jurídica CLT).\n\n🎨 **Capacidades Disponíveis:**\n• **Entrada por Texto:** Crie posts para WhatsApp e redes sociais, roteiros de áudio/vídeo e consulte dados do TSE e da CLT.\n• **Entrada por Voz (Microfone):** Fale comigo no botão de microfone ativo com transcrição em tempo real e resposta em voz masculina natural.\n• **Upload de Imagem & Visão Avançada:** Envie ou arraste panfletos, cartazes e documentos para análise visual detalhada, extração de texto e checagem de CNPJ.\n• **Sugestão de Ações em Botões:** Utilize as sugestões rápidas abaixo do campo de texto ou os botões de ação após cada resposta.\n\n«Fonte: Estúdio de Criação PotiguarBot IA · TSE & Legislação Oficial\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Estúdio Multimodal Ativo»',
+      text: 'Olá! Sou o PotiguarBot IA, seu ESTÚDIO DE CRIAÇÃO MULTIMODAL & RADAR FATO OU FAKE 24H (Eleições Presidenciais dos EUA, Checagem de Fatos e Transparência).\n\n🎨 **Capacidades Multimodais Ativas:**\n• **Entrada por Texto:** Pergunte sobre a Corrida à Casa Branca (Trump vs Harris, 270 Delegados), verifique boatos se são Fato ou Fake e crie roteiros.\n• **Entrada por Voz (Microfone Ativo):** Fale comigo no botão de microfone com transcrição em tempo real e resposta falada em voz natural.\n• **Upload de Imagem & Visão Avançada:** Envie prints de notícias, posts de redes sociais ou panfletos para checagem imediata de autenticidade e detecção de deepfakes.\n• **Sugestão de Ações em Botões:** Use os botões de ação rápida abaixo do campo de texto para navegação e checagens com um clique.\n\n«Fonte: Estúdio de Criação PotiguarBot IA · AP News, Reuters & Fato ou Fake\nData: 30/10/2026\nTipo: Informação verificada\nStatus: Estúdio Multimodal Ativo»',
       timestamp: 'Agora',
       suggestedActions: [
-        '✍️ Criar post para WhatsApp sobre o 2º Turno RN (Allyson 44 x Cadu de Lula 13)',
-        '🎨 Roteiro de vídeo 30s: Passe Livre nos ônibus em Natal',
-        '⚖️ Transparência CLT: Análise da jornada de 4h e PEC 221/2019 (Escala 6x1)',
-        '🔍 Como funciona a análise visual de panfletos no Estúdio?',
-        '🗳️ Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        '🇺🇸 Quem está na frente na eleição para Presidente dos EUA?',
+        '🔍 Essa notícia sobre vistos e tarifas nos EUA é Fato ou Fake?',
+        '🗳️ Como funciona o Colégio Eleitoral e os 270 delegados nos EUA?',
+        '🛍️ Como acessar compras seguras na Loja Oficial de Fábio Kauã?',
+        '⚖️ Transparência CLT: Análise da jornada e PEC 221/2019 (Escala 6x1)',
       ],
     },
   ]);
@@ -395,6 +389,18 @@ export default function App() {
   const [activeBottomTab, setActiveBottomTab] = useState<BottomNavTab>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isSoundCenterOpen, setIsSoundCenterOpen] = useState<boolean>(false);
+  const [isShopPopupOpen, setIsShopPopupOpen] = useState<boolean>(false);
+
+  // Exibe o pop-up da Loja de Afiliado (CollabShop Fábio Kauã com contagem de 10s e botão fechar)
+  useEffect(() => {
+    const jaVistoShop = sessionStorage.getItem('popup_shop_fechado');
+    if (!jaVistoShop) {
+      const timer = setTimeout(() => {
+        setIsShopPopupOpen(true);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const handleSelectBottomTab = (tab: BottomNavTab) => {
     setActiveBottomTab(tab);
@@ -414,11 +420,11 @@ export default function App() {
       soundNotificationManager.playSound('chime');
     } else if (tab === 'favoritos') {
       setIsMobileMenuOpen(false);
-      const favEl =
-        document.getElementById('colinha-politica-2026') ||
-        document.getElementById('enquete-2-turno');
-      if (favEl) {
-        favEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const shopEl = document.getElementById('loja-afiliado');
+      if (shopEl) {
+        shopEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        setIsShopPopupOpen(true);
       }
     } else if (tab === 'menu') {
       setIsMobileMenuOpen(false);
@@ -947,25 +953,20 @@ export default function App() {
       {/* Top Navigation Bar following strict Responsive Multi-Device Contract (Celular, App PWA, Notebook & PC) */}
       <header className="sticky top-0 z-40 bg-[var(--card-bg)]/95 backdrop-blur-md border-b border-[var(--border-color)] px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 w-full max-w-[100vw]">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-2 sm:gap-4 min-w-0">
-          {/* Zone 1: Wordmark with Cultural Compass Logo */}
+          {/* Zone 1: Wordmark with USA Flag & White House Branding */}
           <a
-            href="#portal-home"
-            className="flex items-center gap-2 text-base sm:text-xl font-semibold tracking-tight text-[var(--text-color)] no-underline truncate min-w-0"
+            href="#eleicoes-eua"
+            className="flex items-center gap-2.5 text-base sm:text-xl font-semibold tracking-tight text-[var(--text-color)] no-underline truncate min-w-0"
           >
-            <div className="relative w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full text-[#0a5c43]" fill="none" viewBox="0 0 48 48">
-                <rect fill="#00875a" height="32" rx="4" width="8" x="10" y="8" />
-                <path d="M14 8H26C31.5228 8 36 12.4772 36 18C36 23.5228 31.5228 28 26 28H14V8Z" fill="#fdb913" />
-                <path d="M18 14H25C27.2091 14 29 15.7909 29 18C29 20.2091 27.2091 22 25 22H18V14Z" fill="#0a5c43" />
-                <path d="M25 23L33 37H25L18 25H25Z" fill="#0070ba" opacity="0.95" />
-              </svg>
+            <div className="relative w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 via-slate-800 to-blue-600 p-0.5 shadow-md shrink-0 flex items-center justify-center text-white text-base font-black">
+              🇺🇸
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-[9px] sm:text-[10px] font-bold text-[#0d3830] dark:text-emerald-400 uppercase tracking-wider">
-                Transparência
+              <span className="text-[9px] sm:text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider flex items-center gap-1">
+                White House Live
               </span>
-              <span className="text-sm sm:text-base font-black text-[#0a5c43] dark:text-emerald-300 uppercase tracking-tight">
-                Potiguar
+              <span className="text-sm sm:text-base font-black text-[var(--text-color)] uppercase tracking-tight">
+                USA Elections 24h
               </span>
             </div>
           </a>
@@ -973,34 +974,34 @@ export default function App() {
           {/* Zone 2: Navigation links on wide screens */}
           <nav className="hidden xl:flex items-center gap-5 text-sm font-medium text-[var(--text-muted)] shrink-0">
             <a
-              href="#colinha-politica-2026"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-[var(--accent-color)]"
+              href="#eleicoes-eua"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-black text-red-600 dark:text-red-400 flex items-center gap-1"
             >
-              Colinha RN 2026
+              <span>🏛️</span> Colégio Eleitoral (270)
             </a>
             <a
-              href="#atualizacao-legislativa"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-emerald-600 dark:text-emerald-400"
+              href="#eleicoes-eua"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-black text-blue-600 dark:text-blue-400 flex items-center gap-1"
             >
-              PEC 221/2019 (6x1)
+              <span>📍</span> 7 Swing States
             </a>
             <a
-              href="#utilidade-publica"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
+              href="#fato-ou-fake"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1"
             >
-              Utilidade Pública
+              <span>🔍</span> Fato ou Fake 24h
             </a>
             <a
-              href="#radar-transparencia"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-[var(--accent-color)]"
+              href="#loja-afiliado"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-black text-amber-600 dark:text-amber-400 flex items-center gap-1"
             >
-              Radar de Transparência
+              <span>🛍️</span> Vitrine &amp; Shop Fábio Kauã
             </a>
             <a
               href="#potiguar-bot"
-              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap"
+              className="hover:text-[var(--text-color)] hover:underline underline-offset-4 transition-colors whitespace-nowrap font-semibold text-[var(--text-color)]"
             >
-              PotiguarBot IA
+              <span>🎙️</span> Estúdio IA
             </a>
           </nav>
 
@@ -1008,6 +1009,18 @@ export default function App() {
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Monitor de Pessoas Acessando Agora (Tempo Real) */}
             <OnlineVisitorsBadge variant="header" />
+
+            {/* Botão de Destaque da Loja de Afiliado (CollabShop Fábio Kauã) */}
+            <button
+              type="button"
+              onClick={() => setIsShopPopupOpen(true)}
+              title="Conhecer Minha Loja & Vitrine de Afiliado Oficial (CollabShop Fábio Kauã)"
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-[11px] sm:text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-sm active:scale-95 transition-all border border-emerald-400/50"
+            >
+              <span>🛍️</span>
+              <span className="font-extrabold">Meu Shop</span>
+              <span className="hidden md:inline font-medium text-emerald-100">Afiliado</span>
+            </button>
 
             <button
               type="button"
@@ -1082,505 +1095,81 @@ export default function App() {
         {/* Barra de Navegação Deslizante para Celular, App e Notebook (< xl) — Sem estourar a largura */}
         <div className="xl:hidden max-w-[1200px] mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 mt-2 border-t border-[var(--border-color)] text-xs">
           <a
-            href="#colinha-politica-2026"
-            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--accent-color)] font-semibold whitespace-nowrap no-underline shrink-0"
+            href="#eleicoes-eua"
+            className="px-2.5 py-1 rounded-md bg-red-600/15 text-red-600 dark:text-red-400 font-bold whitespace-nowrap no-underline shrink-0 flex items-center gap-1"
           >
-            Colinha RN 2026
+            <span>🏛️</span> Colégio Eleitoral (270)
           </a>
           <a
-            href="#candidatos-presidente-brasil-2026"
-            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
+            href="#eleicoes-eua"
+            className="px-2.5 py-1 rounded-md bg-blue-600/15 text-blue-600 dark:text-blue-400 font-bold whitespace-nowrap no-underline shrink-0 flex items-center gap-1"
           >
-            Presidente 2026
+            <span>📍</span> 7 Swing States
           </a>
           <a
-            href="#atualizacao-legislativa"
-            className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold whitespace-nowrap no-underline shrink-0"
+            href="#fato-ou-fake"
+            className="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap no-underline shrink-0 flex items-center gap-1"
           >
-            PEC 221/2019 (6x1)
+            <span>🔍</span> Fato ou Fake 24h
           </a>
           <a
-            href="#enquete-2-turno"
-            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
+            href="#loja-afiliado"
+            className="px-2.5 py-1 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold whitespace-nowrap no-underline shrink-0 flex items-center gap-1"
           >
-            Enquete 2º Turno
-          </a>
-          <a
-            href="#utilidade-publica"
-            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
-          >
-            Passe Livre
-          </a>
-          <a
-            href="#radar-transparencia"
-            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--text-color)] font-medium whitespace-nowrap no-underline shrink-0"
-          >
-            Radar TSE
+            <span>🛍️</span> Vitrine &amp; Shop
           </a>
           <a
             href="#potiguar-bot"
-            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--accent-color)] font-semibold whitespace-nowrap no-underline shrink-0"
+            className="px-2.5 py-1 rounded-md bg-[var(--surface-subtle)] text-[var(--accent-color)] font-semibold whitespace-nowrap no-underline shrink-0 flex items-center gap-1"
           >
-            PotiguarBot IA
+            <span>🎙️</span> Estúdio IA
           </a>
         </div>
       </header>
 
       {/* Main Content Container (Responsive across Celular, App, Notebook & Desktop) */}
       <main id="topo" className="flex-1 max-w-[1200px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-12 overflow-x-hidden min-w-0">
-        {/* DESTAQUE PRINCIPAL INICIAL: Apuração de Votos em Tempo Real — Presidente do Brasil & Natal RN (Totalização Oficial TSE Live) */}
-        <ApuracaoRealtimeSection
+        {/* DESTAQUE 1: Eleições Presidenciais dos EUA · Corrida à Casa Branca (Trump vs Harris, 270 Delegados e 7 Swing States) */}
+        <USAElectionsSection
           onAskAgent={(prompt) => {
             setIsFloatingChatOpen(true);
             enviarPerguntaBot(prompt);
           }}
+          onOpenStorefront={() => setIsShopPopupOpen(true)}
         />
 
-        {/* Portal Transparência Potiguar: Branding Cultural, Hero Search, KPI Cards e Áreas de Destaque */}
-        <PotiguarPortalHomeSection
-          onSearchSubmit={(query) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(`Pesquisa no Portal Transparência Potiguar: ${query}`);
-          }}
-          onOpenAgenteIA={(prompt) => {
-            setIsFloatingChatOpen(true);
-            if (prompt) enviarPerguntaBot(prompt);
-          }}
-        />
-
-        {/* Vitrine & Loja de Afiliado Parceira Oficial (Fábio Kauã · CollabShop Storefront) */}
-        <AffiliateStorefrontShowcase
-          affiliateUrl={
-            platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
-            'https://collshp.com/fabiokaua692287?view=storefront'
-          }
-          onOpenEditor={() =>
-            abrirEditorAfiliado(
-              'mobilidade',
-              noticiaMobilidade?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront',
-              noticiaMobilidade?.produtoRecomendado || 'Vitrine Oficial Fábio Kauã (collshp.com)'
-            )
-          }
-        />
-
-        {/* Slides das Primeiras Notícias · Atualização em Tempo Real 24h */}
-        <PrimeirasNoticiasSlides24h
-          boletins={boletinsIA}
-          candidatos={platformData.candidatos}
-          propostas={propostasTSE}
-          isUpdatingBoletim={isUpdatingBoletim}
-          onTriggerDailyUpdate={acionarAtualizacaoDiariaIA}
-          onAskBot={(prompt) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(prompt);
-          }}
-        />
-
-        {/* Colinha Política RN 2026 · Panorama Político do Rio Grande do Norte (Governadores, Deputados, Senadores, Presidente e Mãe Luíza) */}
-        <PanoramaPoliticoRN2026Section
-          candidatos={platformData.candidatos}
-          unlockedAffiliates={unlockedAffiliates}
-          onLikeCandidate={curtirEUnlock}
-          onOpenAffiliateEditor={abrirEditorAfiliado}
+        {/* DESTAQUE 2: Radar FATO OU FAKE 24h · Checagem de Fatos, Boatos, Deepfakes & Alertas Anti-Golpe */}
+        <FatoOuFakeSection
           onAskAgent={(prompt) => {
             setIsFloatingChatOpen(true);
             enviarPerguntaBot(prompt);
           }}
+          onOpenStorefront={() => setIsShopPopupOpen(true)}
         />
 
-        {/* Componente Dedicado de Atualização Legislativa — PEC 221/2019 (Fim da Escala 6x1 · JSON Integrado) */}
-        <AtualizacaoLegislativaSection
-          dadosJson={PEC_221_2019_JSON}
-          onAskPotiguarBot={(prompt) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(prompt);
-          }}
-        />
-
-        {/* Section 2: Simulado de Preferência - 2º Turno (RN) & Conformidade Democrática LGPD (Sem Duplicação de Propostas) */}
-        <section id="monitoramento" className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start min-w-0">
-          {/* Left 8 Columns: Simulado de Preferência - 2º Turno (Natal/RN) com Gráfico Dinâmico Recharts */}
-          <div id="segundo-turno" className="lg:col-span-8 space-y-6 min-w-0">
-            <div id="enquete-2-turno" className="card-clean p-4 sm:p-8 space-y-6 overflow-hidden">
-              <div className="space-y-3 border-b border-[var(--border-color)] pb-4">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-[var(--success-color)]">
-                      Enquete Interativa · Status: {platformData.enqueteSegundoTurno.status.toUpperCase()}
-                    </span>
-                    <span aria-hidden="true">·</span>
-                    {/* Selo dinâmico 'Encerrando em breve' com contador regressivo ao vivo */}
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-semibold">
-                      <Flame className="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" />
-                      <span>{pollCountdown.urgencyLabel}</span>
-                      <span className="font-tabular font-bold text-[var(--text-color)] inline-flex items-center gap-1 ml-1">
-                        <Clock className="w-3 h-3 text-amber-500" />
-                        {pollCountdown.hours}h:{pollCountdown.minutes}m:{pollCountdown.seconds}s
-                      </span>
-                    </span>
-                  </div>
-
-                  {/* Contador de votos totais com animação de contagem suave (tweening) */}
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`font-tabular text-sm font-bold transition-all duration-200 px-2.5 py-1 rounded-lg border ${
-                        isTweeningVotes
-                          ? 'scale-105 bg-emerald-500/15 text-[var(--success-color)] border-emerald-500/40'
-                          : 'bg-[var(--surface-subtle)] text-[var(--text-color)] border-[var(--border-color)]'
-                      }`}
-                    >
-                      Total: {animatedTotalVotos.toLocaleString('pt-BR')} votos
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-xl font-semibold text-[var(--text-color)]">
-                      {platformData.enqueteSegundoTurno.titulo}
-                    </h2>
-                    <p className="text-xs text-[var(--text-muted)]">
-                      Visualização comparativa dinâmica da diferença de votos entre os candidatos no Rio Grande do Norte.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      votarSegundoTurno(userPollVote || 'allyson-bezerra', 12)
-                    }
-                    title="Simular chegada de novos votos para visualizar a animação de contagem suave (tweening)"
-                    className="botao self-start sm:self-auto px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] hover:border-[var(--accent-color)] text-xs font-semibold text-[var(--accent-color)] cursor-pointer whitespace-nowrap"
-                  >
-                    + Simular Lote de Votos
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Bar Chart using Recharts */}
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
-                  <span className="font-semibold text-[var(--text-color)]">
-                    Gráfico Comparativo de Votos (Tempo Real)
-                  </span>
-                  <span className="font-tabular">
-                    Diferença: <strong className="text-[var(--text-color)]">{pollDiffMetrics.diffVotos.toLocaleString('pt-BR')} votos</strong> ({pollDiffMetrics.diffPct} p.p.)
-                  </span>
-                </div>
-
-                <div className="w-full h-56 pt-2 pb-1 px-1 sm:px-2 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] overflow-hidden">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={pollChartData}
-                      layout="vertical"
-                      margin={{ top: 12, right: 62, left: 4, bottom: 8 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        horizontal={false}
-                        stroke="var(--border-color)"
-                      />
-                      <XAxis
-                        type="number"
-                        domain={[0, 'dataMax + 150']}
-                        tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-                        stroke="var(--border-color)"
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="nomeCurto"
-                        width={102}
-                        tick={{ fontSize: 11, fontWeight: 600, fill: 'var(--text-color)' }}
-                        stroke="var(--border-color)"
-                      />
-                      <Tooltip
-                        cursor={{ fill: 'rgba(148, 163, 184, 0.12)' }}
-                        contentStyle={{
-                          backgroundColor: 'var(--card-bg)',
-                          borderColor: 'var(--border-color)',
-                          borderRadius: '8px',
-                          color: 'var(--text-color)',
-                          fontSize: '12px',
-                        }}
-                        formatter={(value: any, _name: any, props: any) => [
-                          `${Number(value).toLocaleString('pt-BR')} votos (${props.payload.percentual
-                            .toFixed(1)
-                            .replace('.', ',')}%)`,
-                          props.payload.partido,
-                        ]}
-                      />
-                      <Bar dataKey="votos" radius={[0, 6, 6, 0]} barSize={32}>
-                        {pollChartData.map((entry) => (
-                          <Cell key={entry.id} fill={entry.cor} />
-                        ))}
-                        <LabelList
-                          dataKey="labelFormatado"
-                          position="right"
-                          style={{
-                            fill: 'var(--text-color)',
-                            fontSize: 11,
-                            fontFamily: 'var(--font-mono)',
-                            fontWeight: 600,
-                          }}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="text-xs text-[var(--text-muted)] flex items-center justify-between">
-                  <span>Liderança no simulado:</span>
-                  <span className="font-semibold text-[var(--text-color)] font-tabular">
-                    {pollDiffMetrics.lider}
-                  </span>
-                </div>
-              </div>
-
-              {/* Interactive Poll Candidate Cards with Official Photos */}
-              <div className="space-y-3.5">
-                {platformData.enqueteSegundoTurno.opcoes.map((opcao) => {
-                  const total = Math.max(1, platformData.enqueteSegundoTurno.totalVotos);
-                  const pct = ((opcao.votos / total) * 100).toFixed(1);
-                  const isSelected = userPollVote === opcao.id;
-                  const stage = candidateImgStage[`poll-${opcao.id}`] ?? 0;
-                  const pollImgSrc =
-                    stage === 0 ? opcao.fotoOficial : stage === 1 ? opcao.fotoFallbackUrl : null;
-
-                  return (
-                    <div
-                      key={opcao.id}
-                      className={`p-5 rounded-xl border transition-all shadow-[var(--subcard-shadow)] ${
-                        isSelected
-                          ? 'border-[var(--accent-color)] bg-[var(--surface-subtle)]'
-                          : 'border-[var(--border-color)] bg-[var(--surface-subtle)]/60'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-[var(--border-color)] bg-[var(--surface-subtle)] shrink-0">
-                            {pollImgSrc ? (
-                              <img
-                                src={pollImgSrc}
-                                alt={`Foto oficial de ${opcao.nome}`}
-                                referrerPolicy="no-referrer"
-                                onError={() => handleCandidateImgError(`poll-${opcao.id}`)}
-                                className="w-full h-full object-cover object-top"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-slate-800 text-white text-xs font-semibold">
-                                {opcao.nome.slice(0, 2).toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-base text-[var(--text-color)]">
-                              {opcao.nome}
-                            </div>
-                            <div className="text-xs text-[var(--text-muted)]">
-                              {opcao.partido} · Foto: {opcao.fonteFotoOficial}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right font-tabular shrink-0">
-                          <div className="text-lg font-semibold text-[var(--text-color)]">
-                            {pct.replace('.', ',')}%
-                          </div>
-                          <div className="text-xs text-[var(--text-muted)]">
-                            {opcao.votos.toLocaleString('pt-BR')} votos
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => votarSegundoTurno(opcao.id)}
-                        className={`w-full py-2 px-3 sm:px-4 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                          isSelected
-                            ? 'bg-[var(--success-color)] text-white'
-                            : 'bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white'
-                        }`}
-                      >
-                        {isSelected ? (
-                          <>
-                            <Check className="w-4 h-4" />
-                            <span>Voto Registrado no Simulado</span>
-                          </>
-                        ) : (
-                          <>
-                            <BarChart3 className="w-4 h-4" />
-                            <span>Simular Voto em {opcao.nome}</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {userPollVote && (
-                <div className="p-3.5 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border-color)] text-xs text-[var(--text-muted)] flex items-center justify-between gap-2">
-                  <span>
-                    Gráfico atualizado com o seu voto! Deseja compartilhar a parcial no WhatsApp?
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      atualizarTextoShareComDadosAoVivo();
-                      setShareModalOpen(true);
-                    }}
-                    className="font-semibold text-[var(--accent-color)] underline cursor-pointer whitespace-nowrap"
-                  >
-                    Compartilhar Parcial
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right 4 Columns: Governance & LGPD Moderation Status Card */}
-          <div className="lg:col-span-4">
-            <div className="card-clean p-6 sm:p-7 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-color)]">
-                <ShieldCheck className="w-4 h-4 text-[var(--success-color)] shrink-0" />
-                <span>Conformidade Democrática & LGPD</span>
-              </div>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                {platformData.politicaPrivacidade.termoUso} Nenhum dado pessoal sensível é rastreado ou comercializado.
-              </p>
-              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)] border-t border-[var(--border-color)]">
-                <span>LGPD: Ativo</span>
-                <span aria-hidden="true">·</span>
-                <span>Moderação IA: Ativa</span>
-                <span aria-hidden="true">·</span>
-                <button
-                  type="button"
-                  onClick={restaurarDadosIniciais}
-                  className="underline hover:text-[var(--text-color)] inline-flex items-center gap-1 cursor-pointer"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Restaurar Contadores Originais</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 2.5: Agente de Monitoramento Eleitoral 24h (Planos TSE 2º Turno, Transição de Governo, Afinidade, Anti-Desinformação e Feedback da Comunidade) */}
-        <SegundoTurnoMonitor24h
-          propostas={propostasTSE}
-          onLikeProposta={ async (propostaId: string) => {
-            const propAtual = propostasTSE.find((p) => p.id === propostaId);
-            if (!propAtual) return;
-            const novoLikes = propAtual.likes + 1;
-            setPropostasTSE((prev) =>
-              prev.map((p) => (p.id === propostaId ? { ...p, likes: novoLikes } : p))
-            );
-            try {
-              await setDoc(doc(db, 'propostasTSE', propostaId), {
-                ...propAtual,
-                likes: novoLikes,
-              });
-            } catch (error) {
-              handleFirestoreError(error, OperationType.WRITE, `propostasTSE/${propostaId}`);
+        {/* DESTAQUE 3 & MONETIZAÇÃO: Vitrine & Loja de Afiliado Parceira Oficial (Fábio Kauã · CollabShop Storefront) */}
+        <div id="loja-afiliado">
+          <AffiliateStorefrontShowcase
+            affiliateUrl={
+              platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
+              'https://collshp.com/fabiokaua692287?view=storefront'
             }
-          }}
-          feedbacks={feedbacksComunidade}
-          onSubmitFeedback={async (novo) => {
-            const docData = {
-              ...novo,
-              apoios: 1,
-              horario: `Terça-feira, ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
-              status: `Vinculado ao Eixo Prioritário: ${novo.eixo}`,
-            };
-            setFeedbacksComunidade((prev) => [{ id: `fb-${Date.now()}`, ...docData }, ...prev]);
-            try {
-              await addDoc(collection(db, 'feedbacksComunidade'), docData);
-            } catch (error) {
-              handleFirestoreError(error, OperationType.CREATE, 'feedbacksComunidade');
+            onOpenEditor={() =>
+              abrirEditorAfiliado(
+                'mobilidade',
+                noticiaMobilidade?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront',
+                noticiaMobilidade?.produtoRecomendado || 'Vitrine Oficial Fábio Kauã (collshp.com)'
+              )
             }
-          }}
-          onApoiarFeedback={async (feedbackId: string) => {
-            const item = feedbacksComunidade.find((f) => f.id === feedbackId);
-            if (!item) return;
-            const novosApoios = item.apoios + 1;
-            setFeedbacksComunidade((prev) =>
-              prev.map((f) => (f.id === feedbackId ? { ...f, apoios: novosApoios } : f))
-            );
-            try {
-              await setDoc(doc(db, 'feedbacksComunidade', feedbackId), {
-                autor: item.autor,
-                bairro: item.bairro,
-                eixo: item.eixo,
-                necessidade: item.necessidade,
-                apoios: novosApoios,
-                horario: item.horario,
-                status: item.status,
-              });
-            } catch {
-              // local update already applied
-            }
-          }}
-          onAskAgentAnalysis={(prompt) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(prompt);
-          }}
-        />
+            onOpenPopup={() => setIsShopPopupOpen(true)}
+          />
+        </div>
 
-        {/* Section 2.8: Radar de Transparência Cívica e Eleitoral (Consolidação TSE, Propostas, Relatos Cidadãos, Avaliações e Análises IA) */}
-        <RadarTransparenciaSection
-          candidatos={platformData.candidatos}
-          avaliacoes={avaliacoes}
-          relatos={relatos}
-          feedbacks={feedbacksComunidade}
-          propostas={propostasTSE}
-          boletins={boletinsIA}
-          historicoEnquete={historicoEnquete}
-          onAskPotiguarBot={(prompt) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(prompt);
-          }}
-          onVotarSegundoTurno={votarSegundoTurno}
-        />
 
-        {/* Section 3: Busca de Local de Votação por Seção Integrada ao PotiguarBot IA + Enquete de Benefícios */}
-        <CivicModulesSection
-          candidatos={platformData.candidatos}
-          boletins={boletinsIA}
-          avaliacoes={avaliacoes}
-          isUpdatingBoletim={isUpdatingBoletim}
-          onTriggerDailyUpdate={acionarAtualizacaoDiariaIA}
-          onSubmitAvaliacao={registrarAvaliacaoCompleta}
-          chatMessages={chatMessages}
-          isBotLoading={isBotLoading}
-          onConsultSecaoInBot={(resultado) => {
-            const horarioAtual = new Date().toLocaleTimeString('pt-BR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            });
-            const userSecaoMsg: StudioChatMessage = {
-              id: `user-secao-${Date.now()}`,
-              sender: 'user',
-              text: `Qual é o meu colégio eleitoral, horário sugerido e data para votar na Seção nº ${resultado.numeroSecao}?`,
-              timestamp: horarioAtual,
-            };
-            const botSecaoMsg: StudioChatMessage = {
-              id: `bot-secao-${Date.now() + 1}`,
-              sender: 'bot',
-              text: resultado.mensagemBotFormatada,
-              timestamp: horarioAtual,
-              suggestedActions: [
-                `Quais linhas de ônibus gratuitas atendem o ${resultado.colegioEleitoral}?`,
-                'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-              ],
-            };
-            setChatMessages((prev) => [...prev, userSecaoMsg, botSecaoMsg]);
-            setIsFloatingChatOpen(true);
-          }}
-          onAskBotAboutSection={(prompt) => {
-            setIsFloatingChatOpen(true);
-            enviarPerguntaBot(prompt);
-          }}
-        />
+
+
+
+
 
         {/* Section 4: Estúdio de Criação Multimodal PotiguarBot IA + Mural Cidadão com Leitura da Última Publicação */}
         <MultimodalStudioChat
@@ -1607,100 +1196,52 @@ export default function App() {
           setIsFloatingOpen={setIsFloatingChatOpen}
         />
 
-        {/* Section 4: Central de Monetização & Configuração de Links de Afiliado */}
+        {/* Central de Monetização Oficial & Vitrine de Afiliado */}
         <section id="afiliados" className="card-clean p-6 sm:p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
             <div>
-              <h2 className="text-xl font-semibold text-[var(--text-color)]">
-                Gestão de Links de Afiliado (Like-to-Unlock)
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Monetização &amp; Parceria Oficial
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-[var(--text-color)]">
+                Vitrine Homologada de Afiliado (CollabShop de Fábio Kauã)
               </h2>
               <p className="text-xs text-[var(--text-muted)]">
-                Substitua o marcador <code className="font-mono">AGUARDANDO_SEU_LINK</code> pelos seus links reais de afiliado para cada card da plataforma.
+                Canal oficial de compras seguras, achadinhos verificados e cupons de desconto vinculados ao portal.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setJsonModalOpen(true)}
-              className="px-3.5 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--text-color)] inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap self-start"
-            >
-              <FileJson className="w-4 h-4" />
-              <span>Exportar JSON Atualizado</span>
-            </button>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsShopPopupOpen(true)}
+                className="px-3.5 py-2 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-color)] hover:border-emerald-500 cursor-pointer"
+              >
+                Testar Pop-up (10s)
+              </button>
+              <a
+                href={platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold no-underline inline-flex items-center gap-1.5 shadow-sm"
+              >
+                <span>Abrir Storefront</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-[var(--border-color)] text-xs text-[var(--text-muted)]">
-                  <th className="py-3 px-4 font-semibold">Card / Posição</th>
-                  <th className="py-3 px-4 font-semibold">Produto Recomendado</th>
-                  <th className="py-3 px-4 font-semibold">Link de Afiliado Configurado</th>
-                  <th className="py-3 px-4 font-semibold text-right">Curtidas</th>
-                  <th className="py-3 px-4 font-semibold text-right">Ação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-color)]">
-                {/* Row 1: Passe Livre Mobilidade */}
-                <tr>
-                  <td className="py-3 px-4 font-semibold text-[var(--text-color)]">
-                    Passe Livre nos Bairros de Natal
-                  </td>
-                  <td className="py-3 px-4 text-xs text-[var(--text-muted)]">
-                    {noticiaMobilidade.produtoRecomendado}
-                  </td>
-                  <td className="py-3 px-4 font-tabular text-xs text-[var(--text-muted)] truncate max-w-[240px]">
-                    {noticiaMobilidade.linkAfiliado}
-                  </td>
-                  <td className="py-3 px-4 font-tabular text-right font-semibold">
-                    {noticiaMobilidade.curtidas.toLocaleString('pt-BR')}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        abrirEditorAfiliado(
-                          'mobilidade',
-                          noticiaMobilidade.linkAfiliado,
-                          noticiaMobilidade.produtoRecomendado
-                        )
-                      }
-                      className="text-xs font-semibold text-[var(--accent-color)] underline cursor-pointer"
-                    >
-                      Configurar
-                    </button>
-                  </td>
-                </tr>
-
-                {/* Rows for Candidates */}
-                {platformData.candidatos.map((cand) => (
-                  <tr key={cand.id}>
-                    <td className="py-3 px-4 font-semibold text-[var(--text-color)]">
-                      {cand.nome}
-                    </td>
-                    <td className="py-3 px-4 text-xs text-[var(--text-muted)]">
-                      {cand.produtoRecomendado}
-                    </td>
-                    <td className="py-3 px-4 font-tabular text-xs text-[var(--text-muted)] truncate max-w-[240px]">
-                      {cand.linkAfiliado}
-                    </td>
-                    <td className="py-3 px-4 font-tabular text-right font-semibold">
-                      {cand.curtidas.toLocaleString('pt-BR')}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          abrirEditorAfiliado(cand.id, cand.linkAfiliado, cand.produtoRecomendado)
-                        }
-                        className="text-xs font-semibold text-[var(--accent-color)] underline cursor-pointer"
-                      >
-                        Configurar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
+            <div className="truncate">
+              <span className="text-[var(--text-muted)] block sm:inline mr-2">Link da Vitrine:</span>
+              <strong className="text-emerald-600 dark:text-emerald-400">
+                {platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront'}
+              </strong>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold text-[11px] self-start sm:self-auto shrink-0">
+              ✓ Ativo e Integrado em Todo o Painel
+            </span>
           </div>
         </section>
       </main>
@@ -1709,7 +1250,7 @@ export default function App() {
       <footer className="border-t border-[var(--border-color)] bg-[var(--card-bg)] py-6 px-4 sm:px-8 mt-12">
         <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text-muted)]">
           <div>
-            <strong>{platformData.meta.plataforma}</strong> · Versão {platformData.meta.versao} · Natal, Rio Grande do Norte
+            <strong>White House Live Monitor · USA Elections 2024–2028</strong> · Radar Fato ou Fake 24h &amp; Parceria CollabShop
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <button
@@ -1717,7 +1258,7 @@ export default function App() {
               onClick={() => setJsonModalOpen(true)}
               className="hover:text-[var(--text-color)] underline cursor-pointer"
             >
-              Política LGPD & JSON v2.1.0
+              Transparência &amp; Dados Abertos
             </button>
             <button
               type="button"
@@ -2109,11 +1650,28 @@ export default function App() {
       {/* Offline Connectivity Indicator for PWA */}
       <OfflineIndicator />
 
+      {/* Marcador de Visita do Site Flutuante e Fixo (Sempre Visível e Funcional) */}
+      <OnlineVisitorsBadge variant="floating-widget" />
+
       {/* Pop-up Especial da Loja de Afiliado (CollabShop Fábio Kauã) com contagem de 10 segundos e botão de fechar */}
       <ShopStorefrontPopup
-        storefrontUrl="https://collshp.com/fabiokaua692287?view=storefront"
-        initialDelaySeconds={1}
+        isOpen={isShopPopupOpen}
+        onClose={() => setIsShopPopupOpen(false)}
+        storefrontUrl={
+          platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
+          'https://collshp.com/fabiokaua692287?view=storefront'
+        }
+        initialDelaySeconds={2}
         lockCloseSeconds={10}
+      />
+
+      {/* Barra Fixa Flutuante de Monetização (Vitrine & Achadinhos Fábio Kauã) */}
+      <MonetizationStickyBanner
+        storefrontUrl={
+          platformData.agenteIA.noticiasUtilidadePublica[0]?.linkAfiliado ||
+          'https://collshp.com/fabiokaua692287?view=storefront'
+        }
+        onOpenStorefrontPopup={() => setIsShopPopupOpen(true)}
       />
     </div>
   );

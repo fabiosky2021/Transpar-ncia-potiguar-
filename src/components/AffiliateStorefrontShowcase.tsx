@@ -16,12 +16,14 @@ import {
 interface AffiliateStorefrontShowcaseProps {
   affiliateUrl?: string;
   onOpenEditor?: () => void;
+  onOpenPopup?: () => void;
   variant?: 'banner' | 'card' | 'compact';
 }
 
 export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcaseProps> = ({
   affiliateUrl = 'https://collshp.com/fabiokaua692287?view=storefront',
   onOpenEditor,
+  onOpenPopup,
   variant = 'card',
 }) => {
   const [copied, setCopied] = useState(false);
@@ -130,6 +132,53 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
             <span>Configurar</span>
           </button>
         )}
+      </div>
+
+      {/* Barra de Acesso Rápido à Vitrine de Afiliado */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-[#0a5c43] text-white shadow-xl border border-emerald-400/40 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-white text-emerald-700 flex items-center justify-center font-bold shadow-lg shrink-0">
+            <ShoppingBag className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-black/40 text-emerald-300 border border-emerald-400/30">
+                Vitrine Oficial de Afiliado
+              </span>
+              <span className="text-xs font-bold text-emerald-100">
+                Fábio Kauã · CollabShop
+              </span>
+            </div>
+            <h4 className="text-base sm:text-lg font-black tracking-tight leading-snug">
+              Produtos &amp; Achadinhos Selecionados
+            </h4>
+            <p className="text-xs text-emerald-100 max-w-xl">
+              Navegue pelas recomendações de compras com segurança e descontos exclusivos diretamente no parceiro oficial.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 shrink-0 self-stretch sm:self-auto">
+          {onOpenPopup && (
+            <button
+              type="button"
+              onClick={onOpenPopup}
+              className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs border border-white/30 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>Ver Pop-up (10s)</span>
+            </button>
+          )}
+          <a
+            href={affiliateUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 font-extrabold text-xs uppercase tracking-wide shadow-lg transition-all transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2 no-underline"
+          >
+            <span>Acessar Storefront</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
       </div>
 
       {/* Grid de Destaques da Loja (Acomoda perfeitamente em telas pequenas e grandes) */}

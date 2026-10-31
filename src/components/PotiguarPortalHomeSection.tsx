@@ -33,6 +33,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
   onOpenColinhaRN,
 }) => {
   const [searchInput, setSearchInput] = useState('');
+  const [activeSearchBanner, setActiveSearchBanner] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<
     'licitacoes' | 'gastos' | 'deputados' | 'cidadania' | 'info-kpi' | null
   >(null);
@@ -40,7 +41,9 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchInput.trim()) return;
-    onSearchSubmit(searchInput.trim());
+    const q = searchInput.trim();
+    setActiveSearchBanner(q);
+    onSearchSubmit(q);
   };
 
   return (
@@ -202,7 +205,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
         </header>
 
         {/* BEGIN: Hero Search Component */}
-        <section className="space-y-1.5" data-purpose="hero-search" id="hero-search">
+        <section className="space-y-2" data-purpose="hero-search" id="hero-search">
           <form
             onSubmit={handleSearch}
             className="relative flex items-center bg-white dark:bg-slate-800 rounded-full p-1.5 pl-4 shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-emerald-900/15 dark:border-emerald-500/25 focus-within:ring-2 focus-within:ring-[#00875a]/40 transition"
@@ -215,6 +218,21 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
               placeholder="O que você procura no RN?"
               className="w-full text-xs sm:text-sm text-gray-800 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 placeholder-gray-400 font-medium"
             />
+            {/* Quick Clear / Close Search Button */}
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput('');
+                  setActiveSearchBanner(null);
+                }}
+                title="Limpar e fechar pesquisa"
+                aria-label="Limpar pesquisa"
+                className="w-7 h-7 rounded-full text-gray-400 hover:text-rose-500 hover:bg-rose-500/10 flex items-center justify-center shrink-0 cursor-pointer mr-1 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             {/* Quick Voice / Mic Button */}
             <button
               type="button"
@@ -244,6 +262,30 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
               <Search className="w-4 h-4 text-white stroke-[2.5]" />
             </button>
           </form>
+
+          {/* Banner de Pesquisa Ativa com Botão Fechar Explícito */}
+          {activeSearchBanner && (
+            <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200 min-w-0">
+                <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="truncate">
+                  Pesquisando por: <strong>"{activeSearchBanner}"</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSearchBanner(null);
+                  setSearchInput('');
+                }}
+                className="px-2.5 py-1 rounded-full bg-rose-500/15 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-400 text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0 shadow-2xs"
+                title="Fechar pesquisa"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Fechar</span>
+              </button>
+            </div>
+          )}
         </section>
 
         {/* BEGIN: KPI Summary Cards Section */}
