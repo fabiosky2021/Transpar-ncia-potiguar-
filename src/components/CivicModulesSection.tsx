@@ -61,7 +61,7 @@ export const LOCAIS_VOTACAO_PADRAO: LocalVotacaoItem[] = [
     bairro: 'Petrópolis / Cidade Alta · Zona Leste',
     horarioSugerido: '09h30 às 11h15 (Fluxo rápido matinal) ou 14h00 às 15h30',
     dataVotacao: 'Domingo, 25/10/2026 (2º Turno · Urnas abertas das 08h00 às 17h00)',
-    linhasOnibus: 'L-46, L-54, N-73, S-50 e linhas via Av. Rio Branco (Catraca Liberada STTU)',
+    linhasOnibus: 'L-46, L-54, N-73, S-50 e linhas via Av. Rio Branco (Operação Regular STTU · Tarifa Convencional)',
   },
   {
     id: 'padre-monte-mae-luiza',
@@ -74,7 +74,7 @@ export const LOCAIS_VOTACAO_PADRAO: LocalVotacaoItem[] = [
     bairro: 'Mãe Luíza / Areia Preta · Zona Leste',
     horarioSugerido: '08h30 às 10h30 (Menor fila pela manhã) ou 13h30 às 15h00',
     dataVotacao: 'Domingo, 25/10/2026 (2º Turno · Urnas abertas das 08h00 às 17h00)',
-    linhasOnibus: 'L-37, L-46, L-54 via Petrópolis / Via Costeira (Catraca Liberada STTU)',
+    linhasOnibus: 'L-37, L-46, L-54 via Petrópolis / Via Costeira (Operação Regular STTU · Tarifa Convencional)',
   },
   {
     id: 'ifrn-central',
@@ -87,7 +87,7 @@ export const LOCAIS_VOTACAO_PADRAO: LocalVotacaoItem[] = [
     bairro: 'Tirol / Lagoa Nova / Alecrim · Zona Leste/Sul',
     horarioSugerido: '10h00 às 11h45 ou 14h15 às 15h45 (Fora do horário de pico)',
     dataVotacao: 'Domingo, 25/10/2026 (2º Turno · Urnas abertas das 08h00 às 17h00)',
-    linhasOnibus: 'S-50, L-54, O-33, N-73 e Corredor Salgado Filho (Catraca Liberada STTU)',
+    linhasOnibus: 'S-50, L-54, O-33, N-73 e Corredor Salgado Filho (Operação Regular STTU · Tarifa Convencional)',
   },
   {
     id: 'ufrn-setor-1',
@@ -100,7 +100,7 @@ export const LOCAIS_VOTACAO_PADRAO: LocalVotacaoItem[] = [
     bairro: 'Lagoa Nova / Capim Macio / Ponta Negra · Zona Sul',
     horarioSugerido: '09h00 às 11h00 ou 13h30 às 15h15 (Atendimento ágil nos setores)',
     dataVotacao: 'Domingo, 25/10/2026 (2º Turno · Urnas abertas das 08h00 às 17h00)',
-    linhasOnibus: 'Circular UFRN, S-50, O-33, L-54, N-73 (Catraca Liberada STTU)',
+    linhasOnibus: 'Circular UFRN, S-50, O-33, L-54, N-73 (Operação Regular STTU · Tarifa Convencional)',
   },
   {
     id: 'polo-zona-oeste',
@@ -113,7 +113,7 @@ export const LOCAIS_VOTACAO_PADRAO: LocalVotacaoItem[] = [
     bairro: 'Cidade da Esperança / Felipe Camarão / Planalto · Zona Oeste',
     horarioSugerido: '08h45 às 10h45 ou 14h00 às 15h30 (Fluxo equilibrado sem filas)',
     dataVotacao: 'Domingo, 25/10/2026 (2º Turno · Urnas abertas das 08h00 às 17h00)',
-    linhasOnibus: 'O-21, O-30, O-33, O-38, O-40, O-59, O-63 (Catraca Liberada STTU)',
+    linhasOnibus: 'O-21, O-30, O-33, O-38, O-40, O-59, O-63 (Operação Regular STTU · Tarifa Convencional)',
   },
   {
     id: 'complexo-noilde-ramalho',
@@ -126,7 +126,7 @@ export const LOCAIS_VOTACAO_PADRAO: LocalVotacaoItem[] = [
     bairro: 'Igapó / Potengi / Pajuçara · Zona Norte',
     horarioSugerido: '09h15 às 11h15 ou 13h45 às 15h30 (Evite o pico das 16h00)',
     dataVotacao: 'Domingo, 25/10/2026 (2º Turno · Urnas abertas das 08h00 às 17h00)',
-    linhasOnibus: 'N-08, N-15, N-25, N-35, N-43, N-60, N-73 (Catraca Liberada STTU)',
+    linhasOnibus: 'N-08, N-15, N-25, N-35, N-43, N-60, N-73 (Operação Regular STTU · Tarifa Convencional)',
   },
 ];
 
@@ -160,7 +160,7 @@ export function resolverLocalPorNumeroSecao(inputBruto: string): ResultadoConsul
   const documentoObrigatorio =
     'Documento oficial com foto (RG, CNH, Passaporte, Carteira de Trabalho ou e-Título com foto)';
 
-  const mensagemBotFormatada = `📍 **Consulta de Seção Eleitoral nº ${secaoFormatada} (PotiguarBot IA)**\n• **Colégio Eleitoral:** ${itemEncontrado.local} (${itemEncontrado.zonaEleitoral})\n• **Endereço:** ${itemEncontrado.endereco} (${itemEncontrado.bairro})\n• **Horário Sugerido pelo Bot:** ${itemEncontrado.horarioSugerido}\n• **Data Oficial:** ${itemEncontrado.dataVotacao}\n• **Ônibus Gratuitos (Passe Livre):** ${itemEncontrado.linhasOnibus}\n• **Documento Obrigatório:** ${documentoObrigatorio}\n\n«Fonte: TRE-RN / TSE\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Local de votação e Passe Livre confirmados»`;
+  const mensagemBotFormatada = `📍 **Consulta de Seção Eleitoral nº ${secaoFormatada} (PotiguarBot IA)**\n• **Colégio Eleitoral:** ${itemEncontrado.local} (${itemEncontrado.zonaEleitoral})\n• **Endereço:** ${itemEncontrado.endereco} (${itemEncontrado.bairro})\n• **Horário Sugerido pelo Bot:** ${itemEncontrado.horarioSugerido}\n• **Data Oficial:** ${itemEncontrado.dataVotacao}\n• **Linhas de Ônibus de Acesso:** ${itemEncontrado.linhasOnibus} (Operação diária convencional com tarifa regular)\n• **Documento Obrigatório:** ${documentoObrigatorio}\n\n«Fonte: TRE-RN / TSE\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Local de votação verificado»`;
 
   return {
     numeroSecao: secaoFormatada,
@@ -461,10 +461,10 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex items-center gap-2 text-xs text-[var(--success-color)]">
-                    <Bus className="w-4 h-4 shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                    <Bus className="w-4 h-4 shrink-0 text-slate-500" />
                     <span>
-                      <strong>Passe Livre:</strong> {resultadoSecao.linhasOnibus}
+                      <strong>Transporte Regular:</strong> {resultadoSecao.linhasOnibus}
                     </span>
                   </div>
                   <button
@@ -603,7 +603,7 @@ export const CivicModulesSection: React.FC<CivicModulesSectionProps> = ({
                   rows={2}
                   value={fezDeBom}
                   onChange={(e) => setFezDeBom(e.target.value)}
-                  placeholder="Ex: Passe livre, obras nos bairros, emendas para hospitais..."
+                  placeholder="Ex: Transporte regular, obras nos bairros, emendas para hospitais..."
                   className="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-xs text-[var(--text-color)]"
                 />
               </div>

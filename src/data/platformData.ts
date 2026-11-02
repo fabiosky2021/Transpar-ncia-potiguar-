@@ -95,7 +95,7 @@ export interface RotaPasseLivre {
   bairrosAtendidos: string;
   linhasPrincipais: string;
   horarioOperacao: string;
-  statusCatraca: 'Catraca Liberada · 100% Gratuito';
+  statusCatraca: string;
   frotaOperante: string;
 }
 
@@ -130,11 +130,11 @@ export const INITIAL_PLATFORM_DATA: PlataformaSpec = {
     instrucaoSistema: POTIGUAR_BOT_SYSTEM_PROMPT,
     noticiasUtilidadePublica: [
       {
-        id: 'passe-livre-bairros',
-        titulo: 'Passe Livre nos Bairros de Natal e RN (STTU & Decreto Estadual nº 35.935/2026)',
+        id: 'vitrine-oficial-fabiokaua',
+        titulo: 'Vitrine Oficial Fábio Kauã (11.11 & Black Friday)',
         descricao:
-          'Confirmado pela STTU Natal e Governo do RN (Resolução-TSE nº 23.751/2026): todas as 62 linhas urbanas de Natal (1.836 viagens, sem precisar de cartão NuBus) e o transporte intermunicipal rodoviário têm passe livre garantido nos turnos de votação (04/10 e 25/10/2026).',
-        curtidas: 1240,
+          'Canal oficial de compras seguras, achadinhos de tecnologia, gadgets e cupons verificados no CollabShop com segurança e entrega garantida para a campanha 11.11 e Black Friday.',
+        curtidas: 1580,
         afiliadoLiberado: true,
         linkAfiliado: 'https://collshp.com/fabiokaua692287?view=storefront',
         produtoRecomendado: 'Vitrine Oficial Fábio Kauã (collshp.com)',
@@ -293,7 +293,7 @@ export const INITIAL_BOLETINS_IA: BoletimDiarioIA[] = [
     titulo:
       '2º Turno no RN: Allyson Bezerra (UNIÃO 44 · 37%) e Carlos Eduardo Xavier / Cadu de Lula (PT 13 · 32%)',
     statusTransporte:
-      'STTU Natal e Decreto Estadual nº 35.935/2026: Confirmadas todas as 62 linhas urbanas de Natal com catraca 100% liberada (1.836 viagens, sem cartão NuBus) e passe livre intermunicipal para o 2º turno.',
+      'STTU Natal e Secretaria de Mobilidade: Prazo do passe livre eleitoral encerrado. Todas as 62 linhas urbanas de Natal e transporte intermunicipal operam na programação diária regular com bilhetagem convencional.',
     resumoCandidatos:
       'Disputa pelo Governo do RN liderada por Allyson Bezerra (União 44 - 37%, foco na 3ª ponte sobre o Rio Potengi e hospitais regionais) e Carlos Eduardo Xavier / Cadu de Lula (PT 13 - 32%, foco em ensino integral, BR-304 e SUS com diagnósticos online alinhado a Mãe Luíza), seguidos por Álvaro Dias (PL 22 - 29%). Destaques absolutos: Carlos Eduardo Alves e Rogério Marinho (555) no Senado; Nina, Dr. Bernardo, Natália Bonavides e Benes Leocádio para Deputado Federal; Cinthia de Allyson, Neilton Diógenes, Ezequiel Ferreira e Daniel Valença para Deputado Estadual.',
     fontesVerificadas: 'DivulgaCandContas TSE, TRE-RN, Pesquisas Registradas e STTU Natal',
@@ -329,45 +329,45 @@ export const ROTAS_PASSE_LIVRE: RotaPasseLivre[] = [
     zona: 'Zona Norte',
     bairrosAtendidos: 'Igapó, Potengi, Pajuçara, Redinha, Lagoa Azul, Nossa Sra. da Apresentação',
     linhasPrincipais: 'N-08, N-15, N-25, N-35, N-43, N-60, N-73 (Via Ponte Newton Navarro e Igapó)',
-    horarioOperacao: '06h00 às 20h00 (Dias de Votação)',
-    statusCatraca: 'Catraca Liberada · 100% Gratuito',
-    frotaOperante: '62 linhas urbanas STTU (1.836 viagens) sem necessidade de cartão NuBus',
+    horarioOperacao: 'Operação Regular Convencional (Prazo de Passe Livre Eleitoral Encerrado)',
+    statusCatraca: 'Prazo Vencido · Tarifa Normal',
+    frotaOperante: 'Linhas urbanas STTU em operação comercial diária regular',
   },
   {
     id: 'zona-sul',
     zona: 'Zona Sul',
     bairrosAtendidos: 'Ponta Negra, Capim Macio, Neópolis, Candelária, Lagoa Nova, Pitimbu',
     linhasPrincipais: 'S-50, L-54, O-33, N-73, Circular Campus UFRN / Via Costeira',
-    horarioOperacao: '06h00 às 20h00 (Dias de Votação)',
-    statusCatraca: 'Catraca Liberada · 100% Gratuito',
-    frotaOperante: 'Operação integral com reforço nos corredores Av. Roberto Freire e Salgado Filho',
+    horarioOperacao: 'Operação Regular Convencional (Prazo de Passe Livre Eleitoral Encerrado)',
+    statusCatraca: 'Prazo Vencido · Tarifa Normal',
+    frotaOperante: 'Operação comercial nos corredores Av. Roberto Freire e Salgado Filho',
   },
   {
     id: 'zona-leste',
     zona: 'Zona Leste',
     bairrosAtendidos: 'Alecrim, Tirol, Petrópolis, Ribeira, Cidade Alta, Rocas, Mãe Luíza',
     linhasPrincipais: 'L-37, L-46, L-51, L-54, Corredores Hermes da Fonseca e Rio Branco',
-    horarioOperacao: '06h00 às 20h00 (Dias de Votação)',
-    statusCatraca: 'Catraca Liberada · 100% Gratuito',
-    frotaOperante: 'Integração direta nos terminais urbanos sem cobrança tarifária',
+    horarioOperacao: 'Operação Regular Convencional (Prazo de Passe Livre Eleitoral Encerrado)',
+    statusCatraca: 'Prazo Vencido · Tarifa Normal',
+    frotaOperante: 'Linhas operando nos terminais com bilhetagem convencional',
   },
   {
     id: 'zona-oeste',
     zona: 'Zona Oeste',
     bairrosAtendidos: 'Felipe Camarão, Cidade da Esperança, Quintas, Dix-Sept Rosado, Guarapes, Planalto',
     linhasPrincipais: 'O-21, O-30, O-33, O-38, O-40, O-59, O-63',
-    horarioOperacao: '06h00 às 20h00 (Dias de Votação)',
-    statusCatraca: 'Catraca Liberada · 100% Gratuito',
-    frotaOperante: 'Frota reforçada nos terminais de Cidade da Esperança, Planalto e Felipe Camarão',
+    horarioOperacao: 'Operação Regular Convencional (Prazo de Passe Livre Eleitoral Encerrado)',
+    statusCatraca: 'Prazo Vencido · Tarifa Normal',
+    frotaOperante: 'Terminais de Cidade da Esperança e Planalto com operação regular',
   },
   {
     id: 'intermunicipal',
     zona: 'Intermunicipal (Grande Natal)',
     bairrosAtendidos: 'Parnamirim, Macaíba, São Gonçalo do Amarante, Extremoz, Ceará-Mirim e interior do RN',
-    linhasPrincipais: 'Decreto Estadual nº 35.935/2026 · Guichês Transpasse, Atomp e permissionárias DER-RN',
-    horarioOperacao: 'Sábado (04h30) até Segunda (16h00)',
-    statusCatraca: 'Catraca Liberada · 100% Gratuito',
-    frotaOperante: 'Apresentar e-Título/documento na ida e comprovante de votação no retorno',
+    linhasPrincipais: 'Linhas intermunicipais DER-RN',
+    horarioOperacao: 'Operação Regular Convencional (Prazo de Passe Livre Eleitoral Encerrado)',
+    statusCatraca: 'Prazo Vencido · Tarifa Normal',
+    frotaOperante: 'Transporte rodoviário intermunicipal sob tarifa padrão do DER-RN',
   },
 ];
 
@@ -377,7 +377,7 @@ export const INITIAL_RELATOS_CIDADAOS: RelatoCidadao[] = [
     autor: 'Mariana Costa',
     bairro: 'Pajuçara · Zona Norte',
     horario: 'Há 14 min',
-    mensagem: 'Linha N-35 passando no horário pela Av. Moema Tinôco com catraca 100% liberada para os eleitores.',
+    mensagem: 'Linha N-35 passando no horário pela Av. Moema Tinôco na programação regular convencional da STTU.',
     statusModeracao: 'Aprovado pela Moderação LGPD',
   },
   {
@@ -393,7 +393,7 @@ export const INITIAL_RELATOS_CIDADAOS: RelatoCidadao[] = [
     autor: 'Cláudia Dantas',
     bairro: 'Cidade da Esperança · Zona Oeste',
     horario: 'Há 42 min',
-    mensagem: 'Terminal da Cidade da Esperança operando normalmente com passe livre garantido em todas as linhas.',
+    mensagem: 'Terminal da Cidade da Esperança operando normalmente com todas as linhas ativas na tarifa regular.',
     statusModeracao: 'Aprovado pela Moderação LGPD',
   },
 ];
@@ -410,7 +410,7 @@ export const DEFAULT_WHATSAPP_SHARE_TEXT = `☀️ COLINHA POLÍTICA & PANORAMA 
 • Deputado Federal: Nina, Dr. Bernardo, Natália Bonavides e Benes Leocádio
 • Deputado Estadual: Cinthia de Allyson, Neilton Diógenes, Ezequiel Ferreira e Daniel Valença (Mãe Luíza)
 
-🚌 Passe Livre confirmado nas 62 linhas de Natal (STTU) e transporte intermunicipal!`;
+🛍️ Vitrine Oficial Fábio Kauã (11.11 & Black Friday): Descontos e cupons verificados no CollabShop!`;
 
 export interface HistoricoVotoEnqueteItem {
   id: string;
@@ -453,14 +453,14 @@ export const INITIAL_HISTORICO_ENQUETE: HistoricoVotoEnqueteItem[] = [
   {
     id: 'hist-3',
     timestamp: 1728518400000,
-    dataRotulo: '10/Out (Passe Livre)',
+    dataRotulo: '10/Out (Mobilidade Urbana)',
     horario: '14:00',
     votosAllyson: 780,
     votosCadu: 700,
     totalVotos: 1480,
     percentualAllyson: 52.7,
     percentualCadu: 47.3,
-    origem: 'Confirmação do Passe Livre nas 62 linhas STTU',
+    origem: 'Atualização das 62 linhas urbanas da STTU',
   },
   {
     id: 'hist-4',

@@ -11,6 +11,8 @@ import {
   MapPin,
   ShieldCheck,
   Eye,
+  Database,
+  Radio,
 } from 'lucide-react';
 import {
   realtimePresenceService,
@@ -56,7 +58,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
   const formattedViews = stats.totalVisualizacoes.toLocaleString('pt-BR');
   const formattedHoje = stats.visitasHoje.toLocaleString('pt-BR');
 
-  // Modal com todos os dados e botões de fechar explícitos
+  // Modal completo com auditoria das sessões ativas no Firestore
   const renderModal = () => {
     if (!isModalOpen) return null;
 
@@ -64,7 +66,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Painel do Marcador de Visitas em Tempo Real"
+        aria-label="Painel de Sessões Ativas no Firestore"
         className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200"
         onClick={() => setIsModalOpen(false)}
       >
@@ -72,21 +74,23 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
           className="w-full max-w-lg card-clean rounded-2xl sm:rounded-3xl border-2 border-emerald-500/50 p-5 sm:p-6 space-y-5 bg-[var(--card-bg)] shadow-2xl relative max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header do Modal com Botão de Fechar Bem Visível */}
+          {/* Header do Modal com Status de Conexão Firestore */}
           <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                <Activity className="w-5 h-5 animate-pulse" />
+                <Database className="w-5 h-5 animate-pulse" />
               </div>
               <div className="min-w-0">
                 <h3 className="text-base sm:text-lg font-black text-[var(--text-color)] flex items-center gap-2">
-                  <span className="truncate">Marcador de Visitas do Site</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase shrink-0">
-                    Ao Vivo
+                  <span className="truncate">Sessões Ativas no Firestore</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase shrink-0 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    Tempo Real
                   </span>
                 </h3>
-                <p className="text-xs text-[var(--text-muted)] truncate">
-                  Contador oficial de presença e acessos simultâneos via Firestore
+                <p className="text-xs text-[var(--text-muted)] truncate flex items-center gap-1">
+                  <Radio className="w-3 h-3 text-emerald-500" />
+                  Monitoramento simultâneo na coleção /presenca
                 </p>
               </div>
             </div>
@@ -104,7 +108,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
             </button>
           </div>
 
-          {/* Cartão de Destaque com o Total Online e Ticker Ativo */}
+          {/* Cartão de Destaque com Sessões Ativas Firestore */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-600/15 via-teal-600/10 to-blue-600/15 border-2 border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -112,16 +116,16 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                 </span>
-                <span>Marcador Ativo · Online Agora:</span>
+                <span>Sessões Ativas no Firestore:</span>
               </div>
               <div className="text-3xl sm:text-4xl font-black text-emerald-800 dark:text-emerald-200 tracking-tight mt-1 flex items-baseline gap-2">
                 <span>{formattedOnline}</span>
                 <span className="text-xs sm:text-sm font-semibold text-[var(--text-muted)]">
-                  eleitores navegando
+                  {stats.onlineAgora === 1 ? 'visitante navegando' : 'visitantes navegando'}
                 </span>
               </div>
               <div className="text-[11px] text-[var(--text-muted)] mt-1 flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[var(--text-muted)]" />
+                <Clock className="w-3 h-3 text-emerald-500" />
                 <span>Último pulso: {stats.ultimaAtualizacao}</span>
               </div>
             </div>
@@ -141,11 +145,11 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
             </div>
           </div>
 
-          {/* Onde os usuários estão agora */}
+          {/* O que as pessoas estão visualizando agora (Calculado via Firestore) */}
           <div className="space-y-2">
             <div className="text-xs font-bold text-[var(--text-color)] flex items-center gap-1.5">
               <TrendingUp className="w-4 h-4 text-[var(--accent-color)]" />
-              <span>O que as pessoas estão visualizando agora:</span>
+              <span>Onde os visitantes ativos estão agora (por seção):</span>
             </div>
             <div className="space-y-1.5">
               {stats.secoesMaisAcessadas.map((item) => (
@@ -168,11 +172,11 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
             </div>
           </div>
 
-          {/* Origem Geográfica dos Acessos no RN */}
+          {/* Origem Geográfica dos Acessos */}
           <div className="space-y-2">
             <div className="text-xs font-bold text-[var(--text-color)] flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Principais Municípios com Acessos Ativos:</span>
+              <span>Distribuição Estimada de Acessos:</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               {stats.cidades.map((cid) => (
@@ -191,7 +195,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
             </div>
           </div>
 
-          {/* Dispositivos Conectados */}
+          {/* Dispositivos Conectados (Calculado dinamicamente das sessões do Firestore) */}
           <div className="p-3 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)] flex items-center justify-around text-xs">
             <div className="flex items-center gap-2">
               <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -208,11 +212,11 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
             </div>
           </div>
 
-          {/* Rodapé com Botão Fechar Explícito */}
+          {/* Rodapé com Informações Técnicas e Botão Fechar */}
           <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
+            <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
               <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>Monitoramento em tempo real (LGPD)</span>
+              <span>LGPD Compliant · Sincronização via Firestore onSnapshot</span>
             </div>
             <button
               type="button"
@@ -220,7 +224,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
               className="px-4 py-2 rounded-xl bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-bold text-xs inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-all"
             >
               <X className="w-3.5 h-3.5" />
-              <span>Fechar Marcador</span>
+              <span>Fechar</span>
             </button>
           </div>
         </div>
@@ -236,7 +240,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            title="Marcador de Visitas do Site ao Vivo (Clique para abrir detalhes)"
+            title="Marcador de Visitas em Tempo Real via Firestore (Clique para abrir detalhes)"
             aria-label="Marcador de Visitas do Site ao Vivo"
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0d3830]/95 hover:bg-[#00875a] text-white border-2 border-emerald-400/50 shadow-xl backdrop-blur-md text-xs font-bold transition-all cursor-pointer hover:scale-105 active:scale-95"
           >
@@ -244,7 +248,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
             </span>
-            <Users className="w-3.5 h-3.5 text-amber-300" />
+            <Database className="w-3.5 h-3.5 text-emerald-300" />
             <span>
               <span className="text-emerald-200 font-extrabold">{formattedOnline}</span>{' '}
               <span className="text-white/90">online</span>
@@ -256,23 +260,23 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
     );
   }
 
-  // 2. Variante Compacta (Para usar dentro de cards como a Apuração)
+  // 2. Variante Compacta
   if (variant === 'compact') {
     return (
       <>
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          title="Marcador de Visitas do Site: clique para ver o painel de acessos ao vivo"
+          title="Marcador de Visitas do Site: clique para ver sessões ativas no Firestore"
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-xs font-bold transition-all cursor-pointer shadow-2xs group ${className}`}
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <Database className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>
-            Marcador: <strong className="font-black text-emerald-900 dark:text-emerald-100">{formattedOnline}</strong> online
+            Firestore: <strong className="font-black text-emerald-900 dark:text-emerald-100">{formattedOnline}</strong> online
           </span>
         </button>
         {renderModal()}
@@ -286,7 +290,7 @@ export const OnlineVisitorsBadge: React.FC<OnlineVisitorsBadgeProps> = ({
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
-        title="Marcador de Visitas do Site em Tempo Real (Clique para ver estatísticas)"
+        title="Marcador de Visitas do Site em Tempo Real via Firestore (Clique para ver estatísticas)"
         aria-label="Marcador de Visitas do Site"
         className={`inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-2xs group shrink-0 ${className}`}
       >

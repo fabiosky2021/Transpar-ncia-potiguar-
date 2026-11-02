@@ -12,7 +12,6 @@ import {
   Contrast,
   Send,
   ShieldCheck,
-  Bus,
   Check,
   Copy,
   ExternalLink,
@@ -67,7 +66,6 @@ import {
 } from 'recharts';
 import {
   INITIAL_PLATFORM_DATA,
-  ROTAS_PASSE_LIVRE,
   INITIAL_RELATOS_CIDADAOS,
   INITIAL_BOLETINS_IA,
   INITIAL_AVALIACOES_CANDIDATOS,
@@ -241,6 +239,7 @@ export default function App() {
 
   // Track which affiliate boxes are unlocked (persisted in platformData + local state)
   const [unlockedAffiliates, setUnlockedAffiliates] = useState<Record<string, boolean>>(() => ({
+    vitrine: Boolean(platformData.agenteIA.noticiasUtilidadePublica[0]?.afiliadoLiberado),
     mobilidade: Boolean(platformData.agenteIA.noticiasUtilidadePublica[0]?.afiliadoLiberado),
     'allyson-bezerra': Boolean(
       platformData.candidatos.find((c) => c.id === 'allyson-bezerra')?.afiliadoLiberado
@@ -483,7 +482,7 @@ export default function App() {
   const curtirEUnlock = (targetId: string) => {
     setUnlockedAffiliates((prev) => ({ ...prev, [targetId]: true }));
 
-    if (targetId === 'mobilidade') {
+    if (targetId === 'vitrine' || targetId === 'mobilidade') {
       setPlatformData((prev) => ({
         ...prev,
         agenteIA: {
@@ -582,7 +581,7 @@ export default function App() {
     const cleanUrl = tempAffiliateUrl.trim() || 'https://collshp.com/fabiokaua692287?view=storefront';
     const cleanProd = tempAffiliateProduct.trim() || 'Vitrine Oficial Fábio Kauã (collshp.com)';
 
-    if (targetId === 'mobilidade') {
+    if (targetId === 'vitrine' || targetId === 'mobilidade') {
       setPlatformData((prev) => ({
         ...prev,
         agenteIA: {
@@ -930,11 +929,7 @@ export default function App() {
     };
   }, [platformData.enqueteSegundoTurno]);
 
-  const noticiaMobilidade = platformData.agenteIA.noticiasUtilidadePublica[0];
-  const rotasFiltradas =
-    selectedZona === 'Todas'
-      ? ROTAS_PASSE_LIVRE
-      : ROTAS_PASSE_LIVRE.filter((r) => r.zona === selectedZona);
+  const noticiaVitrine = platformData.agenteIA.noticiasUtilidadePublica[0];
 
   const candidatosFiltrados = platformData.candidatos.filter((c) => {
     if (candidateFilter === 'segundo-turno') {
@@ -1132,7 +1127,12 @@ export default function App() {
         {/* DESTAQUE 1: Eleições Presidenciais dos EUA · Corrida à Casa Branca (Trump vs Harris, 270 Delegados e 7 Swing States) */}
         <USAElectionsSection
           onAskAgent={(prompt) => {
-            setIsFloatingChatOpen(true);
+            const botEl = document.getElementById('potiguar-bot');
+            if (botEl) {
+              botEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              setIsFloatingChatOpen(true);
+            }
             enviarPerguntaBot(prompt);
           }}
           onOpenStorefront={() => setIsShopPopupOpen(true)}
@@ -1141,7 +1141,12 @@ export default function App() {
         {/* DESTAQUE 2: Radar FATO OU FAKE 24h · Checagem de Fatos, Boatos, Deepfakes & Alertas Anti-Golpe */}
         <FatoOuFakeSection
           onAskAgent={(prompt) => {
-            setIsFloatingChatOpen(true);
+            const botEl = document.getElementById('potiguar-bot');
+            if (botEl) {
+              botEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              setIsFloatingChatOpen(true);
+            }
             enviarPerguntaBot(prompt);
           }}
           onOpenStorefront={() => setIsShopPopupOpen(true)}
@@ -1156,9 +1161,9 @@ export default function App() {
             }
             onOpenEditor={() =>
               abrirEditorAfiliado(
-                'mobilidade',
-                noticiaMobilidade?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront',
-                noticiaMobilidade?.produtoRecomendado || 'Vitrine Oficial Fábio Kauã (collshp.com)'
+                'vitrine',
+                noticiaVitrine?.linkAfiliado || 'https://collshp.com/fabiokaua692287?view=storefront',
+                noticiaVitrine?.produtoRecomendado || 'Vitrine Oficial Fábio Kauã (collshp.com)'
               )
             }
             onOpenPopup={() => setIsShopPopupOpen(true)}

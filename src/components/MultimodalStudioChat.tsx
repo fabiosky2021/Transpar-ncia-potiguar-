@@ -143,7 +143,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
   isFloatingOpen: externalFloatingOpen,
   setIsFloatingOpen: setExternalFloatingOpen,
 }) => {
-  const [internalFloatingOpen, setInternalFloatingOpen] = useState<boolean>(true);
+  const [internalFloatingOpen, setInternalFloatingOpen] = useState<boolean>(false);
   const isFloatingOpen =
     externalFloatingOpen !== undefined ? externalFloatingOpen : internalFloatingOpen;
   const setIsFloatingOpen = setExternalFloatingOpen || setInternalFloatingOpen;
@@ -1456,7 +1456,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
               <span>Mural Cidadão · Publicações em Tempo Real</span>
             </h3>
             <p className="text-xs text-[var(--text-muted)]">
-              Publique relatos sobre as linhas de ônibus ou eleições. Todas as publicações ficam salvas e podem ser lidas com voz natural pelo PotiguarBot IA.
+              Publique relatos sobre seu bairro, serviços públicos e cidadania. Todas as publicações ficam salvas e podem ser lidas com voz natural pelo PotiguarBot IA.
             </p>
           </div>
 
@@ -1525,7 +1525,7 @@ export const MultimodalStudioChat: React.FC<MultimodalStudioChatProps> = ({
               rows={2}
               value={novaMensagem}
               onChange={(e) => setNovaMensagem(e.target.value)}
-              placeholder="Escreva sua publicação sobre seu bairro, seção eleitoral ou linhas de ônibus..."
+              placeholder="Escreva sua publicação sobre seu bairro, serviços públicos ou transparência..."
               className="w-full min-w-0 px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--surface-subtle)] text-xs text-[var(--text-color)]"
             />
 

@@ -34,11 +34,21 @@ export interface AtoTransicaoItem {
 
 export interface AlertaDesinformacaoItem {
   id: string;
-  categoria: 'Análise de Áudio & Propostas' | 'Checagem TSE / TRE-RN' | 'Fato ou Boato TSE · Tempo Real';
+  categoria:
+    | 'Análise de Áudio & Propostas'
+    | 'Checagem TSE / TRE-RN'
+    | 'Fato ou Boato TSE · Tempo Real'
+    | 'Checagem TSE / STTU'
+    | string;
   candidatoCitado?: string;
   falaAnalisada?: string;
   titulo: string;
-  seloVerificacao: 'Sem Confirmação Oficial no Plano Formal' | 'Fato Esclarecido · TSE' | 'Confirmado Oficialmente';
+  seloVerificacao:
+    | 'Sem Confirmação Oficial no Plano Formal'
+    | 'Fato Esclarecido · TSE'
+    | 'Confirmado Oficialmente'
+    | 'Prazo Concluído · STTU'
+    | string;
   topicosAnalisados: string[];
   conclusaoAnalise: string;
   fonteVerificacao: string;
@@ -414,7 +424,7 @@ export const ATOS_TRANSICAO_GOVERNO: AtoTransicaoItem[] = [
   {
     id: 'ato-4',
     codigoAto: 'ORDEM DE SERVIÇO INFRA/DER Nº 022/2026',
-    titulo: 'Estudos da 3ª Ponte sobre o Rio Potengi, Obras na BR-304 e Passe Livre Eleitoral',
+    titulo: 'Estudos da 3ª Ponte sobre o Rio Potengi, Obras na BR-304 e Mobilidade Urbana',
     eixo: 'Infraestrutura',
     statusConformidade: 'Em conformidade',
     propostaRelacionada: '3ª Ponte Rio Potengi (Allyson 44) & Duplicação BR-304 (Cadu de Lula 13)',
@@ -599,22 +609,22 @@ export const ALERTAS_ANTI_DESINFORMACAO: AlertaDesinformacaoItem[] = [
   },
   {
     id: 'checagem-passe-livre-2-turno',
-    categoria: 'Checagem TSE / TRE-RN',
-    candidatoCitado: 'Justiça Eleitoral (TSE / TRE-RN)',
+    categoria: 'Checagem TSE / STTU',
+    candidatoCitado: 'Mobilidade Urbana (STTU & DER-RN)',
     falaAnalisada:
-      '"Boatos em redes sociais alegavam cobrança de passagem ou exigência obrigatória de cartão nos ônibus urbanos de Natal no 2º turno."',
-    titulo: 'Esclarecimento Oficial TSE/TRE-RN: Passe Livre Garantido nos Ônibus no 2º Turno (STTU & Decreto nº 35.935/2026)',
-    seloVerificacao: 'Fato Esclarecido · TSE',
+      '"Dúvidas em redes sociais questionavam se a gratuidade de transporte nos ônibus de Natal ainda continuava válida após a votação."',
+    titulo: 'Esclarecimento Oficial STTU/TRE-RN: Encerramento do Prazo de Passe Livre Eleitoral e Retorno à Tarifa Regular',
+    seloVerificacao: 'Prazo Concluído · STTU',
     topicosAnalisados: [
-      'A STTU Natal e a Resolução-TSE nº 23.751/2026 garantem 62 linhas urbanas 100% gratuitas sem cartão NuBus.',
-      'O Decreto Estadual nº 35.935/2026 mantém gratuidade intermunicipal mediante título/e-Título e comprovante.',
-      'Frota opera com 1.836 viagens programadas das 06h00 às 20h00.',
+      'O benefício especial de Passe Livre foi concedido de forma extraordinária estritamente nos dias de votação oficial.',
+      'Com a conclusão do período de votação, a STTU e as empresas concessionárias retomaram a operação comercial diária.',
+      'Todas as linhas operam normalmente em seus itinerários regulares mediante bilhetagem convencional (NuBus / Dinheiro).',
     ],
     conclusaoAnalise:
-      'É FALSO que o transporte gratuito tenha sido suspenso. O transporte coletivo urbano e intermunicipal está oficialmente garantido com catraca livre para todos os eleitores potiguares no segundo turno.',
-    fonteVerificacao: 'Fato ou Boato TSE · TRE-RN & STTU Natal',
-    urlFonteOficial: 'https://www.justicaeleitoral.jus.br/fato-ou-boato/',
-    horario: 'Monitoramento Oficial 24h · Fato ou Boato TSE',
+      'CONFIRMADO: O prazo do passe livre eleitoral encerrou-se conforme previsto na legislação. Todas as 62 linhas urbanas de Natal e ônibus intermunicipais retornaram à bilhetagem comercial padrão.',
+    fonteVerificacao: 'STTU Natal · DER-RN · TRE-RN',
+    urlFonteOficial: 'https://natal.rn.gov.br/sttu/',
+    horario: 'Monitoramento Oficial 24h · Atualização de Mobilidade',
   },
 ];
 

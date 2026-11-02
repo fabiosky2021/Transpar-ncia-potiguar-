@@ -34,12 +34,12 @@ interface SoundNotificationCenterProps {
 const INITIAL_NOTIFICATIONS: SoundNotificationItem[] = [
   {
     id: 'notif-1',
-    titulo: 'Passe Livre 100% Confirmado no 2º Turno em Natal',
-    mensagem: 'Todas as 62 linhas de ônibus urbanos da STTU e transportes intermunicipais terão catraca livre das 06h às 20h no dia da eleição.',
-    categoria: 'transporte',
+    titulo: 'Vitrine Oficial Fábio Kauã: Ofertas 11.11 & Black Friday',
+    mensagem: 'Achadinhos verificados, tecnologia e cupons com entrega garantida na loja parceira oficial (CollabShop).',
+    categoria: 'plantao',
     timestamp: 'Hoje · 08:30',
     lida: false,
-    linkHref: '#utilidade-publica',
+    linkHref: '#loja-afiliado',
     soundType: 'urgent',
   },
   {

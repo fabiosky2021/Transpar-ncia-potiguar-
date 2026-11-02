@@ -153,6 +153,31 @@
         "believedFato": { "type": "number" },
         "believedFake": { "type": "number" }
       }
+    },
+    "Presenca": {
+      "title": "Presenca",
+      "description": "Sessão ativa de visitante em tempo real para o marcador de audiência online",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "lastActive": { "type": "number" },
+        "dispositivo": { "type": "string" },
+        "rota": { "type": "string" },
+        "cidade": { "type": "string" }
+      },
+      "required": ["id", "lastActive"]
+    },
+    "Estatisticas": {
+      "title": "Estatisticas",
+      "description": "Métricas consolidadas de tráfego, pico e visualizações em tempo real",
+      "type": "object",
+      "properties": {
+        "onlineAgora": { "type": "number" },
+        "picoHoje": { "type": "number" },
+        "totalVisualizacoes": { "type": "number" },
+        "visitasHoje": { "type": "number" },
+        "ultimaAtualizacao": { "type": "string" }
+      }
     }
   },
   "firestore": {
@@ -199,6 +224,14 @@
     "feedbacksComunidade/{id}": {
       "schema": "FeedbackComunidade",
       "description": "Canal de feedback para os eleitores relatarem necessidades da comunidade"
+    },
+    "presenca/{id}": {
+      "schema": "Presenca",
+      "description": "Coleção de sessões ativas simultâneas no site"
+    },
+    "estatisticas/{id}": {
+      "schema": "Estatisticas",
+      "description": "Documentos consolidados de métricas e audiência"
     }
   }
 }

@@ -38,7 +38,7 @@ interface NoticiaSlideItem {
   ctaPrimarioTexto: string;
   ctaPrimarioHref?: string;
   ctaBotPrompt: string;
-  icone: 'radio' | 'scale' | 'bus' | 'shield' | 'map';
+  icone: 'radio' | 'scale' | 'bus' | 'shield' | 'map' | 'sparkles';
 }
 
 export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProps> = ({
@@ -105,22 +105,22 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
       icone: 'scale',
     },
     {
-      id: 'slide-passe-livre',
-      categoria: 'UTILIDADE PÚBLICA 24H · TRANSPORTE E MOBILIDADE RN',
-      tagTempoReal: 'Catraca 100% Liberada · 06h às 20h',
+      id: 'slide-loja-afiliado',
+      categoria: 'MONETIZAÇÃO & PARCERIA OFICIAL · 11.11 E BLACK FRIDAY',
+      tagTempoReal: 'Vitrine Verificada · CollabShop Fábio Kauã',
       titulo:
-        'Passe Livre Confirmado no 2º Turno: 62 Linhas Urbanas da STTU e Ônibus Intermunicipais',
+        'Campanha Especial 11.11 & Black Friday: Achadinhos com Desconto e Cupons Verificados',
       resumo:
-        'Todas as zonas de Natal (Norte, Sul, Leste e Oeste) contam com 1.836 viagens gratuitas sem exigir cartão NuBus. No transporte intermunicipal (Decreto nº 35.935/2026), basta apresentar e-Título ou documento com foto.',
+        'Conheça a seleção oficial de produtos, tecnologia e achadinhos verificados com entrega segura e descontos imperdíveis na vitrine parceira do portal.',
       destaqueSecundario:
-        'Consulte na tabela abaixo os horários e corredores atendidos no seu bairro ou pergunte ao PotiguarBot IA.',
-      fonte: 'STTU Natal · Governo do RN · Resolução-TSE nº 23.751/2026',
-      corDestaque: '#10b981',
-      ctaPrimarioTexto: 'Consultar Linhas por Bairro',
-      ctaPrimarioHref: '#utilidade-publica',
+        'Clique no banner abaixo para acessar a vitrine oficial ou testar o pop-up com contador regressivo de 10 segundos.',
+      fonte: 'CollabShop Oficial · Fábio Kauã',
+      corDestaque: '#f59e0b',
+      ctaPrimarioTexto: 'Acessar Vitrine Oficial',
+      ctaPrimarioHref: '#loja-afiliado',
       ctaBotPrompt:
-        'Quais linhas de ônibus estão com Passe Livre confirmado para votar no 2º turno em Natal e Grande Natal?',
-      icone: 'bus',
+        'Como acessar compras seguras na Loja Oficial de Fábio Kauã?',
+      icone: 'sparkles',
     },
     {
       id: 'slide-transicao-checagem',
@@ -149,13 +149,13 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
       resumo:
         'Consulte os polos eleitorais de todas as Zonas de Natal/RN com privacidade total (LGPD) ou acesse o Autoatendimento Oficial do TSE. Informações sobre candidatos já eleitos no 1º turno são respondidas sob demanda pelo Agente PotiguarBot IA.',
       destaqueSecundario:
-        'Use o Localizador Público de Votação para conferir endereços por bairro/zona, linhas de ônibus gratuitas, documentos com foto aceitos e horário oficial (08h às 17h).',
+        'Use o Localizador Público de Votação para conferir endereços por bairro/zona, linhas de transporte regular, documentos com foto aceitos e horário oficial (08h às 17h).',
       fonte: 'TRE-RN · TSE Autoatendimento · PotiguarBot IA (Estúdio 24h)',
       corDestaque: '#6366f1',
       ctaPrimarioTexto: 'Consultar Local de Votação',
       ctaPrimarioHref: '#localizador-secao',
       ctaBotPrompt:
-        'Como consultar onde fica meu local de votação no 2º turno em Natal/RN, quais documentos levar e quais linhas de ônibus gratuitas atendem meu bairro?',
+        'Como consultar onde fica meu local de votação no 2º turno em Natal/RN, quais documentos levar e quais linhas de transporte regular atendem meu bairro?',
       icone: 'map',
     },
   ];
@@ -190,6 +190,8 @@ export const PrimeirasNoticiasSlides24h: React.FC<PrimeirasNoticiasSlides24hProp
         return <ShieldAlert className="w-4 h-4 text-amber-500" />;
       case 'map':
         return <MapPin className="w-4 h-4 text-indigo-500" />;
+      case 'sparkles':
+        return <Sparkles className="w-4 h-4 text-amber-500" />;
     }
   };
 

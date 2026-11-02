@@ -43,6 +43,7 @@ import {
   SwingState,
   PolicyBattleground,
 } from '../data/usaElectionsData';
+import { SwingStatesTracker } from './SwingStatesTracker';
 import { db } from '../lib/firebase';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import {
@@ -288,6 +289,17 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
               </>
             )}
           </button>
+
+          {onOpenStorefront && (
+            <button
+              type="button"
+              onClick={onOpenStorefront}
+              className="px-3.5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 hover:from-orange-600 hover:to-amber-600 text-black border border-yellow-300 inline-flex items-center gap-1.5 cursor-pointer shadow-md hover:scale-105 active:scale-95 transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Banner 11.11 (Pop-up)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -496,117 +508,18 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
       {/* CONTEÚDO DA ABA 1: OS 7 SWING STATES */}
       {activeTab === 'swing_states' && (
         <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg sm:text-xl font-bold text-[var(--text-color)] flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-red-500" />
-                Os 7 Estados-Pêndulo (Battleground States) que Decidiram a Eleição
-              </h3>
-              <p className="text-xs text-[var(--text-muted)]">
-                Nos EUA, o vencedor em cada estado leva todos os seus delegados (sistema <em>Winner-Take-All</em>).
-              </p>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setSelectedStateFilter('all')}
-                className={`px-3 py-1.5 rounded-lg border font-bold cursor-pointer transition-colors ${
-                  selectedStateFilter === 'all'
-                    ? 'bg-red-600 text-white border-red-500'
-                    : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-color)]'
-                }`}
-              >
-                Todos (7)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedStateFilter('projected')}
-                className={`px-3 py-1.5 rounded-lg border font-bold cursor-pointer transition-colors ${
-                  selectedStateFilter === 'projected'
-                    ? 'bg-red-600 text-white border-red-500'
-                    : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-color)]'
-                }`}
-              >
-                Definidos
-              </button>
-            </div>
-          </div>
-
-          {/* Grid dos Swing States */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
-            {filteredSwingStates.map((st) => {
-              const isTrump = st.winnerId === 'donald-trump';
-              const totalStVotes = st.votesTrump + st.votesHarris;
-              const trumpPct = ((st.votesTrump / totalStVotes) * 100).toFixed(1);
-              const harrisPct = ((st.votesHarris / totalStVotes) * 100).toFixed(1);
-
-              return (
-                <div
-                  key={st.id}
-                  className={`p-4 rounded-2xl border-2 ${
-                    isTrump ? 'border-red-500/50 bg-red-500/5' : 'border-blue-500/50 bg-blue-500/5'
-                  } space-y-3 hover:shadow-lg transition-all`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-black px-2 py-0.5 rounded bg-[var(--surface-subtle)] border border-[var(--border-color)] text-[var(--text-color)] mr-1.5">
-                        {st.code}
-                      </span>
-                      <strong className="text-base font-bold text-[var(--text-color)]">
-                        {st.name}
-                      </strong>
-                    </div>
-                    <span className="px-2.5 py-1 rounded-xl bg-red-600 text-white text-xs font-black font-mono shadow-sm">
-                      {st.electoralVotes} delegados
-                    </span>
-                  </div>
-
-                  {/* Detalhes de apuração */}
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between text-[11px] text-[var(--text-muted)]">
-                      <span>Apurado: {st.reportedPct}%</span>
-                      <span className="font-bold text-red-600 dark:text-red-400">
-                        +{st.leaderMarginPct}% para Trump
-                      </span>
-                    </div>
-
-                    {/* Barrinha comparativa por estado */}
-                    <div className="w-full h-3 rounded-full overflow-hidden bg-slate-800 flex shadow-inner">
-                      <div
-                        className="h-full bg-red-600 flex items-center justify-start pl-1 text-[9px] text-white font-mono"
-                        style={{ width: `${trumpPct}%` }}
-                      >
-                        {trumpPct}%
-                      </div>
-                      <div
-                        className="h-full bg-blue-600 flex items-center justify-end pr-1 text-[9px] text-white font-mono"
-                        style={{ width: `${harrisPct}%` }}
-                      >
-                        {harrisPct}%
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)] pt-0.5 font-mono">
-                      <span>Trump: {(st.votesTrump).toLocaleString('pt-BR')}</span>
-                      <span>Harris: {(st.votesHarris).toLocaleString('pt-BR')}</span>
-                    </div>
-                  </div>
-
-                  {/* Condados Chave */}
-                  <div className="p-2.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-color)]/60 text-[11px] text-[var(--text-muted)] space-y-0.5">
-                    <span className="font-bold text-[var(--text-color)] block">Condados Críticos:</span>
-                    <p className="line-clamp-2">{st.keyCounties}</p>
-                  </div>
-
-                  <div className="pt-2 border-t border-[var(--border-color)]/60 flex items-center justify-between text-xs font-bold text-red-600 dark:text-red-400">
-                    <span>Vencedor: Donald Trump</span>
-                    <CheckCircle2 className="w-4 h-4 text-red-500" />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <SwingStatesTracker
+            swingStates={data.swingStates}
+            onAskAgentAboutState={onAskAgent}
+            onStateStatusChange={(stateId, newStatus) => {
+              setData((prev) => ({
+                ...prev,
+                swingStates: prev.swingStates.map((st) =>
+                  st.id === stateId ? { ...st, votingStatus: newStatus } : st
+                ),
+              }));
+            }}
+          />
 
           {/* Gráfico Comparativo Horizontal dos Swing States */}
           <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-color)] space-y-3">
@@ -743,16 +656,81 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
 
       {/* CONTEÚDO DA ABA 3: COMPARADOR DE PROPOSTAS & IMPACTOS NO BRASIL */}
       {activeTab === 'propostas' && (
-        <div className="space-y-4 animate-in fade-in duration-300">
-          <div className="space-y-1">
-            <h3 className="text-lg sm:text-xl font-bold text-[var(--text-color)]">
-              Pilares Econômicos &amp; Consequências para o Brasil
+        <div id="impacto-brasil-tab" className="space-y-6 animate-in fade-in duration-300">
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-950/20 via-[var(--surface-subtle)] to-blue-950/20 border-2 border-emerald-500/30 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <span className="text-base">🇧🇷</span>
+                Radar Econômico Internacional · Impactos no Brasil
+              </span>
+              <span className="text-[11px] font-mono text-[var(--text-muted)] bg-[var(--card-bg)] px-2.5 py-0.5 rounded-full border border-[var(--border-color)]">
+                Análise de Câmbio, Tarifas &amp; Balança Comercial
+              </span>
+            </div>
+            <h3 className="text-lg sm:text-2xl font-black text-[var(--text-color)]">
+              Pilares Econômicos &amp; Consequências da Eleição Americana para o Brasil
             </h3>
-            <p className="text-xs text-[var(--text-muted)]">
-              Análise comparativa das diretrizes de governo de Donald Trump versus Kamala Harris e reflexos no agronegócio, comércio exterior e câmbio.
+            <p className="text-xs sm:text-sm text-[var(--text-muted)] max-w-3xl leading-relaxed">
+              Como as políticas de tarifas de importação, a cotação global do dólar, o agronegócio e a política monetária dos Estados Unidos afetam a economia brasileira, as exportações e os investimentos no país.
             </p>
           </div>
 
+          {/* Destaques Rápidos: Termômetro Econômico Brasil */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="p-3.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 shadow-2xs">
+              <div className="flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <span>Dólar &amp; Câmbio</span>
+                <DollarSign className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-semibold text-[var(--text-color)]">
+                Tendência de Alta Global
+              </p>
+              <p className="text-[11px] text-[var(--text-muted)] leading-tight">
+                Tarifas e juros dos Treasuries atraem capitais para os EUA, pressionando o Real.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 shadow-2xs">
+              <div className="flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
+                <span>Agronegócio</span>
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-semibold text-[var(--text-color)]">
+                Janela de Oportunidade
+              </p>
+              <p className="text-[11px] text-[var(--text-muted)] leading-tight">
+                China tende a redirecionar compras de soja, milho e carnes dos EUA para o Brasil.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 shadow-2xs">
+              <div className="flex items-center justify-between text-xs font-bold text-blue-600 dark:text-blue-400">
+                <span>Indústria &amp; Aço</span>
+                <Briefcase className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-semibold text-[var(--text-color)]">
+                Atenção às Tarifas
+              </p>
+              <p className="text-[11px] text-[var(--text-muted)] leading-tight">
+                Tarifa geral de 10% a 20% e cotas de aço (Seção 232) demandam diplomacia comercial.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] space-y-1 shadow-2xs">
+              <div className="flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400">
+                <span>Juros &amp; Selic</span>
+                <Scale className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-semibold text-[var(--text-color)]">
+                Controle Inflacionário
+              </p>
+              <p className="text-[11px] text-[var(--text-muted)] leading-tight">
+                Dólar mais alto e inflação importada exigem Selic firme pelo Banco Central.
+              </p>
+            </div>
+          </div>
+
+          {/* Cards Aprofundados dos Pilares */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {data.policyBattlegrounds.map((policy) => (
               <div
@@ -780,7 +758,9 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
                   </div>
 
                   <div className="p-3 rounded-xl bg-emerald-500/10 border-l-4 border-emerald-600 text-[var(--text-color)]">
-                    <strong className="text-emerald-700 dark:text-emerald-300 block mb-0.5">Impacto no Brasil &amp; Câmbio:</strong>
+                    <strong className="text-emerald-700 dark:text-emerald-300 block mb-0.5 flex items-center gap-1">
+                      <span>🇧🇷</span> Impacto no Brasil &amp; Câmbio:
+                    </strong>
                     {policy.impactOnBrazil}
                   </div>
                 </div>
@@ -907,7 +887,7 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
         </div>
       </div>
 
-      {/* ATALHOS DE PERGUNTA RÁPIDA PARA O ESTÚDIO IA */}
+      {/* ATALHOS DE NAVEGAÇÃO & PERGUNTA RÁPIDA */}
       <div className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-color)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold shrink-0 shadow-md">
@@ -915,10 +895,10 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
           </div>
           <div>
             <h4 className="font-bold text-sm text-[var(--text-color)]">
-              Dúvidas sobre o Colégio Eleitoral, tarifas ou políticas da Casa Branca?
+              Quer explorar o Impacto no Brasil, simular delegados ou tirar dúvidas?
             </h4>
             <p className="text-xs text-[var(--text-muted)]">
-              Pergunte ao Estúdio Multimodal por texto ou microfone para obter respostas instantâneas e checadas.
+              Alterne entre as análises econômicas do portal ou consulte o Estúdio IA de forma transparente.
             </p>
           </div>
         </div>
@@ -926,25 +906,45 @@ export const USAElectionsSection: React.FC<USAElectionsSectionProps> = ({
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={() => {
+              setActiveTab('propostas');
+              const el = document.getElementById('impacto-brasil-tab');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            className="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer transition-colors shadow-sm inline-flex items-center gap-1.5"
+          >
+            <span>🇧🇷 Ver Impacto no Brasil</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('simulator');
+              const el = document.getElementById('eleicoes-eua');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            className="px-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] hover:border-red-400 text-[var(--text-color)] text-xs font-semibold cursor-pointer transition-colors shadow-sm inline-flex items-center gap-1.5"
+          >
+            <span>🗳️ Simulador 270</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() =>
               onAskAgent?.(
                 'Como a vitória de Donald Trump afeta as tarifas de importação, o agronegócio e a cotação do dólar no Brasil?'
               )
             }
-            className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold cursor-pointer transition-colors shadow-sm"
+            title="Abre o Estúdio de Criação PotiguarBot IA com esta pergunta"
+            className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs font-bold cursor-pointer transition-all shadow-sm inline-flex items-center gap-1.5 active:scale-95"
           >
-            Impacto no Dólar &amp; Brasil 📈
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              onAskAgent?.(
-                'Explique didaticamente por que o Colégio Eleitoral dos EUA tem 538 votos e como os 270 delegados decidem a eleição.'
-              )
-            }
-            className="px-3.5 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] hover:border-red-400 text-[var(--text-color)] text-xs font-semibold cursor-pointer transition-colors shadow-sm"
-          >
-            Como Funcionam os 270 Delegados 🗳️
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>Perguntar no Estúdio IA</span>
+            <span className="text-[10px] bg-black/30 px-1.5 py-0.5 rounded-md font-mono">IA</span>
           </button>
         </div>
       </div>

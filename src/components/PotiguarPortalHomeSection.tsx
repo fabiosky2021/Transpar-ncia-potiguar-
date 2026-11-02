@@ -590,10 +590,10 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                     data: '08/10/2026',
                   },
                   {
-                    edital: 'Dispensa de Licitação nº 007/2026 - STTU/Passe Livre',
-                    objeto: 'Operação de reforço de frota para gratuidade de transporte no 2º Turno (Eleições 2026).',
+                    edital: 'Dispensa de Licitação nº 007/2026 - STTU/Transporte Urbano',
+                    objeto: 'Operação de monitoramento de frota e mobilidade urbana na capital (STTU Natal).',
                     valor: 'R$ 1.280.000,00',
-                    status: 'Publicado',
+                    status: 'Concluído',
                     data: '04/10/2026',
                   },
                 ].map((item) => (
@@ -793,7 +793,7 @@ export const PotiguarPortalHomeSection: React.FC<PotiguarPortalHomeSectionProps>
                 <div className="p-3 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-500/20 text-orange-900 dark:text-orange-200">
                   <div className="font-bold mb-1">Destaques Parlamentares em 2026:</div>
                   <ul className="list-disc list-inside space-y-0.5 text-[11px]">
-                    <li>Debate sobre ampliação do Passe Livre Intermunicipal (Região Metropolitana de Natal e Mossoró).</li>
+                    <li>Debate sobre ampliação e integração do Transporte Público Metropolitano (Região Metropolitana de Natal e Mossoró).</li>
                     <li>Adequação da jornada de trabalho e impactos da PEC 221/2019 no setor de comércio e serviços potiguar.</li>
                     <li>Fiscalização de obras de infraestrutura nas rodovias estaduais e pontes sobre o Rio Potengi.</li>
                   </ul>

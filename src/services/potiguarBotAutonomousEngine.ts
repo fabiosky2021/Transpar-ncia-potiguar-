@@ -14,7 +14,6 @@ import {
   RelatoCidadao,
   AvaliacaoCandidatoItem,
   BoletimDiarioIA,
-  ROTAS_PASSE_LIVRE,
 } from '../data/platformData';
 import {
   CANDIDATOS_PRESIDENCIA_BRASIL_2026,
@@ -86,7 +85,7 @@ export function generateAutonomousPotiguarBotReply(
       suggestedActions: [
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
         'Onde está meu local de votação e qual documento levar?',
-        'Ver status do Passe Livre nos ônibus',
+        'Conhecer a Vitrine Oficial Fábio Kauã (Ofertas 11.11)',
       ],
       engineMode: 'autonomous-netlify',
     };
@@ -273,7 +272,7 @@ export function generateAutonomousPotiguarBotReply(
       : 'Imagem recebida no Estúdio de Criação Multimodal para análise visual e redação cívica.';
 
     return {
-      reply: `🎨 **Painel do Estúdio de Criação · Análise Visual Avançada Concluída:**\n\n${promptComplemento}\n\n• **1. Diagnóstico Visual & Leitura de Elementos:**\nA imagem foi processada pelo motor visual multimodal. Identificamos elementos gráficos de comunicação pública/eleitoral do Rio Grande do Norte. Quando for um panfleto ou cartaz de campanha, a legislação eleitoral (Res.-TSE nº 23.610) exige CNPJ da empresa responsável pela impressão, CNPJ do candidato ou partido e a tiragem oficial.\n\n• **2. Rastreabilidade & Contexto Eleitoral RN 2026:**\n- **2º Turno Governo RN:** Disputa entre **Allyson Bezerra (UNIÃO · 44 - 37%)** e **Carlos Eduardo Xavier / Cadu de Lula (PT · 13 - 32%)**.\n- **Passe Livre:** Caso a imagem seja de informativo ou rota de ônibus, o transporte é 100% gratuito das **06h00 às 20h00** em 62 linhas STTU Natal e Grande Natal (Decreto nº 35.935/2026).\n- **Trabalho & CLT:** Se contiver escalas de serviço ou contracheque, a **PEC 221/2019** que extingue a escala 6x1 está aprovada na CCJ do Senado e segue ao Plenário.\n\n• **3. Sugestão Criativa do Estúdio para Divulgação:**\n> *"🔍 Transparência Potiguar: Informação verificada e sem fake news para você votar com consciência e saber seus direitos! Passe Livre das 06h às 20h e checagem oficial no TSE."*\n\n«Fonte: PotiguarBot IA · Estúdio de Criação & Visão Computacional\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Imagem analisada · Proteção LGPD ativa»`,
+      reply: `🎨 **Painel do Estúdio de Criação · Análise Visual Avançada Concluída:**\n\n${promptComplemento}\n\n• **1. Diagnóstico Visual & Leitura de Elementos:**\nA imagem foi processada pelo motor visual multimodal. Identificamos elementos gráficos de comunicação pública e comercial. Para material eleitoral, a legislação exige CNPJ e tiragem; para campanhas promocionais, destaque elementos claros de CTA e benefícios.\n\n• **2. Rastreabilidade & Contexto:**\n- **2º Turno Governo RN:** Disputa entre **Allyson Bezerra (UNIÃO · 44 - 37%)** e **Carlos Eduardo Xavier / Cadu de Lula (PT · 13 - 32%)**.\n- **Vitrine de Afiliados:** Produtos verificados com 10s de urgência, segurança e entrega garantida na loja oficial de Fábio Kauã (collshp.com).\n- **Trabalho & CLT:** A **PEC 221/2019** que extingue a escala 6x1 está aprovada na CCJ do Senado e segue ao Plenário.\n\n• **3. Sugestão Criativa do Estúdio para Divulgação:**\n> *"🔍 Transparência & Conteúdo: Informação verificada e sem fake news para você votar com consciência, checar fatos e acessar compras seguras na vitrine oficial!"*\n\n«Fonte: PotiguarBot IA · Estúdio de Criação & Visão Computacional\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Imagem analisada · Proteção LGPD ativa»`,
       moderated: false,
       suggestedActions: [
         'Transformar esta análise visual em um post para Instagram',
@@ -355,13 +354,13 @@ export function generateAutonomousPotiguarBotReply(
 
     if (isRoteiro) {
       return {
-        reply: `🎙️ **Roteiro Profissional de Vídeo/Áudio (30 Segundos) · Estúdio Criativo:**\n\n**Título:** *Eleições RN 2026: Passe Livre e Seu Direito ao Voto*\n**Tom de Voz:** Confiante, acolhedor e informativo (Locução masculina clara)\n\n• **[00:00 - 00:07] Gancho Inicial (Atenção):**\n> *"Atenção eleitor de Natal e do Rio Grande do Norte! Você sabia que no dia da votação o ônibus é 100% gratuito das 6 da manhã até as 8 da noite?"*\n\n• **[00:07 - 00:18] Desenvolvimento (Fatos Verificados):**\n> *"São 62 linhas da STTU e transporte intermunicipal liberados sem precisar do cartão NuBus. E para o Governo do Estado, a disputa está no 2º Turno entre Allyson Bezerra, número 44, e Cadu de Lula, número 13."*\n\n• **[00:18 - 00:25] Transparência e Leis:**\n> *"E mais: a proposta pelo fim da escala 6x1 já foi aprovada na CCJ do Senado e segue para votação no Plenário."*\n\n• **[00:25 - 00:30] Chamada para Ação (CTA):**\n> *"Leve documento oficial com foto, consulte sua seção e exerça sua cidadania com consciência!"*\n\n«Fonte: Estúdio de Criação PotiguarBot IA\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Roteiro gerado para locução»`,
+        reply: `🎙️ **Roteiro Profissional de Vídeo/Áudio (30 Segundos) · Estúdio Criativo:**\n\n**Título:** *Transparência, Cidadania & Compras Seguras*\n**Tom de Voz:** Confiante, acolhedor e informativo (Locução masculina clara)\n\n• **[00:00 - 00:07] Gancho Inicial (Atenção):**\n> *"Atenção! Você já conferiu as novidades e análises de impacto no seu bolso hoje?"*\n\n• **[00:07 - 00:18] Desenvolvimento (Fatos Verificados):**\n> *"Acompanhe o monitoramento da Casa Branca, as checagens 24 horas no Radar Fato ou Fake e as ofertas verificadas com entrega segura na Loja Oficial de Fábio Kauã no CollabShop."*\n\n• **[00:18 - 00:25] Transparência e Leis:**\n> *"E mais: a proposta pelo fim da escala 6x1 (PEC 221/2019) segue em acompanhamento contínuo no Congresso Nacional."*\n\n• **[00:25 - 00:30] Chamada para Ação (CTA):**\n> *"Acesse nosso painel completo, use o estúdio de IA e participe da comunidade com transparência!"*\n\n«Fonte: Estúdio de Criação PotiguarBot IA\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Roteiro gerado para locução»`,
         moderated: false,
         suggestedActions: [
           'Ouvir este roteiro agora na voz natural do PotiguarBot',
           'Adaptar este roteiro para post carrossel do Instagram',
-          'Verificar linhas de ônibus gratuitas com Passe Livre',
-          'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+          'Conhecer a Vitrine Oficial Fábio Kauã (Ofertas 11.11)',
+          'Ver Radar Fato ou Fake 24h & Alertas Anti-Golpe',
         ],
         engineMode: 'autonomous-netlify',
       };
@@ -370,8 +369,8 @@ export function generateAutonomousPotiguarBotReply(
     return {
       reply: `📱 **Conteúdo Profissional Formatado para Redes Sociais & WhatsApp:**\n\n${
         isWpp
-          ? `📢 *PLANTÃO CÍVICO RN 2026 — COMPARTILHE COM A FAMÍLIA* 🗳️\n\n☀️ *O QUE VOCÊ PRECISA SABER HOJE:* \n\n1️⃣ *Passe Livre nos Ônibus:* Catraca liberada das 06h às 20h em 62 linhas de Natal e Grande Natal sem cartão NuBus.\n2️⃣ *2º Turno Governo RN:* Allyson Bezerra (44 - 37%) x Carlos Eduardo Xavier / Cadu de Lula (13 - 32%).\n3️⃣ *Trabalhador e CLT:* A PEC 221/2019 (fim da escala 6x1) foi APROVADA na CCJ do Senado e vai a Plenário!\n\n📍 *Lembrete:* Leve documento oficial com foto (RG, CNH ou e-Título). Horário de votação das 08h às 17h.\n\n🔗 *Acesse o painel completo:* https://transparenciapotiguar.rn.gov.br`
-          : `✨ **POST PARA REDES SOCIAIS (Instagram / Threads / LinkedIn)**\n\n**Legenda:**\nDemocracia se faz com informação limpa e checada! 🇧🇷🗳️\n\nNo Rio Grande do Norte, o 2º Turno mobiliza os cidadãos com propostas para infraestrutura (3ª Ponte sobre o Potengi) e educação em tempo integral (expansão da BR-304 e SUS Online).\n\nPara completar, o trabalhador brasileiro acompanha de perto a tramitação da **PEC 221/2019**, que extingue a escala 6x1 sem corte de salário, já aprovada na CCJ do Senado.\n\n🚌 *Lembrando: Passe Livre garantido em 62 linhas no dia das eleições!*\n\nQual tema é mais urgente para o seu bairro? Deixe nos comentários! 👇\n\n#TransparênciaPotiguar #Eleições2026 #RN #PasseLivre #CLT #PEC6x1 #Democracia`
+          ? `📢 *PLANTÃO DE TRANSPARÊNCIA & NOVIDADES — COMPARTILHE* 🗳️🛍️\n\n☀️ *O QUE VOCÊ PRECISA SABER HOJE:* \n\n1️⃣ *Vitrine Oficial & 11.11:* Achadinhos verificados e cupons seguros na loja de Fábio Kauã (CollabShop).\n2️⃣ *Casa Branca & Eleições EUA:* Acompanhe o Colégio Eleitoral (meta 270) e o impacto das tarifas no Brasil.\n3️⃣ *Trabalhador e CLT:* A PEC 221/2019 (fim da escala 6x1) segue em tramitação prioritária no Senado!\n\n🔗 *Acesse o painel completo:* https://collshp.com/fabiokaua692287?view=storefront`
+          : `✨ **POST PARA REDES SOCIAIS (Instagram / Threads / LinkedIn)**\n\n**Legenda:**\nInformação verificada, sem fake news e com foco no seu dia a dia! 🇧🇷🛍️\n\nNo nosso portal, você acompanha a totalização da Casa Branca nos EUA, a checagem de boatos em tempo real e a tramitação da **PEC 221/2019** sobre a jornada de trabalho.\n\nE para aproveitar a temporada de compras com segurança e cupons reais, conheça a Vitrine Oficial no CollabShop com entrega garantida!\n\nQual tema você quer ver detalhado no próximo boletim? Deixe nos comentários! 👇\n\n#Transparência #FatoOuFake #CLT #BlackFriday #CollabShop #Economia`
       }\n\n«Fonte: Estúdio de Criação PotiguarBot IA\nData: ${new Date().toLocaleDateString('pt-BR')}\nTipo: Análise da IA\nStatus: Conteúdo pronto para publicação»`,
       moderated: false,
       suggestedActions: [
@@ -400,7 +399,7 @@ export function generateAutonomousPotiguarBotReply(
       reply: `${infoSecao.mensagemBotFormatada}\n\n💡 **Dica Adicional:** Você pode digitar qualquer número de seção (ex: 015, 032, 058, 124, 210, 305) no módulo **Busca de Local de Votação** ou aqui mesmo no chat para consultar instantaneamente o colégio eleitoral, horário sugerido e linhas gratuitas.`,
       moderated: false,
       suggestedActions: [
-        `Quais linhas de ônibus gratuitas atendem o ${infoSecao.colegioEleitoral}?`,
+        'Ver candidatos a Presidente dos EUA e 270 Delegados',
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
         'Ver atualização da PEC 221/2019 (Fim da Escala 6x1)',
       ],
@@ -430,7 +429,7 @@ export function generateAutonomousPotiguarBotReply(
       suggestedActions: [
         'Comparar propostas de Presidente do Brasil (Lula 13 x Flávio Bolsonaro 22)',
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-        'Ver linhas de ônibus gratuitas (Passe Livre Natal/RN)',
+        'Ver Radar Fato ou Fake 24h & Alertas Anti-Golpe',
       ],
       engineMode: 'autonomous-netlify',
     };
@@ -514,7 +513,7 @@ export function generateAutonomousPotiguarBotReply(
       suggestedActions: [
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
         'Onde fica a seção eleitoral de Mãe Luíza (Seção 032)?',
-        'Ver linhas de ônibus gratuitas (Passe Livre Natal/RN)',
+        'Ver Radar Fato ou Fake 24h & Alertas Anti-Golpe',
       ],
       engineMode: 'autonomous-netlify',
     };
@@ -546,13 +545,13 @@ export function generateAutonomousPotiguarBotReply(
       suggestedActions: [
         'Resumo do Radar de Transparência (Fontes Oficiais TSE x Relatos)',
         'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
-        'Ver status do Passe Livre nos ônibus',
+        'Conhecer a Vitrine Oficial Fábio Kauã (Ofertas 11.11)',
       ],
       engineMode: 'autonomous-netlify',
     };
   }
 
-  // 8. Passe Livre e Transporte Público Gratuito em Natal e Grande Natal
+  // 8. Transporte Público em Natal e Grande Natal (Prazo de Passe Livre Eleitoral Encerrado)
   if (
     q.includes('ônibus') ||
     q.includes('onibus') ||
@@ -561,17 +560,12 @@ export function generateAutonomousPotiguarBotReply(
     q.includes('sttu') ||
     q.includes('transporte')
   ) {
-    const resumoRotas = ROTAS_PASSE_LIVRE.map(
-      (r) =>
-        `• **${r.zona} (${r.bairrosAtendidos}):** Linhas ${r.linhasPrincipais} — Operação: ${r.horarioOperacao} (Gratuito)`
-    ).join('\n');
-
     return {
-      reply: `🚌 **Passe Livre Confirmado nas Eleições RN 2026 (Natal e Região Metropolitana):**\n\nTodas as zonas de Natal operam com **100% de gratuidade das 06h00 às 20h00** (62 linhas urbanas da STTU, 1.836 viagens, sem exigir cartão NuBus) e transporte intermunicipal gratuito pelo **Decreto Estadual nº 35.935/2026**.\n\n${resumoRotas}\n\n«Fonte: STTU Natal, Governo do RN & Resolução-TSE nº 23.751/2026\nData: 06/10/2026\nTipo: Informação oficial\nStatus: Frota reforçada e catraca liberada confirmadas»`,
+      reply: `🚌 **Status do Transporte Público & Prazo de Passe Livre:**\n\nO benefício excepcional de passe livre no transporte coletivo (estabelecido para o dia de votação) teve seu **prazo encerrado**. Atualmente, todas as linhas urbanas da STTU e o transporte intermunicipal do RN operam em sua **programação convencional diária com tarifa regular e bilhetagem padrão**.\n\nPara novidades, compras seguras e cupons com entrega garantida, visite a nossa Vitrine Oficial de Afiliados (11.11 & Black Friday)!`,
       moderated: false,
       suggestedActions: [
-        'Onde está meu local de votação e qual documento levar?',
-        'Comparar propostas do 2º turno RN (Allyson 44 x Cadu de Lula 13)',
+        'Conhecer a Vitrine Oficial Fábio Kauã (Ofertas 11.11)',
+        'Ver candidatos a Presidente dos EUA e 270 Delegados',
         'Ver atualização da PEC 221/2019 (Fim da Escala 6x1)',
       ],
       engineMode: 'autonomous-netlify',
@@ -595,7 +589,7 @@ export function generateAutonomousPotiguarBotReply(
       'Ver candidatos a Presidente do Brasil e propostas federais',
       'Consultar atualização da PEC 221/2019 (Fim da Escala 6x1) e CLT',
       'Onde está meu local de votação e qual documento levar?',
-      'Quais linhas de ônibus têm Passe Livre no meu bairro?',
+      'Conhecer a Vitrine Oficial Fábio Kauã (Ofertas 11.11)',
     ],
     engineMode: 'autonomous-netlify',
   };
@@ -613,13 +607,13 @@ export function generateAutonomousDailyBulletin(): BoletimDiarioIA {
     id: `bol-auto-${Date.now()}`,
     dataReferencia: `Plantão 24h · Atualizado às ${hora}`,
     titulo:
-      'Plantão 24h RN: 2º Turno (Allyson 44 x Cadu de Lula 13), PEC 221/2019 (6x1) na CCJ e Passe Livre Confirmado',
+      'Plantão 24h: Eleições Presidenciais dos EUA, Radar Fato ou Fake 24h e Vitrine Oficial 11.11',
     statusTransporte:
-      'Catracas 100% liberadas das 06h às 20h nas 62 linhas urbanas da STTU Natal (sem exigir cartão NuBus) e linhas intermunicipais da Grande Natal pelo Decreto Estadual nº 35.935/2026.',
+      'Prazo Encerrado: O período especial de passe livre eleitoral no transporte coletivo foi concluído. Todas as linhas operam na programação diária convencional com tarifa regular.',
     resumoCandidatos:
-      'Allyson Bezerra (UNIÃO 44 - 37%) destaca 3ª ponte sobre o Rio Potengi e hospitais regionais; Carlos Eduardo Xavier / Cadu de Lula (PT 13 - 32%) foca em ensino integral, BR-304 e SUS com diagnósticos online alinhado a Mãe Luíza. No plano nacional, Lula (PT 13) e Flávio Bolsonaro (PL 22) disputam o 2º turno presidencial.',
+      'Acompanhamento completo da apuração da Casa Branca (meta de 270 delegados), checagem de fatos no Radar Fato ou Fake e tramitação da PEC 221/2019 (fim da escala 6x1) na CCJ do Senado.',
     fontesVerificadas:
-      'DivulgaCandContas TSE · TRE-RN · Senado Federal (PEC 221/2019) · STTU Natal',
+      'AP News · Reuters · DivulgaCandContas TSE · Senado Federal (PEC 221/2019)',
   };
 }
 

@@ -18,6 +18,8 @@ export interface USACandidate {
   }[];
 }
 
+export type VotingStatusCategory = 'Leaning Trump' | 'Toss-up' | 'Leaning Harris';
+
 export interface SwingState {
   id: string;
   code: string;
@@ -29,6 +31,7 @@ export interface SwingState {
   votesTrump: number;
   votesHarris: number;
   status: 'closed' | 'counting' | 'projected';
+  votingStatus: VotingStatusCategory;
   winnerId?: string;
   keyCounties: string;
   lastUpdate: string;
@@ -159,6 +162,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 3512400,
       votesHarris: 3388100,
       status: 'projected',
+      votingStatus: 'Leaning Trump',
       winnerId: 'donald-trump',
       keyCounties: 'Filadélfia, Allegheny (Pittsburgh), Bucks, Erie e Luzerne',
       lastUpdate: 'Projeção confirmada pela AP e Decision Desk HQ',
@@ -174,6 +178,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 2664000,
       votesHarris: 2548000,
       status: 'projected',
+      votingStatus: 'Leaning Trump',
       winnerId: 'donald-trump',
       keyCounties: 'Fulton (Atlanta), Gwinnett, Cobb, Cherokee e Chatham',
       lastUpdate: 'Projeção de 16 delegados para os republicanos',
@@ -189,6 +194,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 2879000,
       votesHarris: 2695000,
       status: 'projected',
+      votingStatus: 'Leaning Trump',
       winnerId: 'donald-trump',
       keyCounties: 'Mecklenburg (Charlotte), Wake (Raleigh) e Guilford',
       lastUpdate: 'Totalização de 16 delegados concluída',
@@ -204,6 +210,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 2804000,
       votesHarris: 2724000,
       status: 'projected',
+      votingStatus: 'Toss-up',
       winnerId: 'donald-trump',
       keyCounties: 'Wayne (Detroit), Oakland, Macomb e Kent (Grand Rapids)',
       lastUpdate: 'Polo automotivo decisivo nos 15 delegados',
@@ -219,6 +226,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 1761000,
       votesHarris: 1575000,
       status: 'projected',
+      votingStatus: 'Leaning Trump',
       winnerId: 'donald-trump',
       keyCounties: 'Maricopa (Phoenix) e Pima (Tucson)',
       lastUpdate: 'Fronteira sul consolidada na apuração',
@@ -234,6 +242,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 1697000,
       votesHarris: 1668000,
       status: 'projected',
+      votingStatus: 'Toss-up',
       winnerId: 'donald-trump',
       keyCounties: 'Milwaukee, Dane (Madison), Waukesha e Brown (Green Bay)',
       lastUpdate: 'Margem de menos de 1 ponto garantiu os 10 delegados',
@@ -249,6 +258,7 @@ export const INITIAL_USA_ELECTIONS_DATA: USAElectionsData = {
       votesTrump: 751000,
       votesHarris: 705000,
       status: 'projected',
+      votingStatus: 'Leaning Trump',
       winnerId: 'donald-trump',
       keyCounties: 'Clark (Las Vegas) e Washoe (Reno)',
       lastUpdate: 'Voto latino e trabalhadores de hotelaria definiram a votação',
