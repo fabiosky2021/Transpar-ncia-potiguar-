@@ -169,8 +169,15 @@ export default function App() {
 
     const unsubRelatos = onSnapshot(collection(db, 'relatos'), (snapshot) => {
       if (snapshot.empty) return;
-      const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as RelatoCidadao[];
-      setRelatos(docs.reverse());
+      const docs = snapshot.docs
+        .map((d) => ({ id: d.id, ...(d.data() as any) }))
+        .filter((d: any) => {
+          const txt = ((d.mensagem || '') + ' ' + (d.titulo || '')).toLowerCase();
+          return !txt.includes('ônibus') && !txt.includes('onibus') && !txt.includes('linha n-') && !txt.includes('passe livre') && !txt.includes('catraca') && !txt.includes('terminal');
+        }) as RelatoCidadao[];
+      if (docs.length > 0) {
+        setRelatos(docs.reverse());
+      }
     }, (error) => handleFirestoreError(error, OperationType.LIST, 'relatos'));
 
     const unsubAvaliacoes = onSnapshot(collection(db, 'avaliacoes'), (snapshot) => {
@@ -390,15 +397,12 @@ export default function App() {
   const [isSoundCenterOpen, setIsSoundCenterOpen] = useState<boolean>(false);
   const [isShopPopupOpen, setIsShopPopupOpen] = useState<boolean>(false);
 
-  // Exibe o pop-up da Loja de Afiliado (CollabShop Fábio Kauã com contagem de 10s e botão fechar)
+  // Exibe o pop-up da Campanha 11.11 & Black Friday (CollabShop Fábio Kauã)
   useEffect(() => {
-    const jaVistoShop = sessionStorage.getItem('popup_shop_fechado');
-    if (!jaVistoShop) {
-      const timer = setTimeout(() => {
-        setIsShopPopupOpen(true);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setIsShopPopupOpen(true);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSelectBottomTab = (tab: BottomNavTab) => {
@@ -1005,16 +1009,16 @@ export default function App() {
             {/* Monitor de Pessoas Acessando Agora (Tempo Real) */}
             <OnlineVisitorsBadge variant="header" />
 
-            {/* Botão de Destaque da Loja de Afiliado (CollabShop Fábio Kauã) */}
+            {/* Botão de Destaque da Campanha 11.11 & Black Friday (Abre Pop-up do Banner) */}
             <button
               type="button"
               onClick={() => setIsShopPopupOpen(true)}
-              title="Conhecer Minha Loja & Vitrine de Afiliado Oficial (CollabShop Fábio Kauã)"
-              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-[11px] sm:text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-sm active:scale-95 transition-all border border-emerald-400/50"
+              title="Ver Banner e Ofertas da Campanha 11.11 & Black Friday (CollabShop Fábio Kauã)"
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 hover:from-red-700 hover:to-orange-600 text-white text-[11px] sm:text-xs font-black inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-md active:scale-95 transition-all border border-yellow-300 animate-pulse"
             >
-              <span>🛍️</span>
-              <span className="font-extrabold">Meu Shop</span>
-              <span className="hidden md:inline font-medium text-emerald-100">Afiliado</span>
+              <Flame className="w-3.5 h-3.5 text-yellow-300 fill-current" />
+              <span className="font-extrabold">11.11 &amp; Black Friday</span>
+              <span className="hidden md:inline font-bold text-yellow-200">Ofertas</span>
             </button>
 
             <button

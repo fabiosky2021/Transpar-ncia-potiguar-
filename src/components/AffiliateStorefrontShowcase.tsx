@@ -19,6 +19,13 @@ import {
   Bike,
 } from 'lucide-react';
 import bannerBlackFridayImg from '../assets/images/banner_black_friday_promo_1793436552103.jpg';
+import shopeePosterImg from '../assets/images/shopee_11_11_black_friday.jpg';
+import {
+  MessageCircle,
+  Smartphone,
+  Send,
+  Eye,
+} from 'lucide-react';
 
 interface AffiliateStorefrontShowcaseProps {
   affiliateUrl?: string;
@@ -34,6 +41,9 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
   variant = 'card',
 }) => {
   const [copied, setCopied] = useState(false);
+  const [activeBannerTab, setActiveBannerTab] = useState<'shopee-poster' | 'banner-horizontal'>('shopee-poster');
+  const [copiedBio, setCopiedBio] = useState(false);
+  const [copiedWpp, setCopiedWpp] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{ hours: string; minutes: string; seconds: string }>({
     hours: '09',
     minutes: '59',
@@ -64,6 +74,39 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const bioText = `🔥 11.11 BLACK FRIDAY SHOPEE (SÓ AMANHÃ!)
+🎁 Até 70% OFF + Frete Grátis na minha vitrine
+👇 Garanta seus achadinhos antes que esgote:
+${affiliateUrl}`;
+
+  const whatsappMessage = `🚨 *É SÓ AMANHÃ! MEGA 11.11 BLACK FRIDAY SHOPEE* 🚨
+
+Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secretos do ano! 💥
+
+⚡ *O que tá rolando na vitrine:*
+✅ Até *70% de desconto real* em tecnologia, casa e produtos virais
+✅ *Frete Grátis* para todo o Brasil
+✅ Cupons acumulativos exclusivos da Shopee
+✅ Compras 100% seguras e verificadas
+
+⏳ *Atenção:* Os lotes com 70% OFF esgotam rápido! Não deixe para depois.
+
+👇 *Toque no link oficial e aproveite agora:*
+🔗 ${affiliateUrl}`;
+
+  const handleCopyBio = () => {
+    navigator.clipboard.writeText(bioText);
+    setCopiedBio(true);
+    setTimeout(() => setCopiedBio(false), 2500);
+  };
+
+  const handleCopyWpp = () => {
+    navigator.clipboard.writeText(whatsappMessage);
+    setCopiedWpp(true);
+    setTimeout(() => setCopiedWpp(false), 2500);
+  };
+
+  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappMessage)}`;
   const domainDisplay = 'collshp.com/fabiokaua692287';
 
   // Compact Variant (e.g. for sidebars, cards, candidate profiles)
@@ -164,86 +207,244 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
         )}
       </div>
 
-      {/* BANNER PROMOCIONAL HORIZONTAL 11.11 & BLACK FRIDAY (ALTA RESOLUÇÃO) */}
-      <div className="relative rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl bg-gradient-to-br from-red-950 via-slate-950 to-orange-950 group">
-        <div className="relative aspect-[16/9] w-full max-h-[460px] overflow-hidden">
-          <img
-            src={bannerBlackFridayImg}
-            alt="Banner Promocional 11.11 e Black Friday com Mountain Bike, Máquina de Cortar Cabelo, Escova Elétrica e Suporte de Cabeça"
-            className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-[1.02]"
-          />
-          {/* Subtle gradient vignette at bottom for mobile legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 pointer-events-none" />
+      {/* Seletor de visualização do Material Promocional */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-color)]">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveBannerTab('shopee-poster')}
+            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-1.5 ${
+              activeBannerTab === 'shopee-poster'
+                ? 'bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 text-white shadow-md'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-color)] bg-[var(--card-bg)]'
+            }`}
+          >
+            <Flame className="w-3.5 h-3.5" />
+            <span>Poster Shopee 11.11 (Só Amanhã)</span>
+          </button>
 
-          {/* Quick Floating Action Overlay */}
-          <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
-            <a
-              href={bannerBlackFridayImg}
-              download="banner-11-11-black-friday-alta-resolucao.jpg"
-              title="Baixar imagem do banner em alta resolução"
-              className="px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold backdrop-blur-md border border-white/20 inline-flex items-center gap-1.5 shadow-lg no-underline cursor-pointer transition-all active:scale-95"
-            >
-              <Download className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Baixar Banner HD</span>
-            </a>
-          </div>
+          <button
+            type="button"
+            onClick={() => setActiveBannerTab('banner-horizontal')}
+            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-1.5 ${
+              activeBannerTab === 'banner-horizontal'
+                ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-md'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-color)] bg-[var(--card-bg)]'
+            }`}
+          >
+            <Bike className="w-3.5 h-3.5 text-orange-400" />
+            <span>Banner Horizontal (Mountain Bike)</span>
+          </button>
+        </div>
 
-          <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-3 z-10">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 animate-pulse">
-                <Flame className="w-3.5 h-3.5 fill-current" />
-                11.11 + Black Friday
-              </span>
-              <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md text-yellow-300 font-mono text-xs font-black border border-yellow-500/40 flex items-center gap-1.5 shadow">
-                <Clock className="w-3.5 h-3.5 text-yellow-400" />
-                <span>EXPIRA EM: {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</span>
+        {onOpenPopup && (
+          <button
+            type="button"
+            onClick={onOpenPopup}
+            className="px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 text-orange-600 dark:text-orange-400 font-bold text-xs border border-orange-500/30 transition-all cursor-pointer flex items-center gap-1.5 ml-auto"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>Abrir Pop-up de Tela Inteira</span>
+          </button>
+        )}
+      </div>
+
+      {/* RENDERIZADOR: POSTER SHOPEE 11.11 OU BANNER HORIZONTAL */}
+      {activeBannerTab === 'shopee-poster' ? (
+        <div className="relative rounded-3xl overflow-hidden border-2 border-orange-500/60 shadow-2xl bg-gradient-to-b from-red-950 via-orange-950 to-slate-950 p-3 sm:p-5">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+            {/* Coluna Visual do Poster */}
+            <div className="md:col-span-5 relative group rounded-2xl overflow-hidden border border-orange-500/40 shadow-xl bg-black">
+              <img
+                src={shopeePosterImg}
+                alt="11.11 Black Friday Shopee - Só Amanhã Só Na Minha Vitrine com até 70% OFF e Frete Grátis"
+                className="w-full h-auto max-h-[460px] object-contain object-center transform transition-transform duration-500 group-hover:scale-105"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/assets/aistudio/IMG-20261110-WA1186_a5f1944d.jpg';
+                }}
+              />
+              <div className="absolute top-2.5 right-2.5">
+                <a
+                  href={shopeePosterImg}
+                  download="shopee-11-11-black-friday-fabiokaua.jpg"
+                  title="Baixar imagem original do banner para postar nos stories e status"
+                  className="px-2.5 py-1.5 rounded-xl bg-black/75 hover:bg-black text-yellow-300 text-xs font-bold backdrop-blur-md border border-white/20 inline-flex items-center gap-1 shadow-md"
+                >
+                  <Download className="w-3 h-3" />
+                  <span>Baixar</span>
+                </a>
               </div>
             </div>
 
-            <a
-              href={affiliateUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 hover:from-orange-600 hover:to-amber-600 text-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-xl shadow-orange-950/50 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 no-underline cursor-pointer border border-yellow-300"
-            >
-              <span>Compre Agora na Vitrine</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
+            {/* Coluna de Ações & Textos Prontos para Bio e WhatsApp */}
+            <div className="md:col-span-7 space-y-4">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-0.5 rounded-full bg-red-600 text-white font-black text-xs uppercase tracking-wider animate-pulse flex items-center gap-1">
+                    <Flame className="w-3 h-3 fill-current" />
+                    Promoção 11.11 · Só Amanhã
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 font-mono text-xs font-bold border border-yellow-500/40">
+                    Expira em {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}
+                  </span>
+                </div>
+                <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
+                  11.11 Black Friday Shopee na Vitrine de Fábio Kauã
+                </h4>
+                <p className="text-xs text-orange-200/90 leading-relaxed">
+                  Material oficial com até <strong>70% OFF</strong> e <strong>Frete Grátis</strong>. Use os botões abaixo para copiar o texto pronto da Bio do Instagram ou disparar nos grupos e status do WhatsApp com 1 toque!
+                </p>
+              </div>
 
-        {/* Barra de Vantagens Competitivas & Produtos em Destaque no Banner */}
-        <div className="p-3.5 sm:p-4 bg-slate-900/95 border-t border-orange-500/30 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs text-gray-200">
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
-            <Bike className="w-5 h-5 text-orange-400 shrink-0" />
-            <div className="min-w-0">
-              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Mountain Bike MTB</div>
-              <div className="text-[10px] text-orange-300 truncate">Destaque Central</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
-            <Sparkles className="w-5 h-5 text-yellow-400 shrink-0" />
-            <div className="min-w-0">
-              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Máquina &amp; Escova</div>
-              <div className="text-[10px] text-yellow-300 truncate">Cards Flutuantes 3D</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
-            <Truck className="w-5 h-5 text-emerald-400 shrink-0" />
-            <div className="min-w-0">
-              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Frete Grátis Brasil</div>
-              <div className="text-[10px] text-emerald-300 truncate">Itens Selecionados</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
-            <CreditCard className="w-5 h-5 text-cyan-400 shrink-0" />
-            <div className="min-w-0">
-              <div className="font-extrabold text-white text-[11px] leading-tight truncate">Até 12x Sem Juros</div>
-              <div className="text-[10px] text-cyan-300 truncate">Facilidade de Pagamento</div>
+              {/* Botões de Ação Imediata */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <a
+                  href={affiliateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 hover:from-orange-600 hover:to-amber-600 text-black font-black text-xs uppercase tracking-wide flex items-center justify-center gap-2 shadow-xl no-underline transition-transform active:scale-95 border border-yellow-300"
+                >
+                  <span>Ver Vitrine Agora</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+
+                <a
+                  href={whatsappShareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs flex items-center justify-center gap-2 shadow-xl no-underline transition-transform active:scale-95"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Enviar para WhatsApp</span>
+                  <Send className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              {/* Caixa Rápida para Copiar Bio */}
+              <div className="p-3 rounded-xl bg-black/60 border border-orange-500/30 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-orange-300 flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Texto Pronto para a Bio (Instagram / TikTok)</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyBio}
+                    className="px-2.5 py-1 rounded-lg bg-orange-500 hover:bg-orange-600 text-black font-bold text-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    {copiedBio ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedBio ? 'Copiado!' : 'Copiar Bio'}</span>
+                  </button>
+                </div>
+                <div className="p-2 rounded-lg bg-black/80 font-mono text-[11px] text-gray-300 whitespace-pre-wrap">
+                  {bioText}
+                </div>
+              </div>
+
+              {/* Caixa Rápida para Copiar Mensagem de WhatsApp */}
+              <div className="p-3 rounded-xl bg-black/60 border border-emerald-500/30 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>Texto para Grupos &amp; Status do WhatsApp</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyWpp}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    {copiedWpp ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedWpp ? 'Copiado!' : 'Copiar Texto'}</span>
+                  </button>
+                </div>
+                <div className="p-2 rounded-lg bg-black/80 font-mono text-[11px] text-gray-300 whitespace-pre-wrap max-h-24 overflow-y-auto">
+                  {whatsappMessage}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        /* BANNER HORIZONTAL 11.11 & BLACK FRIDAY COM MOUNTAIN BIKE */
+        <div className="relative rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl bg-gradient-to-br from-red-950 via-slate-950 to-orange-950 group">
+          <div className="relative aspect-[16/9] w-full max-h-[460px] overflow-hidden">
+            <img
+              src={bannerBlackFridayImg}
+              alt="Banner Promocional 11.11 e Black Friday com Mountain Bike, Máquina de Cortar Cabelo, Escova Elétrica e Suporte de Cabeça"
+              className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-[1.02]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 pointer-events-none" />
+
+            {/* Quick Floating Action Overlay */}
+            <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+              <a
+                href={bannerBlackFridayImg}
+                download="banner-11-11-black-friday-alta-resolucao.jpg"
+                title="Baixar imagem do banner em alta resolução"
+                className="px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold backdrop-blur-md border border-white/20 inline-flex items-center gap-1.5 shadow-lg no-underline cursor-pointer transition-all active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Baixar Banner HD</span>
+              </a>
+            </div>
+
+            <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-3 z-10">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 animate-pulse">
+                  <Flame className="w-3.5 h-3.5 fill-current" />
+                  11.11 + Black Friday
+                </span>
+                <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md text-yellow-300 font-mono text-xs font-black border border-yellow-500/40 flex items-center gap-1.5 shadow">
+                  <Clock className="w-3.5 h-3.5 text-yellow-400" />
+                  <span>EXPIRA EM: {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</span>
+                </div>
+              </div>
+
+              <a
+                href={affiliateUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 hover:from-orange-600 hover:to-amber-600 text-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-xl shadow-orange-950/50 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 no-underline cursor-pointer border border-yellow-300"
+              >
+                <span>Compre Agora na Vitrine</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+
+          {/* Barra de Vantagens Competitivas & Produtos em Destaque no Banner */}
+          <div className="p-3.5 sm:p-4 bg-slate-900/95 border-t border-orange-500/30 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs text-gray-200">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+              <Bike className="w-5 h-5 text-orange-400 shrink-0" />
+              <div className="min-w-0">
+                <div className="font-extrabold text-white text-[11px] leading-tight truncate">Mountain Bike MTB</div>
+                <div className="text-[10px] text-orange-300 truncate">Destaque Central</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+              <Sparkles className="w-5 h-5 text-yellow-400 shrink-0" />
+              <div className="min-w-0">
+                <div className="font-extrabold text-white text-[11px] leading-tight truncate">Máquina &amp; Escova</div>
+                <div className="text-[10px] text-yellow-300 truncate">Cards Flutuantes 3D</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+              <Truck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div className="min-w-0">
+                <div className="font-extrabold text-white text-[11px] leading-tight truncate">Frete Grátis Brasil</div>
+                <div className="text-[10px] text-emerald-300 truncate">Itens Selecionados</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+              <CreditCard className="w-5 h-5 text-cyan-400 shrink-0" />
+              <div className="min-w-0">
+                <div className="font-extrabold text-white text-[11px] leading-tight truncate">Até 12x Sem Juros</div>
+                <div className="text-[10px] text-cyan-300 truncate">Facilidade de Pagamento</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Barra de Acesso Rápido à Vitrine de Afiliado */}
       <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-[#0a5c43] text-white shadow-xl border border-emerald-400/40 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
