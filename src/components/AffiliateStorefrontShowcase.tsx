@@ -74,22 +74,22 @@ export const AffiliateStorefrontShowcase: React.FC<AffiliateStorefrontShowcasePr
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const bioText = `🔥 11.11 BLACK FRIDAY SHOPEE (SÓ AMANHÃ!)
+  const bioText = `🔥 11.11 BLACK FRIDAY SHOPEE (É HOJE! SÓ HOJE!)
 🎁 Até 70% OFF + Frete Grátis na minha vitrine
 👇 Garanta seus achadinhos antes que esgote:
 ${affiliateUrl}`;
 
-  const whatsappMessage = `🚨 *É SÓ AMANHÃ! MEGA 11.11 BLACK FRIDAY SHOPEE* 🚨
+  const whatsappMessage = `🚨 *É HOJE! MEGA 11.11 BLACK FRIDAY SHOPEE LIBERADA!* 🚨
 
 Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secretos do ano! 💥
 
-⚡ *O que tá rolando na vitrine:*
+⚡ *O que tá rolando na vitrine HOJE:*
 ✅ Até *70% de desconto real* em tecnologia, casa e produtos virais
 ✅ *Frete Grátis* para todo o Brasil
 ✅ Cupons acumulativos exclusivos da Shopee
 ✅ Compras 100% seguras e verificadas
 
-⏳ *Atenção:* Os lotes com 70% OFF esgotam rápido! Não deixe para depois.
+⏳ *Atenção:* Os lotes com 70% OFF são válidos SÓ HOJE e esgotam rápido!
 
 👇 *Toque no link oficial e aproveite agora:*
 🔗 ${affiliateUrl}`;
@@ -220,7 +220,7 @@ Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secret
             }`}
           >
             <Flame className="w-3.5 h-3.5" />
-            <span>Poster Shopee 11.11 (Só Amanhã)</span>
+            <span>Poster Shopee 11.11 (É HOJE!)</span>
           </button>
 
           <button
@@ -255,15 +255,23 @@ Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secret
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
             {/* Coluna Visual do Poster */}
             <div className="md:col-span-5 relative group rounded-2xl overflow-hidden border border-orange-500/40 shadow-xl bg-black">
+              {/* Badge Dinâmico em Destaque: É HOJE! */}
+              <div className="absolute top-2.5 left-2.5 z-20">
+                <span className="px-3 py-1 rounded-full bg-red-600 text-white font-black text-[11px] uppercase tracking-wider shadow-xl flex items-center gap-1 border border-yellow-300 animate-pulse">
+                  <Flame className="w-3.5 h-3.5 fill-current text-yellow-300" />
+                  É HOJE! SÓ HOJE
+                </span>
+              </div>
+
               <img
                 src={shopeePosterImg}
-                alt="11.11 Black Friday Shopee - Só Amanhã Só Na Minha Vitrine com até 70% OFF e Frete Grátis"
+                alt="11.11 Black Friday Shopee - É HOJE! Só Hoje Na Minha Vitrine com até 70% OFF e Frete Grátis"
                 className="w-full h-auto max-h-[460px] object-contain object-center transform transition-transform duration-500 group-hover:scale-105"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = '/assets/aistudio/IMG-20261110-WA1186_a5f1944d.jpg';
                 }}
               />
-              <div className="absolute top-2.5 right-2.5">
+              <div className="absolute top-2.5 right-2.5 z-20">
                 <a
                   href={shopeePosterImg}
                   download="shopee-11-11-black-friday-fabiokaua.jpg"
@@ -280,19 +288,19 @@ Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secret
             <div className="md:col-span-7 space-y-4">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-0.5 rounded-full bg-red-600 text-white font-black text-xs uppercase tracking-wider animate-pulse flex items-center gap-1">
+                  <span className="px-3 py-0.5 rounded-full bg-gradient-to-r from-red-600 to-orange-600 text-white font-black text-xs uppercase tracking-wider animate-pulse flex items-center gap-1">
                     <Flame className="w-3 h-3 fill-current" />
-                    Promoção 11.11 · Só Amanhã
+                    Promoção 11.11 · É HOJE!
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 font-mono text-xs font-bold border border-yellow-500/40">
-                    Expira em {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}
+                    Encerra em {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}
                   </span>
                 </div>
                 <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
-                  11.11 Black Friday Shopee na Vitrine de Fábio Kauã
+                  11.11 Black Friday Shopee na Vitrine de Fábio Kauã · É HOJE!
                 </h4>
                 <p className="text-xs text-orange-200/90 leading-relaxed">
-                  Material oficial com até <strong>70% OFF</strong> e <strong>Frete Grátis</strong>. Use os botões abaixo para copiar o texto pronto da Bio do Instagram ou disparar nos grupos e status do WhatsApp com 1 toque!
+                  Material oficial com até <strong>70% OFF</strong> e <strong>Frete Grátis</strong> liberado <strong>HOJE</strong> na vitrine oficial. Use os botões abaixo para copiar o texto pronto da Bio do Instagram ou disparar nos grupos e status do WhatsApp com 1 toque!
                 </p>
               </div>
 

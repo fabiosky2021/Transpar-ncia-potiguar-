@@ -142,28 +142,28 @@ export const ShopStorefrontPopup: React.FC<ShopStorefrontPopupProps> = ({
   };
 
   // Textos formatados para Bio e WhatsApp prontos para copiar e colar
-  const bioText = `🔥 11.11 BLACK FRIDAY SHOPEE (SÓ AMANHÃ!)
+  const bioText = `🔥 11.11 BLACK FRIDAY SHOPEE (É HOJE! SÓ HOJE!)
 🎁 Até 70% OFF + Frete Grátis na minha vitrine
 👇 Garanta seus achadinhos antes que esgote:
 ${storefrontUrl}`;
 
-  const whatsappMessage = `🚨 *É SÓ AMANHÃ! MEGA 11.11 BLACK FRIDAY SHOPEE* 🚨
+  const whatsappMessage = `🚨 *É HOJE! MEGA 11.11 BLACK FRIDAY SHOPEE LIBERADA!* 🚨
 
 Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secretos do ano! 💥
 
-⚡ *O que tá rolando na vitrine:*
+⚡ *O que tá rolando na vitrine HOJE:*
 ✅ Até *70% de desconto real* em tecnologia, casa e produtos virais
 ✅ *Frete Grátis* para todo o Brasil
 ✅ Cupons acumulativos exclusivos da Shopee
 ✅ Compras 100% seguras e verificadas
 
-⏳ *Atenção:* Os lotes com 70% OFF esgotam rápido! Não deixe para depois.
+⏳ *Atenção:* Os lotes com 70% OFF são válidos SÓ HOJE e esgotam rápido!
 
 👇 *Toque no link oficial e aproveite agora:*
 🔗 ${storefrontUrl}`;
 
   const storiesScript = `[STORIES COM FIGURINHA DE LINK]:
-"Gente, para tudo! É SÓ AMANHÃ a Mega 11.11 Black Friday da Shopee! Liberei na minha vitrine cupons de até 70% OFF e Frete Grátis. Clica no link da figurinha agora antes que acabe o estoque!"
+"Gente, para tudo! É HOJE a Mega 11.11 Black Friday da Shopee! Liberei na minha vitrine cupons de até 70% OFF e Frete Grátis. Clica no link da figurinha agora antes que acabe o estoque!"
 🔗 Link da figurinha: ${storefrontUrl}`;
 
   const handleCopy = (text: string, type: 'url' | 'bio' | 'whatsapp' | 'stories') => {
@@ -197,7 +197,7 @@ Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secret
             <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-ping" />
             <span className="font-black text-amber-300 flex items-center gap-1.5 uppercase tracking-wider text-[10px] sm:text-[11px]">
               <Flame className="w-3.5 h-3.5 text-orange-500 fill-current" />
-              11.11 Shopee Black Friday · Só Amanhã!
+              11.11 Shopee Black Friday · É Hoje! Só Hoje!
             </span>
           </div>
 
@@ -288,23 +288,31 @@ Acabei de liberar na minha vitrine oficial os maiores achadinhos e cupons secret
                 <div className="relative w-full max-h-[500px] flex items-center justify-center bg-black/60 overflow-hidden">
                   <img
                     src={currentPosterSrc}
-                    alt="11.11 Black Friday Shopee - Só Amanhã Só Na Minha Vitrine com até 70% OFF e Frete Grátis"
+                    alt="11.11 Black Friday Shopee - É HOJE! Só Hoje Na Minha Vitrine com até 70% OFF e Frete Grátis"
                     className="w-full h-auto max-h-[500px] object-contain object-center transform transition-transform duration-700 group-hover:scale-[1.02]"
                     onError={() => {
                       setCurrentPosterSrc('/assets/aistudio/IMG-20261110-WA1186_a5f1944d.jpg');
                     }}
                   />
 
+                  {/* Faixa Chamativa de Correção em Tempo Real: É HOJE! */}
+                  <div className="absolute top-12 sm:top-14 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none w-[92%] sm:w-auto">
+                    <div className="bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-white font-black text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-2xl border-2 border-yellow-300 uppercase tracking-wider text-center flex items-center justify-center gap-2 animate-bounce">
+                      <Flame className="w-4 h-4 fill-current text-yellow-200" />
+                      <span>É HOJE! AS PROMOÇÕES JÁ ESTÃO VALENDO!</span>
+                    </div>
+                  </div>
+
                   {/* Badges Flutuantes Dinâmicos */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
-                    <span className="px-3 py-1 rounded-full bg-red-600/90 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse">
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none z-10">
+                    <span className="px-3 py-1 rounded-full bg-gradient-to-r from-red-600 to-orange-600 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5 backdrop-blur-md border border-white/20 animate-pulse">
                       <Flame className="w-3.5 h-3.5 fill-current text-yellow-300" />
-                      SÓ AMANHÃ · 11.11
+                      É HOJE · 11.11
                     </span>
 
                     <span className="px-3 py-1 rounded-full bg-black/85 backdrop-blur-md text-yellow-300 font-mono text-xs font-black border border-yellow-500/50 flex items-center gap-1.5 shadow-md">
                       <Clock className="w-3.5 h-3.5 text-yellow-400" />
-                      <span>EXPIRA EM: {promoClock.hours}:{promoClock.minutes}:{promoClock.seconds}</span>
+                      <span>ENCERRA EM: {promoClock.hours}:{promoClock.minutes}:{promoClock.seconds}</span>
                     </span>
                   </div>
 
